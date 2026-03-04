@@ -43,6 +43,17 @@ export default function Home() {
       return;
     }
 
+    // Verificar si Supabase está configurado
+    if (!supabase) {
+      console.warn("Supabase no configurado, usando modo demo para contacto");
+      setContactSent(true);
+      setContactName("");
+      setContactEmail("");
+      setContactMessage("");
+      setTimeout(() => setContactSent(false), 5000);
+      return;
+    }
+
     try {
       const { error } = await supabase
         .from("contacts")

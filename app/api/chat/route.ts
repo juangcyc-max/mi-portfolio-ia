@@ -18,7 +18,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Mensaje requerido" }, { status: 400 });
     }
 
-    // URL limpia sin espacios al final
+    // ✅ URL LIMPIA - Sin espacios al final
     const modelUrl = "https://router.huggingface.co/hf-inference/models/gpt2";
 
     const response = await fetch(modelUrl, {
@@ -55,19 +55,23 @@ export async function POST(request: Request) {
       text = `[Demo] Recibí: "${message}". En producción, una IA real respondería sobre mis servicios de desarrollo web, integración de IA y marketing digital.`;
     }
 
-    // Guardar consulta en Supabase (async, sin bloquear la respuesta)
-    supabase
-      .from("chat_queries")
-      .insert({
-        user_message: message,
-        ai_response: text,
-        status: response.ok ? "success" : "fallback"
-      })
-      .then(({ error }) => {
-        if (error) {
-          console.error("Error guardando en Supabase:", error.message);
-        }
-      });
+    // ✅ Guardar en Supabase SOLO si el cliente está configurado
+    if (supabase) {
+      supabase
+        .from("chat_queries")
+        .insert({
+          user_message: message,
+          ai_response: text,
+          status: response.ok ? "success" : "fallback"
+        })
+        .then(({ error }) => {
+          if (error) {
+            console.error("Error guardando en Supabase:", error.message);
+          }
+        });
+    } else {
+      console.warn("Supabase no configurado, omitiendo guardado de consulta");
+    }
 
     return NextResponse.json({ response: text });
     
@@ -75,15 +79,17 @@ export async function POST(request: Request) {
     // Fallback en caso de error crítico
     const demoResponse = "[Demo] Estoy en modo demostración. En producción, conectaré con IA real para asistir a tus clientes. ¿En qué puedo ayudarte hoy?";
     
-    // Intentar guardar el error en Supabase
-    try {
-      await supabase.from("chat_queries").insert({
-        user_message: "ERROR",
-        ai_response: demoResponse,
-        status: "error"
-      });
-    } catch (dbError) {
-      console.error("Error guardando error en Supabase:", dbError);
+    // ✅ Intentar guardar el error SOLO si Supabase está disponible
+    if (supabase) {
+      try {
+        await supabase.from("chat_queries").insert({
+          user_message: "ERROR",
+          ai_response: demoResponse,
+          status: "error"
+        });
+      } catch (dbError) {
+        console.error("Error guardando error en Supabase:", dbError);
+      }
     }
     
     return NextResponse.json({ response: demoResponse }, { status: 200 });
