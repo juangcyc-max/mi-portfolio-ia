@@ -9,17 +9,18 @@ const inter = Inter({
   variable: '--font-inter',
 });
 
-// Viewport se define por separado en las versiones recientes de Next.js
+// Viewport para móviles y PWA
 export const viewport: Viewport = {
   themeColor: "#0f172a", // Color de la barra de navegación en móviles (slate-900)
   width: "device-width",
   initialScale: 1,
+  maximumScale: 1,
 };
 
 export const metadata: Metadata = {
   title: {
     default: "MINDBRIDGE IA | Desarrollo Web y Automatizaciones con IA",
-    template: "%s | MINDBRIDGE IA" // Permite títulos dinámicos en subpáginas
+    template: "%s | MINDBRIDGE IA"
   },
   description: "Especialista en Web + IA. Ayudo a emprendedores a automatizar procesos con soluciones inteligentes y código escalable.",
   keywords: [
@@ -32,20 +33,20 @@ export const metadata: Metadata = {
   ],
   authors: [{ name: "Juan Gutiérrez de la Concha de la Cuesta" }],
   creator: "Juan Gutiérrez de la Concha",
-  metadataBase: new URL("https://tu-dominio.com"), // Cambia esto por tu URL real
+  metadataBase: new URL("https://mi-portfolio-ia-rpbw.vercel.app"),
   alternates: {
     canonical: "/",
   },
   openGraph: {
     title: "MINDBRIDGE IA | Desarrollo Web y Automatizaciones con IA",
     description: "Desarrollo Web y Automatizaciones con IA Integrada para Empresas. Potencia tu negocio con tecnología de vanguardia.",
-    url: "https://tu-dominio.com",
+    url: "https://mi-portfolio-ia-rpbw.vercel.app",
     siteName: "MINDBRIDGE IA",
     locale: "es_ES",
     type: "website",
     images: [
       {
-        url: "/og-image.png", // Asegúrate de tener esta imagen en tu carpeta /public
+        url: "/og-image.png",
         width: 1200,
         height: 630,
         alt: "MINDBRIDGE IA - Desarrollo Web e IA",
@@ -56,13 +57,23 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "MINDBRIDGE IA",
     description: "Soluciones de IA y Desarrollo Web de alto rendimiento.",
-    creator: "@tu_usuario", // Opcional
     images: ["/og-image.png"],
   },
   icons: {
     icon: "/favicon.ico",
     shortcut: "/favicon-16x16.png",
     apple: "/apple-touch-icon.png",
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
   },
 };
 
@@ -72,15 +83,17 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="es" suppressHydrationWarning>
+    <html lang="es" className="dark" suppressHydrationWarning>
       <body 
         className={`
           ${inter.variable} 
           ${inter.className} 
           antialiased 
-          bg-gradient-to-br from-slate-900 via-slate-800 to-emerald-900 
+          bg-slate-50 dark:bg-slate-900 
+          text-slate-900 dark:text-slate-100
           min-h-screen 
           selection:bg-emerald-500/30 selection:text-emerald-200
+          transition-colors duration-300
         `}
       >
         {children}
