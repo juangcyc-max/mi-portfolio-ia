@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { motion } from "framer-motion";
 import { supabase } from "@/lib/supabaseClient";
 
 export default function Home() {
@@ -43,9 +44,7 @@ export default function Home() {
       return;
     }
 
-    // Verificar si Supabase está configurado
     if (!supabase) {
-      console.warn("Supabase no configurado, usando modo demo para contacto");
       setContactSent(true);
       setContactName("");
       setContactEmail("");
@@ -77,22 +76,177 @@ export default function Home() {
     }
   };
 
-  return (
-    <div className="min-h-screen p-8 bg-gray-50">
-      <div className="max-w-2xl mx-auto">
-        <h1 className="text-3xl font-bold text-center mb-8 text-gray-800">
-          Desarrollador Web con IA
-        </h1>
+  // Animaciones
+  const fadeInUp = {
+    hidden: { opacity: 0, y: 60 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.6 } }
+  };
 
-        {/* Chat Section */}
-        <div className="bg-white rounded-lg shadow-lg p-6 mb-8">
-          <h2 className="text-xl font-semibold mb-4 text-gray-700">
+  const staggerContainer = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.2
+      }
+    }
+  };
+
+  const scaleIn = {
+    hidden: { opacity: 0, scale: 0.8 },
+    visible: { opacity: 1, scale: 1, transition: { duration: 0.5 } }
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-emerald-900">
+      {/* Hero Section */}
+      <motion.section 
+        className="container mx-auto px-4 py-20"
+        initial="hidden"
+        animate="visible"
+        variants={staggerContainer}
+      >
+        <motion.div className="text-center" variants={fadeInUp}>
+          {/* Logo Placeholder */}
+          <motion.div 
+            className="mb-8 flex justify-center"
+            variants={scaleIn}
+            whileHover={{ scale: 1.05 }}
+          >
+            <div className="w-40 h-40 bg-gradient-to-br from-emerald-400 to-cyan-500 rounded-full flex items-center justify-center shadow-2xl shadow-emerald-500/50">
+              <span className="text-6xl font-bold text-slate-900">M</span>
+            </div>
+          </motion.div>
+
+          <motion.h1 
+            className="text-5xl md:text-6xl font-bold mb-4 bg-gradient-to-r from-emerald-400 via-cyan-400 to-emerald-400 bg-clip-text text-transparent"
+            variants={fadeInUp}
+          >
+            MINDBRIDGE IA
+          </motion.h1>
+
+          <motion.p 
+            className="text-xl md:text-2xl text-slate-300 mb-6"
+            variants={fadeInUp}
+          >
+            Desarrollo Web y Automatizaciones con IA Integrada para Empresas
+          </motion.p>
+
+          <motion.div 
+            className="bg-slate-800/50 backdrop-blur-sm rounded-lg p-6 max-w-2xl mx-auto border border-slate-700"
+            variants={fadeInUp}
+          >
+            <p className="text-slate-400 text-lg">
+              <span className="text-emerald-400 font-semibold">Juan Gutiérrez de la Concha de la Cuesta</span>
+              <br />
+              Especialista en Web + IA
+            </p>
+            <p className="text-slate-500 mt-4">
+              Ayudo a emprendedores a automatizar sus procesos con soluciones web inteligentes. 
+              Combino código limpio con inteligencia artificial para crear productos que escalan.
+            </p>
+          </motion.div>
+        </motion.div>
+      </motion.section>
+
+      {/* Services Section */}
+      <motion.section 
+        className="container mx-auto px-4 py-16"
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true }}
+        variants={staggerContainer}
+      >
+        <motion.h2 
+          className="text-3xl md:text-4xl font-bold text-center mb-12 text-white"
+          variants={fadeInUp}
+        >
+          Servicios
+        </motion.h2>
+
+        <div className="grid md:grid-cols-3 gap-8">
+          {[
+            {
+              title: "Desarrollo Web Profesional",
+              description: "Sitios web modernos, rápidos y optimizados con las últimas tecnologías.",
+              icon: "🌐"
+            },
+            {
+              title: "Integración de IA",
+              description: "Automatiza procesos y mejora la experiencia de usuario con inteligencia artificial.",
+              icon: "🤖"
+            },
+            {
+              title: "Automatizaciones",
+              description: "Flujos de trabajo automatizados que ahorran tiempo y reducen errores.",
+              icon: "⚡"
+            }
+          ].map((service, index) => (
+            <motion.div
+              key={index}
+              className="bg-slate-800/50 backdrop-blur-sm rounded-xl p-8 border border-slate-700 hover:border-emerald-500/50 transition-all duration-300 hover:shadow-2xl hover:shadow-emerald-500/20"
+              variants={fadeInUp}
+              whileHover={{ y: -10 }}
+            >
+              <div className="text-4xl mb-4">{service.icon}</div>
+              <h3 className="text-xl font-semibold text-white mb-3">{service.title}</h3>
+              <p className="text-slate-400">{service.description}</p>
+            </motion.div>
+          ))}
+        </div>
+      </motion.section>
+
+      {/* Skills Section */}
+      <motion.section 
+        className="container mx-auto px-4 py-16"
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true }}
+        variants={staggerContainer}
+      >
+        <motion.h2 
+          className="text-3xl md:text-4xl font-bold text-center mb-12 text-white"
+          variants={fadeInUp}
+        >
+          Tecnologías
+        </motion.h2>
+
+        <motion.div 
+          className="flex flex-wrap justify-center gap-4"
+          variants={fadeInUp}
+        >
+          {["Next.js", "TypeScript", "Tailwind CSS", "Supabase", "HuggingFace", "React", "Node.js", "PostgreSQL"].map((skill, index) => (
+            <motion.span
+              key={index}
+              className="px-6 py-3 bg-gradient-to-r from-emerald-500/20 to-cyan-500/20 rounded-full text-emerald-400 font-medium border border-emerald-500/30"
+              variants={scaleIn}
+              whileHover={{ scale: 1.1, backgroundColor: "rgba(16, 185, 129, 0.3)" }}
+            >
+              {skill}
+            </motion.span>
+          ))}
+        </motion.div>
+      </motion.section>
+
+      {/* Chat Section */}
+      <motion.section 
+        className="container mx-auto px-4 py-16"
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true }}
+        variants={staggerContainer}
+      >
+        <motion.div 
+          className="max-w-2xl mx-auto bg-slate-800/50 backdrop-blur-sm rounded-xl p-8 border border-slate-700"
+          variants={fadeInUp}
+        >
+          <h2 className="text-2xl md:text-3xl font-bold text-center mb-6 text-white">
             Prueba mi Asistente IA
           </h2>
 
           <div className="mb-4">
             <textarea
-              className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full p-4 bg-slate-900/50 border border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 text-white placeholder-slate-500"
               rows={4}
               placeholder="Escribe tu pregunta sobre mis servicios..."
               value={message}
@@ -103,38 +257,57 @@ export default function Home() {
           <button
             onClick={sendMessage}
             disabled={loading}
-            className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 disabled:bg-gray-400 transition"
+            className="w-full bg-gradient-to-r from-emerald-500 to-cyan-500 text-white py-4 rounded-lg hover:from-emerald-600 hover:to-cyan-600 disabled:opacity-50 transition-all duration-300 font-semibold shadow-lg shadow-emerald-500/30"
           >
             {loading ? "Procesando..." : "Enviar"}
           </button>
 
           {response && (
-            <div className="mt-6 p-4 bg-gray-100 rounded-lg">
-              <h3 className="font-semibold text-gray-700 mb-2">Respuesta:</h3>
-              <p className="text-gray-600 whitespace-pre-wrap">{response}</p>
-            </div>
+            <motion.div 
+              className="mt-6 p-4 bg-slate-900/50 rounded-lg border border-slate-600"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+            >
+              <h3 className="font-semibold text-emerald-400 mb-2">Respuesta:</h3>
+              <p className="text-slate-300 whitespace-pre-wrap">{response}</p>
+            </motion.div>
           )}
-        </div>
+        </motion.div>
+      </motion.section>
 
-        {/* Contact Form Section */}
-        <div className="bg-white rounded-lg shadow-lg p-6">
-          <h2 className="text-xl font-semibold mb-4 text-gray-700">
+      {/* Contact Section */}
+      <motion.section 
+        className="container mx-auto px-4 py-16"
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true }}
+        variants={staggerContainer}
+      >
+        <motion.div 
+          className="max-w-2xl mx-auto bg-slate-800/50 backdrop-blur-sm rounded-xl p-8 border border-slate-700"
+          variants={fadeInUp}
+        >
+          <h2 className="text-2xl md:text-3xl font-bold text-center mb-6 text-white">
             Contacto
           </h2>
 
           {contactSent ? (
-            <div className="p-4 bg-green-100 text-green-700 rounded-lg mb-4">
+            <motion.div 
+              className="p-4 bg-emerald-500/20 text-emerald-400 rounded-lg mb-4 border border-emerald-500/30"
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+            >
               Mensaje enviado correctamente. Te responderé pronto.
-            </div>
+            </motion.div>
           ) : (
             <form onSubmit={sendContact} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-slate-300 mb-1">
                   Nombre
                 </label>
                 <input
                   type="text"
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full p-4 bg-slate-900/50 border border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 text-white"
                   value={contactName}
                   onChange={(e) => setContactName(e.target.value)}
                   required
@@ -142,12 +315,12 @@ export default function Home() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-slate-300 mb-1">
                   Email
                 </label>
                 <input
                   type="email"
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full p-4 bg-slate-900/50 border border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 text-white"
                   value={contactEmail}
                   onChange={(e) => setContactEmail(e.target.value)}
                   required
@@ -155,11 +328,11 @@ export default function Home() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-slate-300 mb-1">
                   Mensaje
                 </label>
                 <textarea
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full p-4 bg-slate-900/50 border border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 text-white"
                   rows={4}
                   value={contactMessage}
                   onChange={(e) => setContactMessage(e.target.value)}
@@ -169,18 +342,29 @@ export default function Home() {
 
               <button
                 type="submit"
-                className="w-full bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition"
+                className="w-full bg-gradient-to-r from-emerald-500 to-cyan-500 text-white py-4 rounded-lg hover:from-emerald-600 hover:to-cyan-600 transition-all duration-300 font-semibold shadow-lg shadow-emerald-500/30"
               >
                 Enviar Mensaje
               </button>
             </form>
           )}
-        </div>
+        </motion.div>
+      </motion.section>
 
-        <div className="mt-8 text-center text-gray-500">
-          <p>Servicios: Desarrollo Web + Integración de IA + Marketing</p>
-        </div>
-      </div>
+      {/* Footer */}
+      <motion.footer 
+        className="container mx-auto px-4 py-8 text-center"
+        initial={{ opacity: 0 }}
+        whileInView={{ opacity: 1 }}
+        viewport={{ once: true }}
+      >
+        <p className="text-slate-500">
+          © {new Date().getFullYear()} MINDBRIDGE IA. Todos los derechos reservados.
+        </p>
+        <p className="text-slate-600 text-sm mt-2">
+          Desarrollo Web + Integración de IA + Automatizaciones
+        </p>
+      </motion.footer>
     </div>
   );
 }
