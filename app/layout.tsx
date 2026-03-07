@@ -1,18 +1,68 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 
-const inter = Inter({ subsets: ["latin"] });
+// Optimización de fuente: pre-load y display swap para mejor LCP
+const inter = Inter({ 
+  subsets: ["latin"],
+  display: 'swap',
+  variable: '--font-inter',
+});
+
+// Viewport se define por separado en las versiones recientes de Next.js
+export const viewport: Viewport = {
+  themeColor: "#0f172a", // Color de la barra de navegación en móviles (slate-900)
+  width: "device-width",
+  initialScale: 1,
+};
 
 export const metadata: Metadata = {
-  title: "MINDBRIDGE IA | Desarrollo Web y Automatizaciones con IA",
-  description: "Ayudo a emprendedores a automatizar sus procesos con soluciones web inteligentes. Combino código limpio con inteligencia artificial para crear productos que escalan.",
-  keywords: ["desarrollo web", "inteligencia artificial", "automatización", "Next.js", "IA para empresas"],
+  title: {
+    default: "MINDBRIDGE IA | Desarrollo Web y Automatizaciones con IA",
+    template: "%s | MINDBRIDGE IA" // Permite títulos dinámicos en subpáginas
+  },
+  description: "Especialista en Web + IA. Ayudo a emprendedores a automatizar procesos con soluciones inteligentes y código escalable.",
+  keywords: [
+    "desarrollo web", 
+    "inteligencia artificial", 
+    "automatización de procesos", 
+    "Next.js", 
+    "IA para empresas",
+    "Juan Gutiérrez de la Concha"
+  ],
   authors: [{ name: "Juan Gutiérrez de la Concha de la Cuesta" }],
+  creator: "Juan Gutiérrez de la Concha",
+  metadataBase: new URL("https://tu-dominio.com"), // Cambia esto por tu URL real
+  alternates: {
+    canonical: "/",
+  },
   openGraph: {
     title: "MINDBRIDGE IA | Desarrollo Web y Automatizaciones con IA",
-    description: "Desarrollo Web y Automatizaciones con IA Integrada para Empresas",
+    description: "Desarrollo Web y Automatizaciones con IA Integrada para Empresas. Potencia tu negocio con tecnología de vanguardia.",
+    url: "https://tu-dominio.com",
+    siteName: "MINDBRIDGE IA",
+    locale: "es_ES",
     type: "website",
+    images: [
+      {
+        url: "/og-image.png", // Asegúrate de tener esta imagen en tu carpeta /public
+        width: 1200,
+        height: 630,
+        alt: "MINDBRIDGE IA - Desarrollo Web e IA",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "MINDBRIDGE IA",
+    description: "Soluciones de IA y Desarrollo Web de alto rendimiento.",
+    creator: "@tu_usuario", // Opcional
+    images: ["/og-image.png"],
+  },
+  icons: {
+    icon: "/favicon.ico",
+    shortcut: "/favicon-16x16.png",
+    apple: "/apple-touch-icon.png",
   },
 };
 
@@ -22,8 +72,17 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="es">
-      <body className={`${inter.className} bg-gradient-to-br from-slate-900 via-slate-800 to-emerald-900 min-h-screen`}>
+    <html lang="es" suppressHydrationWarning>
+      <body 
+        className={`
+          ${inter.variable} 
+          ${inter.className} 
+          antialiased 
+          bg-gradient-to-br from-slate-900 via-slate-800 to-emerald-900 
+          min-h-screen 
+          selection:bg-emerald-500/30 selection:text-emerald-200
+        `}
+      >
         {children}
       </body>
     </html>
