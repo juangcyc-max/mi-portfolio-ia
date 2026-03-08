@@ -76,17 +76,18 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="es" suppressHydrationWarning>
-      <body 
-        className={`
-          ${publicSans.variable} 
-          ${publicSans.className} 
-          antialiased 
-          bg-slate-50 dark:bg-slate-900 
-          text-slate-900 dark:text-slate-100
-          min-h-screen 
-          selection:bg-emerald-500/30 selection:text-emerald-200
-          transition-colors duration-300
-        `}
+     <body 
+  className={`
+    ${publicSans.variable} 
+    ${publicSans.className} 
+    antialiased 
+    bg-office
+    text-slate-900 dark:text-slate-100
+    min-h-screen 
+    selection:bg-emerald-500/30 selection:text-emerald-200
+    transition-colors duration-300
+  `}
+
       >
         {children}
       </body>
