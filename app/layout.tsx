@@ -2,45 +2,41 @@ import type { Metadata, Viewport } from "next";
 import { Public_Sans } from "next/font/google";
 import "./globals.css";
 
-// Configuración de Public Sans (la tipografía correcta)
-const publicSans = Public_Sans({ 
+const publicSans = Public_Sans({
   subsets: ["latin"],
-  display: 'swap',
-  variable: '--font-public-sans',
-  weight: ['300', '400', '500', '600', '700', '800', '900'],
+  display: "swap",
+  variable: "--font-public-sans",
+  weight: ["300", "400", "500", "600", "700", "800", "900"],
 });
 
-// Viewport para móviles y PWA
 export const viewport: Viewport = {
   themeColor: "#0f172a",
   width: "device-width",
   initialScale: 1,
-  maximumScale: 1,
 };
 
 export const metadata: Metadata = {
   title: {
     default: "MINDBRIDGE IA | Desarrollo Web y Automatizaciones con IA",
-    template: "%s | MINDBRIDGE IA"
+    template: "%s | MINDBRIDGE IA",
   },
-  description: "Especialista en Web + IA. Ayudo a emprendedores a automatizar procesos con soluciones inteligentes y código escalable.",
+  description:
+    "Especialista en Web + IA. Ayudo a emprendedores a automatizar procesos con soluciones inteligentes y código escalable.",
   keywords: [
-    "desarrollo web", 
-    "inteligencia artificial", 
-    "automatización de procesos", 
-    "Next.js", 
+    "desarrollo web",
+    "inteligencia artificial",
+    "automatización de procesos",
+    "Next.js",
     "IA para empresas",
-    "Juan Gutiérrez de la Concha"
+    "Juan Gutiérrez de la Concha",
   ],
   authors: [{ name: "Juan Gutiérrez de la Concha de la Cuesta" }],
   creator: "Juan Gutiérrez de la Concha",
   metadataBase: new URL("https://mi-portfolio-ia-rpbw.vercel.app"),
-  alternates: {
-    canonical: "/",
-  },
   openGraph: {
     title: "MINDBRIDGE IA | Desarrollo Web y Automatizaciones con IA",
-    description: "Desarrollo Web y Automatizaciones con IA Integrada para Empresas. Potencia tu negocio con tecnología de vanguardia.",
+    description:
+      "Desarrollo Web y Automatizaciones con IA Integrada para Empresas.",
     url: "https://mi-portfolio-ia-rpbw.vercel.app",
     siteName: "MINDBRIDGE IA",
     locale: "es_ES",
@@ -52,42 +48,59 @@ export const metadata: Metadata = {
     description: "Soluciones de IA y Desarrollo Web de alto rendimiento.",
   },
   icons: {
-    icon: "/logo.svg",
-    shortcut: "/logo.svg",
-    apple: "/logo.svg",
+    icon: "/logo.png",
+    shortcut: "/logo.png",
+    apple: "/logo.png",
   },
   robots: {
     index: true,
     follow: true,
-    googleBot: {
-      index: true,
-      follow: true,
-      "max-video-preview": -1,
-      "max-image-preview": "large",
-      "max-snippet": -1,
-    },
   },
 };
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
     <html lang="es" suppressHydrationWarning>
-     <body 
-  className={`
-    ${publicSans.variable} 
-    ${publicSans.className} 
-    antialiased 
-    bg-office
-    text-slate-900 dark:text-slate-100
-    min-h-screen 
-    selection:bg-emerald-500/30 selection:text-emerald-200
-    transition-colors duration-300
-  `}
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+(function() {
+  try {
+    const theme = localStorage.getItem("theme");
+    const systemDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
 
+    if (theme === "dark" || (!theme && systemDark)) {
+      document.documentElement.classList.add("dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+    }
+  } catch (e) {}
+})();
+`,
+          }}
+        />
+      </head>
+
+      <body
+        className={`
+          ${publicSans.variable}
+          ${publicSans.className}
+          antialiased
+          min-h-screen
+          bg-office
+          bg-cover
+          bg-center
+          text-slate-900
+          dark:text-slate-100
+          transition-colors duration-300
+          selection:bg-emerald-500/30
+          selection:text-emerald-200
+        `}
       >
         {children}
       </body>

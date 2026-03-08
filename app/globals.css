@@ -1,9 +1,14 @@
 @import "tailwindcss";
 
+/* ============================================ */
+/* VARIABLES DE COLOR */
+/* ============================================ */
+
 :root {
-  /* Light Mode (por defecto) */
+  /* Light Mode */
   --background: #f8fafc;
   --foreground: #0f172a;
+
   --font-public-sans: 'Public Sans', system-ui, sans-serif;
   --font-mono: ui-monospace, SFMono-Regular, monospace;
 }
@@ -14,20 +19,47 @@ html.dark {
   --foreground: #f1f5f9;
 }
 
+/* ============================================ */
+/* BASE */
+/* ============================================ */
+
 body {
-  background: var(--background);
   color: var(--foreground);
   font-family: var(--font-public-sans);
+  min-height: 100vh;
+
+  /* IMPORTANTE: transparente para que se vea el fondo */
+  background: transparent;
 }
 
-/* Glassmorphism utility */
+/* Scroll suave */
+
+html {
+  scroll-behavior: smooth;
+}
+
+/* ============================================ */
+/* GLASSMORPHISM */
+/* ============================================ */
+
 .glass {
-  background: rgba(255, 255, 255, 0.03);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-/* Scrollbar personalizada */
+/* ============================================ */
+/* EFECTO GLOW */
+/* ============================================ */
+
+.glow-hover:hover {
+  box-shadow: 0 0 25px rgba(16, 185, 129, 0.4);
+}
+
+/* ============================================ */
+/* SCROLLBAR */
+/* ============================================ */
+
 ::-webkit-scrollbar {
   width: 10px;
 }
@@ -45,58 +77,45 @@ body {
   background: linear-gradient(180deg, #059669 0%, #0891b2 100%);
 }
 
-/* Smooth scroll */
-html {
-  scroll-behavior: smooth;
-}
-
-/* Glow effect para hover */
-.glow-hover:hover {
-  box-shadow: 0 0 25px rgba(16, 185, 129, 0.4);
-}
-
 /* ============================================ */
-/* FONDO DE ESCRITORIO PERSONALIZADO */
+/* FONDO DE ESCRITORIO */
 /* ============================================ */
 
-/* Contenedor del fondo */
 .bg-office {
   position: relative;
 }
 
-/* Capa de fondo fija */
+/* Imagen fondo */
+
 .bg-office::before {
-  content: '';
+  content: "";
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-image: url('/office-background.jpg');
+  inset: 0;
+
+  background-image: url("/office-background.jpg");
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
+
   z-index: -2;
 }
 
-/* Overlay oscuro (Dark Mode) */
+/* Overlay oscuro */
+
 .bg-office::after {
-  content: '';
+  content: "";
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(15, 23, 42, 0.85);
+  inset: 0;
+
+  background: rgba(15, 23, 42, 0.80);
+
   z-index: -1;
+
+  transition: background 0.4s ease;
 }
 
-/* Overlay claro (Light Mode) */
+/* Overlay modo claro */
+
 html:not(.dark) .bg-office::after {
-  background: rgba(248, 250, 252, 0.75);
-}
-
-/* Animación para el toggle de tema */
-.bg-office::after {
-  transition: background 0.3s ease-in-out;
+  background: rgba(248, 250, 252, 0.70);
 }
