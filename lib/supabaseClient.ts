@@ -23,3 +23,8 @@ const createMockSupabase = () => ({
 export const supabase = supabaseUrl && supabaseAnonKey
   ? createClient(supabaseUrl, supabaseAnonKey)
   : createMockSupabase();
+
+// Helper para verificar si Supabase está configurado
+export const isSupabaseConfigured = (): boolean => {
+  return !!(process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
+};
