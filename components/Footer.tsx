@@ -11,13 +11,15 @@ export default function Footer() {
         {/* Top Section */}
         <div className="flex flex-col md:flex-row justify-between items-center gap-8 mb-8">
           <div className="flex items-center gap-3">
-            <Image 
-              src="/logo.svg" 
-              alt="Mindbridge IA Logo" 
-              width={32} 
-              height={32}
-              className="rounded-full"
-            />
+            <div className="w-10 h-10 flex items-center justify-center">
+              <Image 
+                src="/logo.png" 
+                alt="Mindbridge IA Logo" 
+                width={40} 
+                height={40}
+                className="object-contain"
+              />
+            </div>
             <span className="text-lg font-black dark:text-white uppercase tracking-tighter">
               Mindbridge IA
             </span>

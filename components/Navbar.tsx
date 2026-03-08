@@ -17,13 +17,16 @@ export default function Navbar() {
         <div className="flex justify-between items-center h-20">
           {/* Logo */}
           <div className="flex items-center gap-3">
-            <Image 
-              src="/logo.svg" 
-              alt="Mindbridge IA Logo" 
-              width={40} 
-              height={40}
-              className="rounded-full"
-            />
+            <div className="w-12 h-12 flex items-center justify-center">
+              <Image 
+                src="/logo.png" 
+                alt="Mindbridge IA Logo" 
+                width={48} 
+                height={48}
+                className="object-contain"
+                priority
+              />
+            </div>
             <span className="text-xl font-black tracking-tight text-slate-900 dark:text-white uppercase">
               Mindbridge IA
             </span>

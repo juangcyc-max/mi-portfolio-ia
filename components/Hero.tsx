@@ -56,13 +56,14 @@ export default function Hero() {
               className="bg-white/5 dark:bg-slate-800/50 backdrop-blur-md p-6 rounded-2xl flex flex-col sm:flex-row items-center gap-6 border border-slate-200 dark:border-slate-800 shadow-xl"
               variants={fadeInUp}
             >
-              <div className="size-20 rounded-full overflow-hidden border-2 border-emerald-500/30 shrink-0 bg-white dark:bg-slate-800">
+              <div className="size-24 rounded-full overflow-hidden shrink-0 bg-white dark:bg-slate-800 flex items-center justify-center p-2">
                 <Image 
-                  src="/logo.svg" 
+                  src="/logo.png" 
                   alt="Juan Gutiérrez" 
-                  width={80} 
-                  height={80}
-                  className="w-full h-full object-cover"
+                  width={88} 
+                  height={88}
+                  className="object-contain"
+                  priority
                 />
               </div>
               <div>
