@@ -8,7 +8,6 @@
   /* Light Mode */
   --background: #f8fafc;
   --foreground: #0f172a;
-
   --font-public-sans: 'Public Sans', system-ui, sans-serif;
   --font-mono: ui-monospace, SFMono-Regular, monospace;
 }
@@ -27,13 +26,11 @@ body {
   color: var(--foreground);
   font-family: var(--font-public-sans);
   min-height: 100vh;
-
-  /* IMPORTANTE: transparente para que se vea el fondo */
-  background: transparent;
+  /* ✅ ELIMINADO: background: transparent; */
+  /* Tailwind bg-slate-50/dark:bg-slate-900 ahora funcionará como fallback */
 }
 
 /* Scroll suave */
-
 html {
   scroll-behavior: smooth;
 }
@@ -85,37 +82,29 @@ html {
   position: relative;
 }
 
-/* Imagen fondo */
-
+/* Capa 1: Imagen de fondo */
 .bg-office::before {
   content: "";
   position: fixed;
   inset: 0;
-
   background-image: url("/office-background.jpg");
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-
   z-index: -2;
 }
 
-/* Overlay oscuro */
-
+/* Capa 2: Overlay (oscuro por defecto) */
 .bg-office::after {
   content: "";
   position: fixed;
   inset: 0;
-
   background: rgba(15, 23, 42, 0.80);
-
   z-index: -1;
-
   transition: background 0.4s ease;
 }
 
-/* Overlay modo claro */
-
+/* Overlay en modo claro */
 html:not(.dark) .bg-office::after {
   background: rgba(248, 250, 252, 0.70);
 }

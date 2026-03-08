@@ -93,10 +93,8 @@ export default function RootLayout({
           antialiased
           min-h-screen
           bg-office
-          bg-cover
-          bg-center
-          text-slate-900
-          dark:text-slate-100
+          text-slate-900 dark:text-slate-100
+          bg-slate-50 dark:bg-slate-900
           transition-colors duration-300
           selection:bg-emerald-500/30
           selection:text-emerald-200
