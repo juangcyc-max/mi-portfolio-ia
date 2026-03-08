@@ -2,6 +2,8 @@
 
 import { motion } from "framer-motion";
 import { fadeInDown } from "@/lib/animations";
+import ThemeToggle from "./ThemeToggle";
+import Image from "next/image";
 
 export default function Navbar() {
   return (
@@ -15,9 +17,13 @@ export default function Navbar() {
         <div className="flex justify-between items-center h-20">
           {/* Logo */}
           <div className="flex items-center gap-3">
-            <div className="h-10 w-10 bg-gradient-to-br from-emerald-500 to-cyan-400 rounded-full flex items-center justify-center">
-              <span className="text-white font-bold text-lg">M</span>
-            </div>
+            <Image 
+              src="/logo.svg" 
+              alt="Mindbridge IA Logo" 
+              width={40} 
+              height={40}
+              className="rounded-full"
+            />
             <span className="text-xl font-black tracking-tight text-slate-900 dark:text-white uppercase">
               Mindbridge IA
             </span>
@@ -30,8 +36,9 @@ export default function Navbar() {
             <a href="#demo" className="hover:text-emerald-500 transition-colors">Demo</a>
           </nav>
 
-          {/* CTA Button */}
+          {/* Right Side: Theme Toggle + CTA */}
           <div className="flex items-center gap-4">
+            <ThemeToggle />
             <a 
               href="#contacto" 
               className="bg-emerald-500 hover:bg-emerald-600 text-white px-6 py-2.5 rounded-xl font-bold text-sm transition-all shadow-lg shadow-emerald-500/20"

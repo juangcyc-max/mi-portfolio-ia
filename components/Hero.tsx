@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { fadeInUp, staggerContainer, scaleIn } from "@/lib/animations";
+import Image from "next/image";
 
 export default function Hero() {
   return (
@@ -55,10 +56,14 @@ export default function Hero() {
               className="bg-white/5 dark:bg-slate-800/50 backdrop-blur-md p-6 rounded-2xl flex flex-col sm:flex-row items-center gap-6 border border-slate-200 dark:border-slate-800 shadow-xl"
               variants={fadeInUp}
             >
-              <div className="size-20 rounded-full overflow-hidden border-2 border-emerald-500/30 shrink-0">
-                <div className="w-full h-full bg-gradient-to-br from-emerald-400 to-cyan-500 flex items-center justify-center">
-                  <span className="text-3xl font-bold text-white">JG</span>
-                </div>
+              <div className="size-20 rounded-full overflow-hidden border-2 border-emerald-500/30 shrink-0 bg-white dark:bg-slate-800">
+                <Image 
+                  src="/logo.svg" 
+                  alt="Juan Gutiérrez" 
+                  width={80} 
+                  height={80}
+                  className="w-full h-full object-cover"
+                />
               </div>
               <div>
                 <h3 className="font-bold text-lg dark:text-white">Juan Gutiérrez de la Concha de la Cuesta</h3>

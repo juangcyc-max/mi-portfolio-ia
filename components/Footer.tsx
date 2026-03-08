@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import Image from "next/image";
 
 export default function Footer() {
   return (
@@ -10,9 +11,13 @@ export default function Footer() {
         {/* Top Section */}
         <div className="flex flex-col md:flex-row justify-between items-center gap-8 mb-8">
           <div className="flex items-center gap-3">
-            <div className="h-8 w-8 bg-gradient-to-br from-emerald-500 to-cyan-400 rounded-full flex items-center justify-center">
-              <span className="text-white font-bold text-sm">M</span>
-            </div>
+            <Image 
+              src="/logo.svg" 
+              alt="Mindbridge IA Logo" 
+              width={32} 
+              height={32}
+              className="rounded-full"
+            />
             <span className="text-lg font-black dark:text-white uppercase tracking-tighter">
               Mindbridge IA
             </span>

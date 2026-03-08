@@ -1,17 +1,18 @@
 import type { Metadata, Viewport } from "next";
-import { Inter } from "next/font/google";
+import { Public_Sans } from "next/font/google";
 import "./globals.css";
 
-// Optimización de fuente: pre-load y display swap para mejor LCP
-const inter = Inter({ 
+// Configuración de Public Sans (la tipografía correcta)
+const publicSans = Public_Sans({ 
   subsets: ["latin"],
   display: 'swap',
-  variable: '--font-inter',
+  variable: '--font-public-sans',
+  weight: ['300', '400', '500', '600', '700', '800', '900'],
 });
 
 // Viewport para móviles y PWA
 export const viewport: Viewport = {
-  themeColor: "#0f172a", // Color de la barra de navegación en móviles (slate-900)
+  themeColor: "#0f172a",
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,
@@ -44,25 +45,16 @@ export const metadata: Metadata = {
     siteName: "MINDBRIDGE IA",
     locale: "es_ES",
     type: "website",
-    images: [
-      {
-        url: "/og-image.png",
-        width: 1200,
-        height: 630,
-        alt: "MINDBRIDGE IA - Desarrollo Web e IA",
-      },
-    ],
   },
   twitter: {
     card: "summary_large_image",
     title: "MINDBRIDGE IA",
     description: "Soluciones de IA y Desarrollo Web de alto rendimiento.",
-    images: ["/og-image.png"],
   },
   icons: {
-    icon: "/favicon.ico",
-    shortcut: "/favicon-16x16.png",
-    apple: "/apple-touch-icon.png",
+    icon: "/logo.svg",
+    shortcut: "/logo.svg",
+    apple: "/logo.svg",
   },
   robots: {
     index: true,
@@ -83,11 +75,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="es" className="dark" suppressHydrationWarning>
+    <html lang="es" suppressHydrationWarning>
       <body 
         className={`
-          ${inter.variable} 
-          ${inter.className} 
+          ${publicSans.variable} 
+          ${publicSans.className} 
           antialiased 
           bg-slate-50 dark:bg-slate-900 
           text-slate-900 dark:text-slate-100
