@@ -1,197 +1,298 @@
 "use client";
 
-import { motion } from "framer-motion";
+import React, { useEffect, useState } from "react";
+import { motion, useMotionValue, useTransform } from "framer-motion";
 import { fadeInUp, staggerContainer } from "@/lib/animations";
 import Image from "next/image";
 import Link from "next/link";
 
-// Proyectos conceptuales con links a demos interactivas
-const projects = [
+/* ================= TYPES ================= */
+
+type Metric = {
+  label: string;
+  value: number;
+  suffix: string;
+};
+
+type Project = {
+  title: string;
+  category: string;
+  description: string;
+  features: string[];
+  color: string;
+  logoBg: string;
+  logo: string;
+  link: string;
+  metrics: Metric[];
+};
+
+type CountUpProps = {
+  value: number;
+  suffix: string;
+};
+
+/* ================= DATA ================= */
+
+const projects: Project[] = [
   {
     title: "E-Commerce Fashion IA",
-    category: "E-Commerce + IA",
-    description: "Tienda online con recomendaciones personalizadas mediante IA. Los productos se sugieren según el historial de navegación y preferencias del usuario.",
-    features: ["Recomendaciones IA", "Carrito inteligente", "Dashboard de ventas"],
-    tech: ["Next.js 14", "Supabase", "OpenAI API", "Stripe"],
+    category: "Comercio electrónico + IA",
+    description: "Tienda online con recomendaciones personalizadas mediante IA.",
+    features: ["Recomendaciones IA", "Carrito inteligente", "Dashboard ventas"],
     color: "from-emerald-500 to-cyan-500",
-    image: "/portfolio/ecommerce.jpg",
-    link: "/portfolio/ecommerce",  // ✅ Link a demo interactiva
-    metrics: {
-      conversion: "+40%",
-      retention: "+65%",
-      speed: "0.8s"
-    }
+    logoBg: "bg-white",
+    logo: "/logos/fashion-ia.png",
+    link: "/portfolio/ecommerce",
+    metrics: [
+      { label: "Conversión", value: 40, suffix: "%" },
+      { label: "Retención", value: 65, suffix: "%" },
+      { label: "Velocidad", value: 0.8, suffix: "s" }
+    ]
   },
   {
     title: "Dashboard SaaS Analytics",
-    category: "Dashboard + Data",
-    description: "Panel de control para SaaS con métricas en tiempo real, alertas automáticas y reportes generados con IA. Ideal para startups que necesitan tracking avanzado.",
+    category: "Panel + Data",
+    description: "Panel SaaS con métricas en tiempo real y reportes con IA.",
     features: ["Métricas en vivo", "Alertas automáticas", "Reportes IA"],
-    tech: ["React", "TypeScript", "Chart.js", "Tailwind"],
-    color: "from-cyan-500 to-blue-500",
-    image: "/portfolio/dashboard.jpg",
-    link: "/portfolio/dashboard",  // ✅ Link a demo interactiva
-    metrics: {
-      users: "10K+",
-      uptime: "99.9%",
-      api: "50M"
-    }
+    color: "from-blue-600 to-cyan-500",
+    logoBg: "bg-white",
+    logo: "/logos/saaslogo.png",  // ✅ ACTUALIZADO
+    link: "/portfolio/dashboard",
+    metrics: [
+      { label: "Usuarios", value: 10000, suffix: "+" },
+      { label: "Uptime", value: 99.9, suffix: "%" },
+      { label: "API", value: 50, suffix: "M" }
+    ]
   },
   {
-    title: "Landing Page Conversión",
+    title: "Landing Conversión",
     category: "Landing + Marketing",
-    description: "Landing page optimizada para conversión con A/B testing integrado, chatbot de cualificación de leads y automatización de email marketing.",
+    description: "Landing optimizada con A/B testing y automatización marketing.",
     features: ["A/B Testing", "Chatbot leads", "Email automation"],
-    tech: ["Next.js", "Framer Motion", "Resend", "Vercel Analytics"],
     color: "from-blue-500 to-purple-500",
-    image: "/portfolio/landing.jpg",
-    link: "/portfolio/landing",  // ✅ Link a demo interactiva
-    metrics: {
-      conversion: "12.5%",
-      bounce: "-35%",
-      leads: "+200%"
-    }
+    logoBg: "bg-white",
+    logo: "/logos/adlaunch-studio.png",
+    link: "/portfolio/landing",
+    metrics: [
+      { label: "Conversión", value: 12.5, suffix: "%" },
+      { label: "Rebote", value: -35, suffix: "%" },
+      { label: "Leads", value: 200, suffix: "%" }
+    ]
   }
 ];
+
+/* ================= COUNT UP ================= */
+
+function CountUp({ value, suffix }: CountUpProps) {
+  const [count, setCount] = useState(0);
+  const [hasAnimated, setHasAnimated] = useState(false);
+
+  useEffect(() => {
+    if (hasAnimated) return;
+    
+    let start = 0;
+    const duration = 1200;
+    const step = value / (duration / 16);
+    let animationFrame: number;
+
+    const animate = () => {
+      start += step;
+
+      if (Math.abs(start) >= Math.abs(value)) {
+        setCount(value);
+        setHasAnimated(true);
+      } else {
+        setCount(parseFloat(start.toFixed(1)));
+        animationFrame = requestAnimationFrame(animate);
+      }
+    };
+
+    animationFrame = requestAnimationFrame(animate);
+
+    return () => cancelAnimationFrame(animationFrame);
+  }, [value, hasAnimated]);
+
+  return (
+    <span>
+      {count}
+      {suffix}
+    </span>
+  );
+}
+
+/* ================= COMPONENT ================= */
 
 export default function Portfolio() {
   return (
     <section className="py-24 bg-transparent" id="portfolio">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        
-        {/* Section Header */}
-        <motion.div 
-          className="text-center max-w-3xl mx-auto mb-16"
+
+        {/* HEADER */}
+        <motion.div
+          className="text-center max-w-3xl mx-auto mb-20"
+          variants={staggerContainer}
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true }}
-          variants={staggerContainer}
         >
           <motion.p 
-            className="text-emerald-500 font-bold text-sm uppercase tracking-widest mb-3" 
             variants={fadeInUp}
+            className="text-emerald-500 font-bold text-sm uppercase tracking-widest mb-3"
           >
             Portafolio Conceptual
           </motion.p>
-          <motion.h2 
-            className="text-3xl md:text-4xl font-black dark:text-white mb-6" 
+          
+          <motion.h2
             variants={fadeInUp}
+            className="text-4xl md:text-5xl font-black mb-6 dark:text-white"
           >
-            Esto es lo que puedo construir <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-500 to-cyan-400">para ti</span>
+            Esto es lo que puedo construir{" "}
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-500 to-cyan-400">
+              para ti
+            </span>
           </motion.h2>
-          <motion.p 
-            className="text-slate-600 dark:text-slate-400" 
+
+          <motion.p
             variants={fadeInUp}
+            className="text-slate-600 dark:text-slate-400 text-lg"
           >
             Estos son ejemplos de proyectos que puedo desarrollar. 
             Cada uno está diseñado para resolver problemas reales de negocios como el tuyo.
           </motion.p>
         </motion.div>
 
-        {/* Projects Grid */}
+        {/* GRID */}
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {projects.map((project, index) => (
-            <motion.div
-              key={index}
-              className="group relative bg-white/10 dark:bg-slate-800/30 backdrop-blur-sm rounded-2xl overflow-hidden border border-white/30 dark:border-slate-700/50 hover:border-emerald-500/50 transition-all"
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true }}
-              variants={fadeInUp}
-              whileHover={{ y: -10 }}
-            >
-              {/* Image Placeholder */}
-              <div className={`h-48 bg-gradient-to-br ${project.color} relative overflow-hidden`}>
-                {/* Aquí puedes poner screenshots reales o mockups */}
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <span className="text-white/30 text-6xl font-black">
-                    {project.category.split(" ")[0]}
-                  </span>
-                </div>
-                
-                {/* Overlay con botón de ver demo */}
-                <div className="absolute inset-0 bg-slate-900/80 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                  <Link
-                    href={project.link}
-                    className="bg-white text-slate-900 px-6 py-3 rounded-xl font-bold hover:scale-105 transition-transform"
-                  >
-                    Ver Demo →
-                  </Link>
-                </div>
-              </div>
+          {projects.map((project, index) => {
+            const x = useMotionValue(0);
+            const y = useMotionValue(0);
 
-              {/* Content */}
-              <div className="p-6">
-                {/* Category Badge */}
-                <span className={`inline-block px-3 py-1 rounded-full text-xs font-bold bg-gradient-to-r ${project.color} text-white mb-3`}>
-                  {project.category}
-                </span>
+            const rotateX = useTransform(y, [-50, 50], [8, -8]);
+            const rotateY = useTransform(x, [-50, 50], [-8, 8]);
 
-                {/* Title */}
-                <h3 className="text-xl font-bold dark:text-white mb-3">
-                  {project.title}
-                </h3>
+            function handleMouseMove(e: React.MouseEvent<HTMLDivElement>) {
+              const rect = e.currentTarget.getBoundingClientRect();
+              const mouseX = e.clientX - rect.left - rect.width / 2;
+              const mouseY = e.clientY - rect.top - rect.height / 2;
+              x.set(mouseX);
+              y.set(mouseY);
+            }
 
-                {/* Description */}
-                <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed mb-4">
-                  {project.description}
-                </p>
+            function handleMouseLeave() {
+              x.set(0);
+              y.set(0);
+            }
 
-                {/* Metrics */}
-                <div className="grid grid-cols-3 gap-2 mb-4">
-                  {Object.entries(project.metrics).map(([key, value], i) => (
-                    <div key={i} className="text-center p-2 bg-white/5 dark:bg-slate-900/30 rounded-lg">
-                      <p className="text-lg font-black text-emerald-500">{value}</p>
-                      <p className="text-xs text-slate-500 dark:text-slate-400 capitalize">{key}</p>
+            return (
+              <motion.div
+                key={index}
+                style={{ rotateX, rotateY }}
+                onMouseMove={handleMouseMove}
+                onMouseLeave={handleMouseLeave}
+                whileHover={{ y: -10, scale: 1.02 }}
+                transition={{ type: "spring", stiffness: 200, damping: 20 }}
+                className="group relative perspective-1000"
+              >
+                {/* GLOW */}
+                <div
+                  className={`absolute -inset-1 bg-gradient-to-r ${project.color} opacity-30 blur-xl rounded-2xl group-hover:opacity-60 transition duration-500`}
+                />
+
+                {/* CARD */}
+                <div className="relative bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 overflow-hidden shadow-xl">
+
+                  {/* LOGO AREA */}
+                  <div className={`h-56 bg-gradient-to-br ${project.color} flex items-center justify-center relative overflow-hidden`}>
+                    
+                    {/* Logo Container - SIEMPRE BLANCO */}
+                    <div className="rounded-xl p-8 shadow-2xl transition-transform duration-500 group-hover:scale-95 bg-white">
+                      <Image
+                        src={project.logo}
+                        alt={project.title}
+                        width={180}
+                        height={90}
+                        className="object-contain"
+                        priority={index === 0}
+                      />
                     </div>
-                  ))}
-                </div>
 
-                {/* Features */}
-                <ul className="space-y-2 mb-4">
-                  {project.features.map((feature, i) => (
-                    <li 
-                      key={i} 
-                      className="flex items-center gap-2 text-xs font-semibold text-slate-500 dark:text-slate-400"
-                    >
-                      <svg className="w-4 h-4 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                      </svg>
-                      {feature}
-                    </li>
-                  ))}
-                </ul>
+                    {/* DEMO BUTTON OVERLAY */}
+                    <div className="absolute inset-0 flex items-center justify-center bg-slate-900/80 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-all duration-300">
+                      <Link
+                        href={project.link}
+                        className="px-8 py-4 bg-white text-slate-900 font-bold rounded-xl shadow-2xl hover:scale-105 transition-transform flex items-center gap-2"
+                      >
+                        Ver Demo
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                        </svg>
+                      </Link>
+                    </div>
+                  </div>
 
-                {/* Tech Stack */}
-                <div className="flex flex-wrap gap-2 pt-4 border-t border-white/20 dark:border-slate-700/50">
-                  {project.tech.map((tech, i) => (
-                    <span 
-                      key={i} 
-                      className="px-2 py-1 rounded-md bg-slate-100 dark:bg-slate-900/50 text-xs font-medium text-slate-600 dark:text-slate-400"
-                    >
-                      {tech}
+                  {/* CONTENT */}
+                  <div className="p-6">
+                    {/* Category Badge */}
+                    <span className={`inline-block px-3 py-1 text-xs font-bold rounded-full bg-gradient-to-r ${project.color} text-white mb-4 uppercase tracking-wide`}>
+                      {project.category}
                     </span>
-                  ))}
+
+                    {/* Title */}
+                    <h3 className="text-xl font-bold dark:text-white mb-3">
+                      {project.title}
+                    </h3>
+
+                    {/* Description */}
+                    <p className="text-sm text-slate-600 dark:text-slate-400 mb-4 leading-relaxed">
+                      {project.description}
+                    </p>
+
+                    {/* Features */}
+                    <ul className="space-y-2 mb-6">
+                      {project.features.map((feature, i) => (
+                        <li key={i} className="flex items-center gap-2 text-xs font-medium text-slate-500 dark:text-slate-400">
+                          <svg className="w-4 h-4 text-emerald-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                          </svg>
+                          {feature}
+                        </li>
+                      ))}
+                    </ul>
+
+                    {/* METRICS */}
+                    <div className="grid grid-cols-3 gap-3 pt-4 border-t border-slate-200 dark:border-slate-700">
+                      {project.metrics.map((metric, i) => (
+                        <div key={i} className="text-center p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50">
+                          <p className="font-black text-emerald-500 text-lg">
+                            <CountUp value={metric.value} suffix={metric.suffix} />
+                          </p>
+                          <p className="text-xs text-slate-500 dark:text-slate-400 font-medium mt-1">
+                            {metric.label}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </motion.div>
-          ))}
+              </motion.div>
+            );
+          })}
         </div>
 
-        {/* CTA Section */}
+        {/* CTA */}
         <motion.div 
-          className="text-center mt-16"
+          className="text-center mt-20"
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true }}
           variants={fadeInUp}
         >
-          <p className="text-slate-600 dark:text-slate-400 mb-6 text-lg">
+          <p className="text-slate-600 dark:text-slate-400 mb-8 text-lg">
             ¿Te gusta alguno de estos proyectos? Puedo adaptarlo a tu negocio.
           </p>
           <Link
             href="#contacto"
-            className="inline-flex items-center gap-2 bg-gradient-to-r from-emerald-500 to-cyan-500 hover:from-emerald-600 hover:to-cyan-600 text-white px-8 py-4 rounded-xl font-bold transition-all shadow-lg shadow-emerald-500/25 hover:shadow-emerald-500/40 hover:scale-105"
+            className="inline-flex items-center gap-3 px-8 py-4 font-bold text-white rounded-xl bg-gradient-to-r from-emerald-500 to-cyan-500 hover:from-emerald-600 hover:to-cyan-600 transition-all shadow-lg shadow-emerald-500/25 hover:shadow-emerald-500/40 hover:scale-105"
           >
             Hablemos de tu proyecto
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
