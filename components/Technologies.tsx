@@ -41,7 +41,7 @@ export default function Technologies() {
           {technologies.map((tech, index) => (
             <motion.span
               key={index}
-              className="px-6 py-3 rounded-xl bg-white/5 dark:bg-slate-800/50 backdrop-blur-md border border-slate-200 dark:border-slate-800 text-sm font-bold dark:text-white hover:bg-emerald-500/10 hover:border-emerald-500/30 transition-all cursor-default"
+              className="px-6 py-3 rounded-xl bg-white/10 dark:bg-slate-800/30 backdrop-blur-sm border border-white/30 dark:border-slate-700/50 text-sm font-bold dark:text-white hover:bg-emerald-500/10 hover:border-emerald-500/30 transition-all cursor-default"
               variants={fadeInUp}
               whileHover={{ scale: 1.05 }}
             >

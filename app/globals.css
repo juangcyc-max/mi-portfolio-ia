@@ -26,13 +26,21 @@ body {
   color: var(--foreground);
   font-family: var(--font-public-sans);
   min-height: 100vh;
-  /* ✅ ELIMINADO: background: transparent; */
-  /* Tailwind bg-slate-50/dark:bg-slate-900 ahora funcionará como fallback */
 }
 
-/* Scroll suave */
+/* ============================================ */
+/* SCROLL SUAVE + OFFSET PARA NAVBAR FIJO */
+/* ============================================ */
+
 html {
   scroll-behavior: smooth;
+  scroll-padding-top: 100px; /* ✅ Evita que el navbar tape el contenido al hacer scroll */
+}
+
+/* ✅ Todas las secciones con id tendrán margen superior al hacer scroll */
+section[id],
+div[id] {
+  scroll-margin-top: 100px;
 }
 
 /* ============================================ */
@@ -75,21 +83,21 @@ html {
 }
 
 /* ============================================ */
-/* FONDO DE ESCRITORIO */
+/* FONDO DE ESCRITORIO - OCUPA TODA LA PANTALLA SIN ZOOM EXCESIVO */
 /* ============================================ */
 
 .bg-office {
   position: relative;
 }
 
-/* Capa 1: Imagen de fondo */
+/* Capa 1: Imagen de fondo - AJUSTADA */
 .bg-office::before {
   content: "";
   position: fixed;
   inset: 0;
   background-image: url("/office-background.jpg");
-  background-size: cover;
-  background-position: center;
+  background-size: 100% auto;  /* ← Ancho completo, alto proporcional */
+  background-position: center top;  /* ← Centrado arriba */
   background-repeat: no-repeat;
   z-index: -2;
 }

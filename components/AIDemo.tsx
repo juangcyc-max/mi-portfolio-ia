@@ -6,7 +6,7 @@ import ChatBox from "./ChatBox";
 
 export default function AIDemo() {
   return (
-    <section className="py-24 bg-slate-50 dark:bg-slate-900/50" id="demo">
+    <section className="py-24 bg-transparent" id="demo">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Section Header */}

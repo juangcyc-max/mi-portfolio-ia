@@ -64,28 +64,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="es" suppressHydrationWarning>
-      <head>
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-(function() {
-  try {
-    const theme = localStorage.getItem("theme");
-    const systemDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-
-    if (theme === "dark" || (!theme && systemDark)) {
-      document.documentElement.classList.add("dark");
-    } else {
-      document.documentElement.classList.remove("dark");
-    }
-  } catch (e) {}
-})();
-`,
-          }}
-        />
-      </head>
-
+    <html lang="es" className="dark" suppressHydrationWarning>
       <body
         className={`
           ${publicSans.variable}
@@ -94,7 +73,6 @@ export default function RootLayout({
           min-h-screen
           bg-office
           text-slate-900 dark:text-slate-100
-          bg-slate-50 dark:bg-slate-900
           transition-colors duration-300
           selection:bg-emerald-500/30
           selection:text-emerald-200
