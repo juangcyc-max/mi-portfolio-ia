@@ -26,11 +26,19 @@ body {
   color: var(--foreground);
   font-family: var(--font-public-sans);
   min-height: 100vh;
+  min-height: 100dvh; /* ✅ Altura dinámica del móvil */
+  overflow-x: hidden; /* ✅ Evita scroll horizontal */
 }
 
 /* Scroll suave */
 html {
   scroll-behavior: smooth;
+  scroll-padding-top: 100px;
+}
+
+section[id],
+div[id] {
+  scroll-margin-top: 100px;
 }
 
 /* ============================================ */
@@ -73,21 +81,21 @@ html {
 }
 
 /* ============================================ */
-/* FONDO DE ESCRITORIO - OCUPA TODA LA PANTALLA SIN ZOOM EXCESIVO */
+/* FONDO DE ESCRITORIO - ✅ AHORA CUBRE TODO EN MÓVIL */
 /* ============================================ */
 
 .bg-office {
   position: relative;
 }
 
-/* Capa 1: Imagen de fondo - AJUSTADA */
+/* Capa 1: Imagen de fondo - ✅ CORREGIDA PARA CUBRIR TODO */
 .bg-office::before {
   content: "";
   position: fixed;
   inset: 0;
   background-image: url("/office-background.jpg");
-  background-size: 100% auto;  /* ← Ancho completo, alto proporcional */
-  background-position: center top;  /* ← Centrado arriba */
+  background-size: cover;  /* ✅ CLAVE: cubre toda la pantalla */
+  background-position: center center;  /* ✅ Centrado perfecto */
   background-repeat: no-repeat;
   z-index: -2;
 }
