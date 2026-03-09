@@ -61,34 +61,42 @@ export default function ContactForm() {
   };
 
   return (
-    <section id="contacto" className="relative py-24 overflow-hidden">
-      {/* Glow Background */}
-      <div className="absolute inset-0 -z-10 opacity-20 pointer-events-none">
-        <div className="absolute top-1/2 left-0 w-96 h-96 bg-emerald-500 rounded-full blur-[140px]"></div>
-        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-cyan-400 rounded-full blur-[140px]"></div>
+    <section 
+      id="contacto" 
+      className="relative py-12 sm:py-16 md:py-24 px-4 overflow-hidden"
+      suppressHydrationWarning
+    >
+      {/* Glow Background - Responsive blur */}
+      <div className="absolute inset-0 -z-10 opacity-15 sm:opacity-20 pointer-events-none">
+        <div className="absolute top-1/2 left-0 w-64 sm:w-96 h-64 sm:h-96 bg-emerald-500 rounded-full blur-[80px] sm:blur-[140px]"></div>
+        <div className="absolute bottom-0 right-1/4 w-64 sm:w-96 h-64 sm:h-96 bg-cyan-400 rounded-full blur-[80px] sm:blur-[140px]"></div>
       </div>
 
-      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-3xl mx-auto">
         
-        {/* Section Header */}
+        {/* Section Header - Responsive */}
         <motion.div 
-          className="text-center mb-12"
+          className="text-center mb-8 sm:mb-10 md:mb-12"
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true }}
           variants={fadeInUp}
         >
-          <h2 className="text-4xl md:text-5xl font-black text-slate-900 dark:text-white mb-4">
-            ¿Listo para <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-500 to-cyan-400">empezar</span>?
+          <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black text-slate-900 dark:text-white mb-3 sm:mb-4 px-2 leading-tight">
+            ¿Listo para{" "}
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-500 to-cyan-400">
+              empezar
+            </span>
+            ?
           </h2>
-          <p className="text-lg text-slate-600 dark:text-slate-400 max-w-2xl mx-auto">
+          <p className="text-sm sm:text-base md:text-lg text-slate-600 dark:text-slate-400 max-w-2xl mx-auto px-2">
             Cuéntame sobre tu proyecto y te contacto en menos de 24 horas.
           </p>
         </motion.div>
 
-        {/* Form Container - MÁS TRANSPARENTE */}
+        {/* Form Container - Responsive padding */}
         <motion.div 
-          className="bg-white/10 dark:bg-slate-900/30 backdrop-blur-sm p-8 rounded-2xl border border-white/30 dark:border-slate-700/50 shadow-xl"
+          className="bg-white/10 dark:bg-slate-900/30 backdrop-blur-sm p-5 sm:p-6 md:p-8 rounded-2xl border border-white/30 dark:border-slate-700/50 shadow-xl"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
@@ -96,62 +104,65 @@ export default function ContactForm() {
         >
           {contactSent ? (
             <motion.div 
-              className="text-center py-12"
+              className="text-center py-8 sm:py-10 md:py-12"
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
             >
-              <div className="text-6xl mb-4">✅</div>
-              <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">
+              <div className="text-5xl sm:text-6xl mb-3 sm:mb-4">✅</div>
+              <h3 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white mb-2">
                 ¡Mensaje enviado!
               </h3>
-              <p className="text-slate-600 dark:text-slate-400">
+              <p className="text-sm sm:text-base text-slate-600 dark:text-slate-400 px-2">
                 Te contacto muy pronto. Gracias por confiar en Mindbridge IA.
               </p>
             </motion.div>
           ) : (
-            <form onSubmit={sendContact} className="space-y-6">
+            <form onSubmit={sendContact} className="space-y-5 sm:space-y-6">
               
-              {/* Name */}
+              {/* Name - Responsive input */}
               <motion.div variants={fadeInUp} initial="hidden" whileInView="visible" viewport={{ once: true }}>
-                <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                <label className="block text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
                   Nombre completo *
                 </label>
                 <input
                   type="text"
                   value={contactName}
                   onChange={(e) => setContactName(e.target.value)}
-                  className="w-full bg-white/20 dark:bg-slate-900/50 border border-white/30 dark:border-slate-700/50 rounded-lg px-4 py-3 text-sm focus:ring-emerald-500 focus:border-emerald-500 dark:text-white placeholder-slate-500 transition-colors"
+                  className="w-full bg-white/20 dark:bg-slate-900/50 border border-white/30 dark:border-slate-700/50 rounded-lg px-4 py-3 text-sm focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 dark:text-white placeholder-slate-500 transition-colors min-h-[48px]"
                   placeholder="Tu nombre"
                   required
                   disabled={submitting}
+                  autoCapitalize="words"
                 />
               </motion.div>
 
-              {/* Email */}
+              {/* Email - Responsive input */}
               <motion.div variants={fadeInUp} initial="hidden" whileInView="visible" viewport={{ once: true }}>
-                <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                <label className="block text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
                   Email *
                 </label>
                 <input
                   type="email"
                   value={contactEmail}
                   onChange={(e) => setContactEmail(e.target.value)}
-                  className="w-full bg-white/20 dark:bg-slate-900/50 border border-white/30 dark:border-slate-700/50 rounded-lg px-4 py-3 text-sm focus:ring-emerald-500 focus:border-emerald-500 dark:text-white placeholder-slate-500 transition-colors"
+                  className="w-full bg-white/20 dark:bg-slate-900/50 border border-white/30 dark:border-slate-700/50 rounded-lg px-4 py-3 text-sm focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 dark:text-white placeholder-slate-500 transition-colors min-h-[48px]"
                   placeholder="tu@email.com"
                   required
                   disabled={submitting}
+                  autoCapitalize="none"
+                  autoComplete="email"
                 />
               </motion.div>
 
-              {/* Message */}
+              {/* Message - Responsive textarea */}
               <motion.div variants={fadeInUp} initial="hidden" whileInView="visible" viewport={{ once: true }}>
-                <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                <label className="block text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
                   Mensaje *
                 </label>
                 <textarea
                   value={contactMessage}
                   onChange={(e) => setContactMessage(e.target.value)}
-                  className="w-full bg-white/20 dark:bg-slate-900/50 border border-white/30 dark:border-slate-700/50 rounded-lg px-4 py-3 text-sm focus:ring-emerald-500 focus:border-emerald-500 dark:text-white placeholder-slate-500 resize-none transition-colors"
+                  className="w-full bg-white/20 dark:bg-slate-900/50 border border-white/30 dark:border-slate-700/50 rounded-lg px-4 py-3 text-sm focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 dark:text-white placeholder-slate-500 resize-none transition-colors min-h-[120px] sm:min-h-[140px]"
                   placeholder="Cuéntame sobre tu proyecto..."
                   rows={5}
                   required
@@ -159,17 +170,18 @@ export default function ContactForm() {
                 />
               </motion.div>
 
-              {/* Submit Button */}
+              {/* Submit Button - Full width, easy to tap */}
               <motion.div variants={fadeInUp} initial="hidden" whileInView="visible" viewport={{ once: true }}>
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="w-full bg-emerald-500 hover:bg-emerald-600 disabled:bg-emerald-500/50 text-white font-bold py-4 rounded-xl transition-all shadow-lg shadow-emerald-500/30 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                  className="w-full bg-emerald-500 hover:bg-emerald-600 disabled:bg-emerald-500/50 text-white font-bold py-3 sm:py-4 rounded-xl transition-all shadow-lg shadow-emerald-500/30 disabled:cursor-not-allowed flex items-center justify-center gap-2 min-h-[48px] text-sm sm:text-base"
                 >
                   {submitting ? (
                     <>
-                      <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
-                      Enviando...
+                      <span className="w-4 h-4 sm:w-5 sm:h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+                      <span className="hidden sm:inline">Enviando...</span>
+                      <span className="sm:hidden">Enviando</span>
                     </>
                   ) : (
                     "Enviar Mensaje"
@@ -177,8 +189,8 @@ export default function ContactForm() {
                 </button>
               </motion.div>
 
-              {/* Privacy Note */}
-              <p className="text-xs text-slate-500 dark:text-slate-400 text-center">
+              {/* Privacy Note - Responsive */}
+              <p className="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 text-center px-4">
                 Tus datos están protegidos. No comparto información con terceros.
               </p>
             </form>

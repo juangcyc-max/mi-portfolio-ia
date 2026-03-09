@@ -38,75 +38,79 @@ const services = [
 
 export default function Services() {
   return (
-    <section className="py-24 bg-transparent" id="servicios">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section 
+      className="py-12 sm:py-16 md:py-24 px-4 bg-transparent" 
+      id="servicios"
+      suppressHydrationWarning
+    >
+      <div className="max-w-7xl mx-auto">
         
-        {/* Section Header */}
+        {/* Section Header - Responsive */}
         <motion.div 
-          className="text-center max-w-3xl mx-auto mb-16"
+          className="text-center max-w-3xl mx-auto mb-10 sm:mb-12 md:mb-16"
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true }}
           variants={staggerContainer}
         >
           <motion.p 
-            className="text-emerald-500 font-bold text-sm uppercase tracking-widest mb-3" 
+            className="text-emerald-500 font-bold text-xs sm:text-sm uppercase tracking-widest mb-3" 
             variants={fadeInUp}
           >
             Nuestra Experiencia
           </motion.p>
           <motion.h2 
-            className="text-3xl md:text-4xl font-black dark:text-white mb-6" 
+            className="text-2xl sm:text-3xl md:text-4xl font-black dark:text-white mb-4 sm:mb-6 leading-tight" 
             variants={fadeInUp}
           >
             Servicios Especializados
           </motion.h2>
           <motion.p 
-            className="text-slate-600 dark:text-slate-400" 
+            className="text-sm sm:text-base text-slate-600 dark:text-slate-400 px-2" 
             variants={fadeInUp}
           >
             Combinamos el poder de la Inteligencia Artificial con el desarrollo web de alto rendimiento para escalar tu negocio.
           </motion.p>
         </motion.div>
 
-        {/* Services Grid */}
-        <div className="grid md:grid-cols-3 gap-8">
+        {/* Services Grid - Responsive: 1 col móvil, 3 desktop */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
           {services.map((service, index) => (
             <motion.div
               key={index}
-              className="bg-white/10 dark:bg-slate-800/30 backdrop-blur-sm p-8 rounded-2xl border border-white/30 dark:border-slate-700/50 hover:border-emerald-500/50 transition-all group"
+              className="bg-white/10 dark:bg-slate-800/30 backdrop-blur-sm p-5 sm:p-6 md:p-8 rounded-2xl border border-white/30 dark:border-slate-700/50 hover:border-emerald-500/50 transition-all group"
               initial="hidden"
               whileInView="visible"
               viewport={{ once: true }}
               variants={fadeInUp}
-              whileHover={{ y: -10 }}
+              whileHover={{ y: -5 }}
             >
-              {/* Icon - SVG Profesional */}
-              <div className="size-14 rounded-xl bg-emerald-500/10 flex items-center justify-center text-emerald-500 mb-6 group-hover:scale-110 transition-transform">
+              {/* Icon - Responsive size */}
+              <div className="size-12 sm:size-14 rounded-xl bg-emerald-500/10 flex items-center justify-center text-emerald-500 mb-4 sm:mb-6 group-hover:scale-110 transition-transform">
                 {service.icon}
               </div>
 
-              {/* Title */}
-              <h3 className="text-xl font-bold dark:text-white mb-4">
+              {/* Title - Responsive */}
+              <h3 className="text-lg sm:text-xl font-bold dark:text-white mb-3 sm:mb-4 leading-tight">
                 {service.title}
               </h3>
 
-              {/* Description */}
-              <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed mb-6">
+              {/* Description - Responsive */}
+              <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed mb-5 sm:mb-6">
                 {service.description}
               </p>
 
-              {/* Features List */}
-              <ul className="space-y-3">
+              {/* Features List - Responsive */}
+              <ul className="space-y-2 sm:space-y-3">
                 {service.features.map((feature, i) => (
                   <li 
                     key={i} 
                     className="flex items-center gap-2 text-xs font-semibold text-slate-500 dark:text-slate-400"
                   >
-                    <svg className="w-4 h-4 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                     </svg>
-                    {feature}
+                    <span>{feature}</span>
                   </li>
                 ))}
               </ul>

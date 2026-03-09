@@ -104,8 +104,14 @@ export default function ChatBox() {
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
+  const [isClient, setIsClient] = useState(false); // ✅ PARA HIDRATACIÓN
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+
+  // ✅ Detectar cliente para evitar errores de hidratación
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   // Cargar historial desde localStorage
   useEffect(() => {
@@ -148,7 +154,6 @@ export default function ChatBox() {
   // Simular escritura de IA (efecto realista)
   const simulateTyping = async (response: string): Promise<void> => {
     setIsTyping(true);
-    // Tiempo proporcional: ~15ms por carácter, entre 800ms y 2500ms
     const typingTime = Math.min(2500, Math.max(800, response.length * 12));
     await new Promise(resolve => setTimeout(resolve, typingTime));
     setIsTyping(false);
@@ -254,83 +259,84 @@ export default function ChatBox() {
   };
 
   return (
-    <div className="max-w-2xl mx-auto bg-white/15 dark:bg-slate-800/40 backdrop-blur-md rounded-2xl border border-white/40 dark:border-slate-600/60 shadow-2xl flex flex-col h-[680px] overflow-hidden">
+    <div 
+      className="max-w-2xl mx-auto bg-white/15 dark:bg-slate-800/40 backdrop-blur-md rounded-2xl border border-white/40 dark:border-slate-600/60 shadow-2xl flex flex-col h-[600px] sm:h-[680px] overflow-hidden"
+      suppressHydrationWarning
+    >
       
-      {/* Header Profesional */}
-      <div className="p-4 border-b border-white/30 dark:border-slate-600/50 bg-gradient-to-r from-slate-800/80 to-slate-900/80 dark:from-slate-900/90 dark:to-slate-800/90">
+      {/* Header Profesional - Responsive */}
+      <div className="p-3 sm:p-4 border-b border-white/30 dark:border-slate-600/50 bg-gradient-to-r from-slate-800/80 to-slate-900/80 dark:from-slate-900/90 dark:to-slate-800/90">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3">
             <div className="relative">
-              <div className="size-11 rounded-xl bg-gradient-to-br from-emerald-600 to-cyan-500 flex items-center justify-center shadow-lg shadow-emerald-500/20">
-                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="size-9 sm:size-11 rounded-xl bg-gradient-to-br from-emerald-600 to-cyan-500 flex items-center justify-center shadow-lg shadow-emerald-500/20">
+                <svg className="w-5 h-5 sm:w-6 sm:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                 </svg>
               </div>
-              <div className="absolute -bottom-0.5 -right-0.5 size-3.5 rounded-full bg-emerald-500 border-2 border-slate-800 dark:border-slate-900"></div>
+              <div className="absolute -bottom-0.5 -right-0.5 size-3 sm:size-3.5 rounded-full bg-emerald-500 border-2 border-slate-800 dark:border-slate-900"></div>
             </div>
             <div>
-              <h3 className="text-sm font-semibold text-white">Mindbridge Assistant</h3>
-              <p className="text-xs text-emerald-400 flex items-center gap-1">
+              <h3 className="text-xs sm:text-sm font-semibold text-white">Mindbridge Assistant</h3>
+              <p className="text-[10px] sm:text-xs text-emerald-400 flex items-center gap-1">
                 <span className="size-1.5 rounded-full bg-emerald-400"></span>
                 Disponible ahora
               </p>
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            <button
-              onClick={clearChat}
-              className="p-2 text-slate-400 hover:text-white dark:hover:text-white transition-colors rounded-lg hover:bg-white/10"
-              title="Nueva conversación"
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-              </svg>
-            </button>
-          </div>
+          <button
+            onClick={clearChat}
+            className="p-2 text-slate-400 hover:text-white dark:hover:text-white transition-colors rounded-lg hover:bg-white/10 min-w-[44px] min-h-[44px] flex items-center justify-center"
+            title="Nueva conversación"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+          </button>
         </div>
       </div>
 
-      {/* Área de mensajes */}
-      <div className="flex-1 p-5 overflow-y-auto space-y-5 bg-gradient-to-b from-transparent via-slate-50/5 to-white/10 dark:via-slate-900/10 dark:to-slate-800/20">
+      {/* Área de mensajes - Responsive height */}
+      <div className="flex-1 p-3 sm:p-5 overflow-y-auto space-y-4 sm:space-y-5 bg-gradient-to-b from-transparent via-slate-50/5 to-white/10 dark:via-slate-900/10 dark:to-slate-800/20">
         <AnimatePresence mode="popLayout">
           {messages.map((msg, index) => (
             <motion.div
               key={index}
-              className={`flex gap-3 ${msg.role === "user" ? "flex-row-reverse" : ""}`}
+              className={`flex gap-2 sm:gap-3 ${msg.role === "user" ? "flex-row-reverse" : ""}`}
               initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -15 }}
               transition={{ duration: 0.25 }}
             >
-              {/* Avatar */}
-              <div className={`size-9 rounded-lg flex items-center justify-center shrink-0 ${
+              {/* Avatar - Responsive */}
+              <div className={`size-8 sm:size-9 rounded-lg flex items-center justify-center shrink-0 ${
                 msg.role === "user" 
                   ? "bg-gradient-to-br from-slate-600 to-slate-700" 
                   : "bg-gradient-to-br from-emerald-600 to-cyan-500"
               }`}>
                 {msg.role === "user" ? (
-                  <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-4 h-4 sm:w-5 sm:h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                   </svg>
                 ) : (
-                  <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-4 h-4 sm:w-5 sm:h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                   </svg>
                 )}
               </div>
 
-              {/* Burbuja de mensaje */}
-              <div className={`flex flex-col gap-1.5 max-w-[82%] ${
+              {/* Burbuja de mensaje - Responsive */}
+              <div className={`flex flex-col gap-1 max-w-[85%] sm:max-w-[82%] ${
                 msg.role === "user" ? "items-end" : "items-start"
               }`}>
-                <div className={`px-4 py-3 rounded-2xl text-sm leading-relaxed shadow-md whitespace-pre-line ${
+                <div className={`px-3 sm:px-4 py-2.5 sm:py-3 rounded-2xl text-xs sm:text-sm leading-relaxed shadow-md whitespace-pre-line break-words ${
                   msg.role === "user"
                     ? "bg-gradient-to-br from-emerald-600 to-cyan-600 text-white rounded-tr-md"
                     : "bg-white/95 dark:bg-slate-700/95 text-slate-800 dark:text-slate-100 rounded-tl-md border border-slate-200/50 dark:border-slate-600/50"
                 }`}>
                   {msg.content}
                 </div>
-                <span className="text-xs text-slate-400 dark:text-slate-500 px-1">
+                <span className="text-[10px] sm:text-xs text-slate-400 dark:text-slate-500 px-1">
                   {formatTime(msg.timestamp)}
                 </span>
               </div>
@@ -338,54 +344,54 @@ export default function ChatBox() {
           ))}
         </AnimatePresence>
 
-        {/* Indicador de escritura profesional */}
-        <AnimatePresence>
-          {isTyping && (
+        {/* Indicador de escritura profesional - Responsive */}
+        {isClient && isTyping && (
+          <AnimatePresence>
             <motion.div
-              className="flex gap-3"
+              className="flex gap-2 sm:gap-3"
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
             >
-              <div className="size-9 rounded-lg bg-gradient-to-br from-emerald-600 to-cyan-500 flex items-center justify-center shrink-0">
-                <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="size-8 sm:size-9 rounded-lg bg-gradient-to-br from-emerald-600 to-cyan-500 flex items-center justify-center shrink-0">
+                <svg className="w-4 h-4 sm:w-5 sm:h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                 </svg>
               </div>
-              <div className="bg-white/95 dark:bg-slate-700/95 px-4 py-3 rounded-2xl rounded-tl-md shadow-md border border-slate-200/50 dark:border-slate-600/50">
+              <div className="bg-white/95 dark:bg-slate-700/95 px-3 sm:px-4 py-2.5 sm:py-3 rounded-2xl rounded-tl-md shadow-md border border-slate-200/50 dark:border-slate-600/50">
                 <div className="flex gap-1.5 items-center">
                   <motion.span 
-                    className="w-2 h-2 bg-emerald-500 rounded-full"
+                    className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-emerald-500 rounded-full"
                     animate={{ opacity: [0.4, 1, 0.4] }}
                     transition={{ duration: 1.2, repeat: Infinity, delay: 0 }}
                   />
                   <motion.span 
-                    className="w-2 h-2 bg-cyan-400 rounded-full"
+                    className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-cyan-400 rounded-full"
                     animate={{ opacity: [0.4, 1, 0.4] }}
                     transition={{ duration: 1.2, repeat: Infinity, delay: 0.2 }}
                   />
                   <motion.span 
-                    className="w-2 h-2 bg-emerald-400 rounded-full"
+                    className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-emerald-400 rounded-full"
                     animate={{ opacity: [0.4, 1, 0.4] }}
                     transition={{ duration: 1.2, repeat: Infinity, delay: 0.4 }}
                   />
-                  <span className="text-xs text-slate-500 dark:text-slate-400 ml-2">Escribiendo respuesta...</span>
+                  <span className="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 ml-2">Escribiendo...</span>
                 </div>
               </div>
             </motion.div>
-          )}
-        </AnimatePresence>
+          </AnimatePresence>
+        )}
 
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Área de input profesional */}
-      <div className="p-4 border-t border-white/30 dark:border-slate-600/50 bg-gradient-to-r from-slate-800/60 to-slate-900/60 dark:from-slate-900/80 dark:to-slate-800/80">
+      {/* Área de input profesional - Responsive */}
+      <div className="p-3 sm:p-4 border-t border-white/30 dark:border-slate-600/50 bg-gradient-to-r from-slate-800/60 to-slate-900/60 dark:from-slate-900/80 dark:to-slate-800/80">
         <div className="relative">
           <textarea
             ref={inputRef}
-            className="w-full bg-white/90 dark:bg-slate-800/90 border border-slate-300 dark:border-slate-600 rounded-xl px-4 py-3 pr-12 text-sm focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500/50 resize-none text-slate-800 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 transition-all shadow-sm"
-            placeholder="Escribe tu consulta profesional..."
+            className="w-full bg-white/90 dark:bg-slate-800/90 border border-slate-300 dark:border-slate-600 rounded-xl px-3 sm:px-4 py-2.5 sm:py-3 pr-12 text-xs sm:text-sm focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500/50 resize-none text-slate-800 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 transition-all shadow-sm min-h-[80px] sm:min-h-[96px]"
+            placeholder="Escribe tu consulta..."
             rows={2}
             value={input}
             onChange={(e) => setInput(e.target.value)}
@@ -395,20 +401,20 @@ export default function ChatBox() {
           <button
             onClick={() => sendMessage()}
             disabled={loading || isTyping || !input.trim()}
-            className="absolute right-2.5 bottom-2.5 p-2 bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-400 dark:disabled:bg-slate-600 text-white rounded-lg disabled:cursor-not-allowed transition-all hover:scale-105 active:scale-95 shadow-lg shadow-emerald-600/30"
+            className="absolute right-2 bottom-2 sm:right-2.5 sm:bottom-2.5 p-2 sm:p-2.5 bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-400 dark:disabled:bg-slate-600 text-white rounded-lg disabled:cursor-not-allowed transition-all hover:scale-105 active:scale-95 shadow-lg shadow-emerald-600/30 min-w-[44px] min-h-[44px] flex items-center justify-center"
           >
-            <svg className="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-4 h-4 sm:w-4.5 sm:h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
             </svg>
           </button>
         </div>
-        <div className="flex justify-between items-center mt-2.5">
-          <p className="text-xs text-slate-400 dark:text-slate-500">
+        <div className="flex justify-between items-center mt-2">
+          <p className="text-[10px] sm:text-xs text-slate-400 dark:text-slate-500">
             Enter para enviar • Shift+Enter para nueva línea
           </p>
-          <div className="flex items-center gap-2 text-xs text-emerald-400">
-            <span className="size-2 rounded-full bg-emerald-400 animate-pulse"></span>
-            <span>Conectado</span>
+          <div className="flex items-center gap-1.5 text-[10px] sm:text-xs text-emerald-400">
+            <span className="size-1.5 sm:size-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span className="hidden sm:inline">Conectado</span>
           </div>
         </div>
       </div>

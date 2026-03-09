@@ -11,7 +11,7 @@ const NAV_ITEMS = [
   { href: "#servicios", label: "Servicios" },
   { href: "#tecnologias", label: "Tecnologías" },
   { href: "#demo", label: "Chat IA" },
-  { href: "#portfolio", label: "Portfolio" }  // ✅ Sin "/" para scroll en misma página
+  { href: "#portfolio", label: "Portfolio" }
 ];
 
 export default function Navbar() {
@@ -56,13 +56,13 @@ export default function Navbar() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // ✅ SCROLL MANUAL PARA ANCLAS (soluciona el problema de Next.js)
+  // ✅ SCROLL MANUAL PARA ANCLAS
   const handleAnchorClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
     if (href.startsWith("#")) {
       e.preventDefault();
       const element = document.querySelector(href);
       if (element) {
-        const navbarHeight = 80; // Altura del navbar
+        const navbarHeight = 80;
         const elementPosition = element.getBoundingClientRect().top;
         const offsetPosition = elementPosition + window.scrollY - navbarHeight;
 
@@ -94,26 +94,26 @@ export default function Navbar() {
       variants={fadeInDown}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-20">
+        <div className="flex justify-between items-center h-16 sm:h-20">
 
-          {/* Logo */}
+          {/* Logo - Área táctil más grande en móvil */}
           <Link 
             href="/" 
-            className="flex items-center gap-3 select-none outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 rounded-lg transition-shadow z-50"
+            className="flex items-center gap-2 sm:gap-3 select-none outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 rounded-lg transition-shadow z-50 p-1 -m-1"
             aria-label="Ir a la página de inicio"
             onClick={() => setIsMobileMenuOpen(false)}
           >
-            <div className="w-12 h-12 flex items-center justify-center rounded-xl bg-white/50 dark:bg-slate-800/80 border border-slate-200/50 dark:border-slate-700/50 shadow-sm">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center rounded-xl bg-white/50 dark:bg-slate-800/80 border border-slate-200/50 dark:border-slate-700/50 shadow-sm">
               <Image
                 src="/logo.svg"
                 alt="Logotipo de Mindbridge IA"
-                width={44}
-                height={44}
+                width={40}
+                height={40}
                 className="object-contain"
                 priority
               />
             </div>
-            <span className="text-xl font-black tracking-tight text-slate-900 dark:text-transparent dark:bg-clip-text dark:bg-gradient-to-r dark:from-emerald-400 dark:to-cyan-400">
+            <span className="text-lg sm:text-xl font-black tracking-tight text-slate-900 dark:text-transparent dark:bg-clip-text dark:bg-gradient-to-r dark:from-emerald-400 dark:to-cyan-400">
               Mindbridge IA
             </span>
           </Link>
@@ -125,7 +125,7 @@ export default function Navbar() {
                 key={item.href}
                 href={item.href}
                 onClick={(e) => handleAnchorClick(e, item.href)}
-                className="group relative px-4 py-2 text-sm font-bold text-slate-800 dark:text-slate-200 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 rounded-md cursor-pointer"
+                className="group relative px-3 lg:px-4 py-2 text-sm font-bold text-slate-800 dark:text-slate-200 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 rounded-md cursor-pointer"
               >
                 {item.label}
                 <span className="absolute bottom-0 left-1/2 w-0 h-0.5 bg-gradient-to-r from-emerald-500 to-cyan-400 group-hover:w-full group-hover:left-0 transition-all duration-300 pointer-events-none"></span>
@@ -134,7 +134,7 @@ export default function Navbar() {
           </nav>
 
           {/* Lado Derecho (Desktop & Mobile Actions) */}
-          <div className="flex items-center gap-3 z-50">
+          <div className="flex items-center gap-2 sm:gap-3 z-50">
             <ThemeToggle />
 
             {/* CTA Desktop */}
@@ -142,17 +142,17 @@ export default function Navbar() {
               <a
                 href="#contacto"
                 onClick={(e) => handleAnchorClick(e, "#contacto")}
-                className="group relative bg-gradient-to-r from-emerald-500 to-cyan-500 hover:from-emerald-600 hover:to-cyan-600 text-white px-6 py-2.5 rounded-xl font-bold text-sm transition-all shadow-lg shadow-emerald-500/25 hover:shadow-emerald-500/40 hover:scale-105 active:scale-95 overflow-hidden outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-emerald-500 dark:focus-visible:ring-offset-slate-900 cursor-pointer"
+                className="group relative bg-gradient-to-r from-emerald-500 to-cyan-500 hover:from-emerald-600 hover:to-cyan-600 text-white px-5 lg:px-6 py-2.5 rounded-xl font-bold text-sm transition-all shadow-lg shadow-emerald-500/25 hover:shadow-emerald-500/40 hover:scale-105 active:scale-95 overflow-hidden outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-emerald-500 dark:focus-visible:ring-offset-slate-900 cursor-pointer"
               >
                 <span className="relative z-10">Contactar</span>
                 <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 pointer-events-none"></span>
               </a>
             </div>
 
-            {/* Mobile Menu Toggle */}
+            {/* Mobile Menu Toggle - Área táctil más grande */}
             <button
               type="button"
-              className="md:hidden flex items-center justify-center p-2 rounded-md text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 transition-colors"
+              className="md:hidden flex items-center justify-center p-3 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 transition-colors min-w-[44px] min-h-[44px]"
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               aria-expanded={isMobileMenuOpen}
               aria-label={isMobileMenuOpen ? "Cerrar menú" : "Abrir menú de navegación"}
@@ -177,7 +177,7 @@ export default function Navbar() {
         </div>
       </div>
 
-      {/* Menú Desplegable Móvil */}
+      {/* Menú Desplegable Móvil - Optimizado para táctil */}
       <AnimatePresence>
         {isMobileMenuOpen && (
           <motion.div
@@ -190,13 +190,13 @@ export default function Navbar() {
             role="dialog"
             aria-modal="true"
           >
-            <div className="px-4 pt-2 pb-6 space-y-1">
+            <div className="px-4 pt-4 pb-8 space-y-2">
               {NAV_ITEMS.map((item, index) => (
                 <motion.div
                   key={item.href}
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: index * 0.1 }}
+                  transition={{ delay: index * 0.05 }}
                 >
                   <a
                     href={item.href}
@@ -204,17 +204,19 @@ export default function Navbar() {
                       handleAnchorClick(e, item.href);
                       setIsMobileMenuOpen(false);
                     }}
-                    className="block px-3 py-4 text-base font-bold text-slate-800 dark:text-slate-200 hover:bg-emerald-50 dark:hover:bg-slate-800/50 hover:text-emerald-600 dark:hover:text-emerald-400 rounded-lg transition-colors outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 cursor-pointer"
+                    className="block px-4 py-4 text-base font-bold text-slate-800 dark:text-slate-200 hover:bg-emerald-50 dark:hover:bg-slate-800/50 hover:text-emerald-600 dark:hover:text-emerald-400 rounded-xl transition-colors outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 cursor-pointer min-h-[56px] flex items-center"
                   >
                     {item.label}
                   </a>
                 </motion.div>
               ))}
+              
+              {/* CTA Mobile - Separado y más grande */}
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.3 }}
-                className="pt-4 px-3"
+                transition={{ delay: 0.25 }}
+                className="pt-6 px-2"
               >
                 <a
                   href="#contacto"
@@ -222,7 +224,7 @@ export default function Navbar() {
                     handleAnchorClick(e, "#contacto");
                     setIsMobileMenuOpen(false);
                   }}
-                  className="flex justify-center w-full bg-gradient-to-r from-emerald-500 to-cyan-500 hover:from-emerald-600 hover:to-cyan-600 text-white px-6 py-3 rounded-xl font-bold transition-all shadow-lg shadow-emerald-500/25 outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-emerald-500 dark:focus-visible:ring-offset-slate-900 cursor-pointer"
+                  className="flex justify-center w-full bg-gradient-to-r from-emerald-500 to-cyan-500 hover:from-emerald-600 hover:to-cyan-600 text-white px-6 py-4 rounded-xl font-bold text-base transition-all shadow-lg shadow-emerald-500/25 outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-emerald-500 dark:focus-visible:ring-offset-slate-900 cursor-pointer min-h-[56px] flex items-center justify-center"
                 >
                   Contactar
                 </a>
