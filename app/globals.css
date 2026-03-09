@@ -26,6 +26,8 @@ body {
   color: var(--foreground);
   font-family: var(--font-public-sans);
   min-height: 100vh;
+  min-height: 100dvh;
+  overflow-x: hidden;
 }
 
 /* ============================================ */
@@ -34,10 +36,9 @@ body {
 
 html {
   scroll-behavior: smooth;
-  scroll-padding-top: 100px; /* ✅ Evita que el navbar tape el contenido al hacer scroll */
+  scroll-padding-top: 100px;
 }
 
-/* ✅ Todas las secciones con id tendrán margen superior al hacer scroll */
 section[id],
 div[id] {
   scroll-margin-top: 100px;
@@ -83,36 +84,6 @@ div[id] {
 }
 
 /* ============================================ */
-/* FONDO DE ESCRITORIO - OCUPA TODA LA PANTALLA SIN ZOOM EXCESIVO */
+/* ✅ CLASE .bg-office ELIMINADA - Ya no se usa */
+/* (La imagen ahora está en page.tsx) */
 /* ============================================ */
-
-.bg-office {
-  position: relative;
-}
-
-/* Capa 1: Imagen de fondo - AJUSTADA */
-.bg-office::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  background-image: url("/office-background.jpg");
-  background-size: 100% auto;  /* ← Ancho completo, alto proporcional */
-  background-position: center top;  /* ← Centrado arriba */
-  background-repeat: no-repeat;
-  z-index: -2;
-}
-
-/* Capa 2: Overlay (oscuro por defecto) */
-.bg-office::after {
-  content: "";
-  position: fixed;
-  inset: 0;
-  background: rgba(15, 23, 42, 0.80);
-  z-index: -1;
-  transition: background 0.4s ease;
-}
-
-/* Overlay en modo claro */
-html:not(.dark) .bg-office::after {
-  background: rgba(248, 250, 252, 0.70);
-}
