@@ -33,7 +33,6 @@ export default function ContactForm() {
           name: contactName,
           email: contactEmail,
           message: contactMessage,
-          // Campos para la calculadora (por ahora undefined):
           budget: undefined,
           projectType: undefined,
         }),
@@ -121,7 +120,23 @@ export default function ContactForm() {
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
             >
-              <div className="text-5xl sm:text-6xl mb-3 sm:mb-4">✅</div>
+              {/* ✅ Icono SVG profesional */}
+              <div className="mb-4 sm:mb-6 flex justify-center">
+                <svg 
+                  className="w-16 h-16 sm:w-20 sm:h-20 text-emerald-500" 
+                  fill="none" 
+                  stroke="currentColor" 
+                  viewBox="0 0 24 24"
+                >
+                  <path 
+                    strokeLinecap="round" 
+                    strokeLinejoin="round" 
+                    strokeWidth={2} 
+                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" 
+                  />
+                </svg>
+              </div>
+              
               <h3 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white mb-2">
                 ¡Mensaje enviado!
               </h3>
