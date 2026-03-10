@@ -103,17 +103,16 @@ export async function POST(request: Request) {
       );
     }
 
-    // 2. Cambiamos .svg a .png (Los clientes de correo suelen bloquear los SVG)
-    // Si estás en localhost, el logo no se verá. Debes subirlo a producción o usar una URL pública temporal.
-    const logoUrl = `${SITE_URL}/logo.png`; 
+    // ✅ CAMBIADO: logo.svg (tu formato original)
+    const logoUrl = `${SITE_URL}/logo.svg`; 
 
     const { error: resendError } = await resend.emails.send({
-      from: "Mindbridge Contacto <onboarding@resend.dev>", // Cambia esto por tu dominio verificado cuando pases a producción
+      from: "Mindbridge Contacto <onboarding@resend.dev>",
       to: ["juangcyc@gmail.com"],
-      replyTo: email, // Esto permite que al darle "Responder" en Gmail, vaya directo al cliente
+      replyTo: email,
       subject: `Nuevo mensaje - ${name}${projectType ? ` | ${projectType}` : ""}`,
       html: getEmailTemplate({ name, email, message, projectType, budget, logoUrl }),
-      text: `Nuevo mensaje de: ${name} (${email})\n\nMensaje: ${message}`, // Versión texto plano obligatoria para evitar filtros de spam
+      text: `Nuevo mensaje de: ${name} (${email})\n\nMensaje: ${message}`,
     });
 
     if (resendError) {
