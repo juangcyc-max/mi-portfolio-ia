@@ -11,32 +11,49 @@ export default function ContactForm() {
   const [contactMessage, setContactMessage] = useState("");
   const [contactSent, setContactSent] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState("");
 
   const sendContact = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!contactName || !contactEmail || !contactMessage) {
-      alert("Por favor completa todos los campos");
-      return;
-    }
-
-    // Verificar si Supabase está configurado
-    if (!isSupabaseConfigured()) {
-      console.warn("Supabase no configurado, usando modo demo");
-      setContactSent(true);
-      setContactName("");
-      setContactEmail("");
-      setContactMessage("");
-      setTimeout(() => setContactSent(false), 5000);
+      setError("Por favor completa todos los campos");
       return;
     }
 
     setSubmitting(true);
+    setError("");
 
     try {
-      const { error } = await supabase
-        .from("contact_messages")
-        .insert([
+      // ✅ ENVIAR EMAIL CON RESEND (prioridad)
+      const response = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: contactName,
+          email: contactEmail,
+          message: contactMessage,
+          // Campos para la calculadora (por ahora undefined):
+          budget: undefined,
+          projectType: undefined,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || "Error al enviar el mensaje");
+      }
+
+      // ✅ Éxito: mostrar confirmación
+      setContactSent(true);
+      setContactName("");
+      setContactEmail("");
+      setContactMessage("");
+      
+      // ✅ BACKUP: Guardar en Supabase (opcional)
+      if (isSupabaseConfigured()) {
+        await supabase.from("contact_messages").insert([
           {
             name: contactName,
             email: contactEmail,
@@ -44,17 +61,13 @@ export default function ContactForm() {
             created_at: new Date().toISOString()
           }
         ]);
+      }
 
-      if (error) throw error;
-
-      setContactSent(true);
-      setContactName("");
-      setContactEmail("");
-      setContactMessage("");
       setTimeout(() => setContactSent(false), 5000);
+      
     } catch (error) {
       console.error("Error enviando mensaje:", error);
-      alert("Hubo un error al enviar tu mensaje. Intenta de nuevo.");
+      setError(error instanceof Error ? error.message : "Hubo un error. Intenta de nuevo.");
     } finally {
       setSubmitting(false);
     }
@@ -66,7 +79,7 @@ export default function ContactForm() {
       className="relative py-12 sm:py-16 md:py-24 px-4 overflow-hidden"
       suppressHydrationWarning
     >
-      {/* Glow Background - Responsive blur */}
+      {/* Glow Background */}
       <div className="absolute inset-0 -z-10 opacity-15 sm:opacity-20 pointer-events-none">
         <div className="absolute top-1/2 left-0 w-64 sm:w-96 h-64 sm:h-96 bg-emerald-500 rounded-full blur-[80px] sm:blur-[140px]"></div>
         <div className="absolute bottom-0 right-1/4 w-64 sm:w-96 h-64 sm:h-96 bg-cyan-400 rounded-full blur-[80px] sm:blur-[140px]"></div>
@@ -74,7 +87,7 @@ export default function ContactForm() {
 
       <div className="max-w-3xl mx-auto">
         
-        {/* Section Header - Responsive */}
+        {/* Section Header */}
         <motion.div 
           className="text-center mb-8 sm:mb-10 md:mb-12"
           initial="hidden"
@@ -94,7 +107,7 @@ export default function ContactForm() {
           </p>
         </motion.div>
 
-        {/* Form Container - Responsive padding */}
+        {/* Form Container */}
         <motion.div 
           className="bg-white/10 dark:bg-slate-900/30 backdrop-blur-sm p-5 sm:p-6 md:p-8 rounded-2xl border border-white/30 dark:border-slate-700/50 shadow-xl"
           initial={{ opacity: 0, y: 20 }}
@@ -119,7 +132,18 @@ export default function ContactForm() {
           ) : (
             <form onSubmit={sendContact} className="space-y-5 sm:space-y-6">
               
-              {/* Name - Responsive input */}
+              {/* Mensaje de error */}
+              {error && (
+                <motion.div 
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="p-3 bg-red-500/10 border border-red-500/30 rounded-lg text-red-500 text-sm text-center"
+                >
+                  {error}
+                </motion.div>
+              )}
+              
+              {/* Name */}
               <motion.div variants={fadeInUp} initial="hidden" whileInView="visible" viewport={{ once: true }}>
                 <label className="block text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
                   Nombre completo *
@@ -136,7 +160,7 @@ export default function ContactForm() {
                 />
               </motion.div>
 
-              {/* Email - Responsive input */}
+              {/* Email */}
               <motion.div variants={fadeInUp} initial="hidden" whileInView="visible" viewport={{ once: true }}>
                 <label className="block text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
                   Email *
@@ -154,7 +178,7 @@ export default function ContactForm() {
                 />
               </motion.div>
 
-              {/* Message - Responsive textarea */}
+              {/* Message */}
               <motion.div variants={fadeInUp} initial="hidden" whileInView="visible" viewport={{ once: true }}>
                 <label className="block text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
                   Mensaje *
@@ -170,7 +194,7 @@ export default function ContactForm() {
                 />
               </motion.div>
 
-              {/* Submit Button - Full width, easy to tap */}
+              {/* Submit Button */}
               <motion.div variants={fadeInUp} initial="hidden" whileInView="visible" viewport={{ once: true }}>
                 <button
                   type="submit"
@@ -189,7 +213,7 @@ export default function ContactForm() {
                 </button>
               </motion.div>
 
-              {/* Privacy Note - Responsive */}
+              {/* Privacy Note */}
               <p className="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 text-center px-4">
                 Tus datos están protegidos. No comparto información con terceros.
               </p>
