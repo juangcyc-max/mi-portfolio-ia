@@ -26,8 +26,8 @@ body {
   color: var(--foreground);
   font-family: var(--font-public-sans);
   min-height: 100vh;
-  min-height: 100dvh; /* ✅ Altura dinámica del móvil */
-  overflow-x: hidden; /* ✅ Evita scroll horizontal */
+  min-height: 100dvh;
+  overflow-x: hidden;
 }
 
 /* Scroll suave */
@@ -60,42 +60,35 @@ div[id] {
 }
 
 /* ============================================ */
-/* SCROLLBAR */
+/* OCULTAR SCROLLBAR NATIVA */
 /* ============================================ */
 
 ::-webkit-scrollbar {
-  width: 10px;
+  width: 0px;
+  background: transparent;
 }
 
-::-webkit-scrollbar-track {
-  background: #1e293b;
-}
-
-::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, #10b981 0%, #22d3ee 100%);
-  border-radius: 5px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(180deg, #059669 0%, #0891b2 100%);
+* {
+  scrollbar-width: none;
+  scrollbar-color: transparent;
 }
 
 /* ============================================ */
-/* FONDO DE ESCRITORIO - ✅ AHORA CUBRE TODO EN MÓVIL */
+/* FONDO DE ESCRITORIO */
 /* ============================================ */
 
 .bg-office {
   position: relative;
 }
 
-/* Capa 1: Imagen de fondo - ✅ CORREGIDA PARA CUBRIR TODO */
+/* Capa 1: Imagen de fondo */
 .bg-office::before {
   content: "";
   position: fixed;
   inset: 0;
   background-image: url("/office-background.jpg");
-  background-size: cover;  /* ✅ CLAVE: cubre toda la pantalla */
-  background-position: center center;  /* ✅ Centrado perfecto */
+  background-size: cover;
+  background-position: center center;
   background-repeat: no-repeat;
   z-index: -2;
 }

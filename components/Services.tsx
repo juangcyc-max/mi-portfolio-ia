@@ -5,118 +5,163 @@ import { fadeInUp, staggerContainer } from "@/lib/animations";
 
 const services = [
   {
-    title: "Desarrollo Web Profesional",
-    description: "Sitios modernos, rápidos y optimizados con Next.js y React. Enfoque en performance y experiencia de usuario excepcional.",
+    title: "Desarrollo Web de Élite",
+    description: "Arquitecturas de alto rendimiento construidas con Next.js 14+. No solo creamos webs, diseñamos experiencias digitales que convierten visitantes en clientes fieles.",
     icon: (
-      <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+      <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
       </svg>
     ),
-    features: ["SEO Optimizado", "Responsive Design"]
+    features: ["Core Web Vitals optimizados", "Arquitectura escalable Cloud", "UX/UI de grado premium"],
+    color: "from-emerald-500/20 to-teal-500/20",
+    border: "group-hover:border-emerald-500/50"
   },
   {
-    title: "Integración de IA",
-    description: "Implementación de modelos de lenguaje (LLMs) y visión artificial adaptados a las necesidades específicas de tu sector.",
+    title: "Ecosistemas de IA",
+    description: "Integramos la inteligencia artificial en el ADN de tu empresa. Desde RAG con bases de datos vectoriales hasta LLMs afinados para tu modelo de negocio específico.",
     icon: (
-      <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+      <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
       </svg>
     ),
-    features: ["Modelos Personalizados", "RAG & Vector DBs"]
+    features: ["Integración de GPT-4 / Claude 3", "Sistemas RAG personalizados", "Análisis predictivo de datos"],
+    color: "from-blue-500/20 to-indigo-500/20",
+    border: "group-hover:border-blue-500/50"
   },
   {
-    title: "Automatizaciones",
-    description: "Optimización de flujos de trabajo mediante agentes inteligentes que ejecutan tareas repetitivas de forma autónoma.",
+    title: "Automatización Autónoma",
+    description: "Desplegamos agentes inteligentes que trabajan 24/7. Eliminamos los cuellos de botella operativos automatizando flujos de trabajo complejos sin intervención humana.",
     icon: (
-      <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 10V3L4 14h7v7l9-11h-7z" />
+      <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.2} d="M13 10V3L4 14h7v7l9-11h-7z" />
       </svg>
     ),
-    features: ["Workflow Automation", "Agentes IA Autónomos"]
+    features: ["Agentes de IA multi-tarea", "Conexión vía API nativa", "Monitorización en tiempo real"],
+    color: "from-purple-500/20 to-pink-500/20",
+    border: "group-hover:border-purple-500/50"
   }
 ];
 
 export default function Services() {
+  // ✅ Función para scroll suave a contacto
+  const scrollToContact = () => {
+    const contactSection = document.getElementById("contacto");
+    if (contactSection) {
+      contactSection.scrollIntoView({ behavior: "smooth" });
+    }
+  };
+
   return (
-    <section 
-      className="py-12 sm:py-16 md:py-24 px-4 bg-transparent" 
-      id="servicios"
-      suppressHydrationWarning
-    >
-      <div className="max-w-7xl mx-auto">
+    <section className="relative py-24 sm:py-32 overflow-hidden bg-transparent" id="servicios">
+      
+      {/* Background Decor */}
+      <div className="absolute top-0 left-0 w-full h-full pointer-events-none">
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[600px] bg-emerald-500/10 rounded-full blur-[120px]" />
+      </div>
+
+      <div className="max-w-7xl mx-auto px-6 relative z-10">
         
-        {/* Section Header - Responsive */}
+        {/* Header */}
         <motion.div 
-          className="text-center max-w-3xl mx-auto mb-10 sm:mb-12 md:mb-16"
+          className="max-w-3xl mb-20"
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true }}
           variants={staggerContainer}
         >
-          <motion.p 
-            className="text-emerald-500 font-bold text-xs sm:text-sm uppercase tracking-widest mb-3" 
+          <motion.span 
+            className="inline-block px-4 py-1.5 mb-6 text-[10px] font-black tracking-[0.2em] text-emerald-400 uppercase bg-emerald-400/10 rounded-full border border-emerald-400/20 backdrop-blur-md" 
             variants={fadeInUp}
           >
-            Nuestra Experiencia
-          </motion.p>
+            Engineering Excellence
+          </motion.span>
           <motion.h2 
-            className="text-2xl sm:text-3xl md:text-4xl font-black dark:text-white mb-4 sm:mb-6 leading-tight" 
+            className="text-4xl sm:text-5xl md:text-6xl font-black text-white mb-8 tracking-tight leading-[1.1] drop-shadow-lg" 
             variants={fadeInUp}
           >
-            Servicios Especializados
+            Soluciones que definen el <br />
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-emerald-200 to-emerald-500 drop-shadow-sm">
+              Futuro Digital
+            </span>
           </motion.h2>
           <motion.p 
-            className="text-sm sm:text-base text-slate-600 dark:text-slate-400 px-2" 
+            className="text-lg md:text-xl text-slate-300 font-medium max-w-2xl leading-relaxed drop-shadow-md" 
             variants={fadeInUp}
           >
-            Combinamos el poder de la Inteligencia Artificial con el desarrollo web de alto rendimiento para escalar tu negocio.
+            No implementamos herramientas, construimos ventajas competitivas mediante el uso estratégico de la Inteligencia Artificial y el software de alto rendimiento.
           </motion.p>
         </motion.div>
 
-        {/* Services Grid - Responsive: 1 col móvil, 3 desktop */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+        {/* Services Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {services.map((service, index) => (
             <motion.div
               key={index}
-              className="bg-white/10 dark:bg-slate-800/30 backdrop-blur-sm p-5 sm:p-6 md:p-8 rounded-2xl border border-white/30 dark:border-slate-700/50 hover:border-emerald-500/50 transition-all group"
+              className={`group relative p-10 rounded-[2.5rem] bg-white/[0.03] backdrop-blur-2xl border border-white/10 transition-all duration-500 hover:bg-white/[0.08] shadow-[0_8px_32px_0_rgba(0,0,0,0.3)] hover:shadow-emerald-500/10 ${service.border}`}
               initial="hidden"
               whileInView="visible"
               viewport={{ once: true }}
               variants={fadeInUp}
-              whileHover={{ y: -5 }}
+              whileHover={{ y: -10 }}
             >
-              {/* Icon - Responsive size */}
-              <div className="size-12 sm:size-14 rounded-xl bg-emerald-500/10 flex items-center justify-center text-emerald-500 mb-4 sm:mb-6 group-hover:scale-110 transition-transform">
-                {service.icon}
+              {/* Card Gradient Inner Glow */}
+              <div className={`absolute inset-0 bg-gradient-to-br ${service.color} opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-[2.5rem] pointer-events-none`} />
+
+              <div className="relative z-10">
+                {/* Icon Circle */}
+                <div className="size-16 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-emerald-400 mb-8 group-hover:scale-110 group-hover:bg-emerald-500 group-hover:text-slate-950 transition-all duration-500 shadow-xl backdrop-blur-md">
+                  {service.icon}
+                </div>
+
+                <h3 className="text-2xl font-bold text-white mb-4 tracking-tight drop-shadow-sm">
+                  {service.title}
+                </h3>
+
+                <p className="text-slate-300 leading-relaxed mb-8 font-medium">
+                  {service.description}
+                </p>
+
+                {/* Tags */}
+                <div className="flex flex-wrap gap-2">
+                  {services[index].features.map((feature, i) => (
+                    <div 
+                      key={i} 
+                      className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 backdrop-blur-md border border-white/10 text-[11px] font-bold text-slate-200 group-hover:border-white/20 transition-colors shadow-sm"
+                    >
+                      <div className="size-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.8)]" />
+                      {feature}
+                    </div>
+                  ))}
+                </div>
               </div>
 
-              {/* Title - Responsive */}
-              <h3 className="text-lg sm:text-xl font-bold dark:text-white mb-3 sm:mb-4 leading-tight">
-                {service.title}
-              </h3>
-
-              {/* Description - Responsive */}
-              <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed mb-5 sm:mb-6">
-                {service.description}
-              </p>
-
-              {/* Features List - Responsive */}
-              <ul className="space-y-2 sm:space-y-3">
-                {service.features.map((feature, i) => (
-                  <li 
-                    key={i} 
-                    className="flex items-center gap-2 text-xs font-semibold text-slate-500 dark:text-slate-400"
-                  >
-                    <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                    </svg>
-                    <span>{feature}</span>
-                  </li>
-                ))}
-              </ul>
+              {/* Decorative Corner Arrow */}
+              <div className="absolute top-8 right-8 text-white/10 group-hover:text-emerald-500 transition-colors">
+                <svg className="size-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                </svg>
+              </div>
             </motion.div>
           ))}
         </div>
+
+        {/* ✅ Footer CTA - BOTÓN CORREGIDO */}
+        <motion.div 
+          className="mt-20 pt-10 border-t border-white/10 flex flex-col md:flex-row items-center justify-between gap-6"
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+        >
+          <p className="text-slate-300 font-medium drop-shadow-sm">¿Necesitas una solución a medida?</p>
+          
+          {/* ✅ Botón: verde sólido + scroll a contacto */}
+          <button 
+            onClick={scrollToContact}
+            className="px-8 py-4 bg-emerald-500 text-white font-black rounded-2xl hover:bg-emerald-600 transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-[0_0_20px_rgba(16,185,129,0.3)] hover:shadow-[0_0_30px_rgba(16,185,129,0.6)]"
+          >
+            AGENDAR CONSULTA TÉCNICA
+          </button>
+        </motion.div>
 
       </div>
     </section>

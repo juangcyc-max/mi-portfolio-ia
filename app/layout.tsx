@@ -1,62 +1,108 @@
 import type { Metadata, Viewport } from "next";
 import { Public_Sans } from "next/font/google";
 import "./globals.css";
+import ThemeProvider from "@/components/ThemeProvider";
+import CustomScrollbar from "@/components/CustomScrollbar";
+
+/* ============================================ */
+/* FUENTE PRINCIPAL */
+/* ============================================ */
 
 const publicSans = Public_Sans({
   subsets: ["latin"],
-  display: "swap",
-  variable: "--font-public-sans",
   weight: ["300", "400", "500", "600", "700", "800", "900"],
+  variable: "--font-public-sans",
+  display: "swap",
+  preload: true,
+  fallback: ["system-ui", "sans-serif"],
 });
 
+/* ============================================ */
+/* METADATA BASE */
+/* ============================================ */
+
+export const metadataBase = new URL(
+  process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"
+);
+
+/* ============================================ */
+/* METADATOS SEO */
+/* ============================================ */
+
+export const metadata: Metadata = {
+  title: "Mindbridge IA | Desarrollo Web + Inteligencia Artificial",
+  description: "Desarrollo web de élite y automatizaciones con IA integrada para empresas. Landing pages, e-commerce, dashboards y soluciones personalizadas.",
+  keywords: [
+    "desarrollo web",
+    "inteligencia artificial",
+    "IA",
+    "automatización",
+    "landing page",
+    "e-commerce",
+    "dashboard",
+    "Next.js",
+    "React",
+    "España"
+  ],
+  authors: [{ name: "Mindbridge IA" }],
+  creator: "Mindbridge IA",
+  publisher: "Mindbridge IA",
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
+  openGraph: {
+    type: "website",
+    locale: "es_ES",
+    url: "https://mi-portfolio-ia.vercel.app",
+    siteName: "Mindbridge IA",
+    title: "Mindbridge IA | Desarrollo Web + Inteligencia Artificial",
+    description: "Desarrollo web de élite y automatizaciones con IA integrada para empresas.",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Mindbridge IA - Desarrollo Web + IA",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Mindbridge IA | Desarrollo Web + Inteligencia Artificial",
+    description: "Desarrollo web de élite y automatizaciones con IA integrada para empresas.",
+    images: ["/og-image.png"],
+  },
+  icons: {
+    icon: "/logo.svg",
+    shortcut: "/logo.svg",
+    apple: "/logo.svg",
+  },
+};
+
+/* ============================================ */
+/* VIEWPORT (themeColor va aquí) */
+/* ============================================ */
+
 export const viewport: Viewport = {
-  themeColor: "#0f172a",
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#f8fafc" },
+    { media: "(prefers-color-scheme: dark)", color: "#0f172a" },
+  ],
   width: "device-width",
   initialScale: 1,
 };
 
-export const metadata: Metadata = {
-  title: {
-    default: "MINDBRIDGE IA | Desarrollo Web y Automatizaciones con IA",
-    template: "%s | MINDBRIDGE IA",
-  },
-  description:
-    "Especialista en Web + IA. Ayudo a emprendedores a automatizar procesos con soluciones inteligentes y código escalable.",
-  keywords: [
-    "desarrollo web",
-    "inteligencia artificial",
-    "automatización de procesos",
-    "Next.js",
-    "IA para empresas",
-    "Juan Gutiérrez de la Concha",
-  ],
-  authors: [{ name: "Juan Gutiérrez de la Concha de la Cuesta" }],
-  creator: "Juan Gutiérrez de la Concha",
-  metadataBase: new URL("https://mi-portfolio-ia-rpbw.vercel.app"),
-  openGraph: {
-    title: "MINDBRIDGE IA | Desarrollo Web y Automatizaciones con IA",
-    description:
-      "Desarrollo Web y Automatizaciones con IA Integrada para Empresas.",
-    url: "https://mi-portfolio-ia-rpbw.vercel.app",
-    siteName: "MINDBRIDGE IA",
-    locale: "es_ES",
-    type: "website",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "MINDBRIDGE IA",
-    description: "Soluciones de IA y Desarrollo Web de alto rendimiento.",
-  },
-  icons: {
-    icon: "/logo.png",
-    shortcut: "/logo.png",
-    apple: "/logo.png",
-  },
-  robots: {
-    index: true,
-    follow: true,
-  },
-};
+/* ============================================ */
+/* LAYOUT PRINCIPAL */
+/* ============================================ */
 
 export default function RootLayout({
   children,
@@ -64,21 +110,21 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="es" className="dark" suppressHydrationWarning>
-      <body
-        className={`
-          ${publicSans.variable}
-          ${publicSans.className}
-          antialiased
-          min-h-screen
-          bg-office
-          text-slate-900 dark:text-slate-100
-          transition-colors duration-300
-          selection:bg-emerald-500/30
-          selection:text-emerald-200
-        `}
-      >
-        {children}
+    <html lang="es" className={publicSans.variable} suppressHydrationWarning>
+      <body className="bg-office antialiased min-h-screen">
+        {/* ✅ Theme Provider para modo claro/oscuro */}
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          {/* ✅ Custom Scrollbar con hormiga verde */}
+          <CustomScrollbar />
+          
+          {/* ✅ Contenido principal */}
+          {children}
+        </ThemeProvider>
       </body>
     </html>
   );

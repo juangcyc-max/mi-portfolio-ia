@@ -37,7 +37,7 @@ export default function Hero() {
 
   return (
     <section 
-      className="relative pt-20 sm:pt-24 md:pt-32 pb-20 sm:pb-24 md:pb-32 overflow-hidden"
+      className="relative pt-20 sm:pt-24 md:pt-32 pb-20 sm:pb-24 md:pb-32 overflow-hidden bg-transparent"
       suppressHydrationWarning  // ✅ EVITA WARNING DE HIDRATACIÓN
     >
 
@@ -55,7 +55,7 @@ export default function Hero() {
         <div className="absolute bottom-0 right-1/4 w-72 sm:w-96 h-72 sm:h-96 bg-cyan-400 rounded-full blur-[100px] sm:blur-[140px]"></div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
 
         <div className="grid lg:grid-cols-2 gap-10 sm:gap-12 lg:gap-16 items-center">
 
@@ -67,13 +67,13 @@ export default function Hero() {
             variants={staggerContainer}
           >
 
-            {/* Availability Badge - Responsive */}
+            {/* Availability Badge - Glass style */}
             <motion.div
-              className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 text-[10px] sm:text-xs font-bold uppercase tracking-wider w-fit"
+              className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 rounded-full bg-emerald-500/10 backdrop-blur-md border border-emerald-500/20 text-emerald-400 text-[10px] sm:text-xs font-bold uppercase tracking-wider w-fit"
               variants={fadeInUp}
             >
               <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-500 opacity-75"></span>
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
               </span>
               <span className="hidden xs:inline">Disponible para Proyectos</span>
@@ -82,30 +82,30 @@ export default function Hero() {
 
             {/* TITLE - Responsive font sizes */}
             <motion.h1
-              className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black leading-tight tracking-tight text-slate-900 dark:text-white"
+              className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black leading-tight tracking-tight text-white drop-shadow-lg"
               variants={fadeInUp}
             >
               MINDBRIDGE{" "}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-500 to-cyan-400">
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-emerald-200 to-emerald-500 drop-shadow-sm">
                 IA
               </span>
             </motion.h1>
 
             {/* SUBTITLE - Responsive */}
             <motion.p
-              className="text-base sm:text-lg md:text-xl text-slate-600 dark:text-slate-400 leading-relaxed max-w-xl"
+              className="text-base sm:text-lg md:text-xl text-slate-300 leading-relaxed max-w-xl drop-shadow-md"
               variants={fadeInUp}
             >
               Desarrollo Web y Automatizaciones con IA Integrada para Empresas.
               Soluciones de vanguardia que transforman la productividad.
             </motion.p>
 
-            {/* BIO CARD - Responsive layout */}
+            {/* BIO CARD - Glassmorphism Premium */}
             <motion.div
-              className="bg-white/20 dark:bg-slate-900/30 backdrop-blur-sm p-4 sm:p-6 rounded-2xl flex flex-col sm:flex-row items-center gap-4 sm:gap-6 border border-white/30 dark:border-slate-700/50 shadow-xl"
+              className="bg-white/[0.03] backdrop-blur-2xl p-4 sm:p-6 rounded-2xl flex flex-col sm:flex-row items-center gap-4 sm:gap-6 border border-white/10 shadow-[0_8px_32px_0_rgba(0,0,0,0.3)] hover:bg-white/[0.06] transition-colors duration-500 group"
               variants={fadeInUp}
             >
-              <div className="size-20 sm:size-24 rounded-full overflow-hidden shrink-0 bg-white/50 dark:bg-slate-800/50 flex items-center justify-center p-2">
+              <div className="size-20 sm:size-24 rounded-full overflow-hidden shrink-0 bg-white/5 border border-white/10 flex items-center justify-center p-2 group-hover:scale-105 transition-transform duration-500">
                 <Image
                   src="/logo.svg"
                   alt="Juan Gutiérrez"
@@ -117,15 +117,15 @@ export default function Hero() {
               </div>
 
               <div className="text-center sm:text-left">
-                <h3 className="font-bold text-base sm:text-lg text-slate-900 dark:text-white">
+                <h3 className="font-bold text-base sm:text-lg text-white drop-shadow-sm">
                   Juan Gutiérrez de la Concha
                 </h3>
 
-                <p className="text-emerald-500 text-xs sm:text-sm font-semibold mb-1 sm:mb-2">
+                <p className="text-emerald-400 text-xs sm:text-sm font-semibold mb-1 sm:mb-2">
                   Especialista en Web + IA
                 </p>
 
-                <p className="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                <p className="text-[10px] sm:text-xs text-slate-300 leading-relaxed font-medium">
                   Impulsando la innovación tecnológica mediante arquitecturas
                   modernas y modelos de lenguaje avanzados.
                 </p>
@@ -139,14 +139,14 @@ export default function Hero() {
             >
               <Link
                 href="#demo"
-                className="w-full sm:w-auto bg-emerald-500 text-white px-6 sm:px-8 py-3 sm:py-4 rounded-xl font-bold text-sm sm:text-base hover:scale-105 transition-transform shadow-lg shadow-emerald-500/30 text-center min-h-[48px] flex items-center justify-center"
+                className="w-full sm:w-auto bg-emerald-500 text-white px-6 sm:px-8 py-3 sm:py-4 rounded-xl font-black text-sm sm:text-base transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-[0_0_20px_rgba(16,185,129,0.3)] hover:shadow-[0_0_30px_rgba(16,185,129,0.6)] border border-emerald-400/50 text-center min-h-[48px] flex items-center justify-center"
               >
                 Empezar Proyecto
               </Link>
 
               <Link
                 href="#servicios"
-                className="w-full sm:w-auto bg-white/20 dark:bg-slate-900/30 backdrop-blur-sm px-6 sm:px-8 py-3 sm:py-4 rounded-xl font-bold text-slate-900 dark:text-white border border-white/30 dark:border-slate-700/50 hover:bg-white/30 dark:hover:bg-slate-800/40 transition-colors text-sm sm:text-base text-center min-h-[48px] flex items-center justify-center"
+                className="w-full sm:w-auto bg-white/[0.03] backdrop-blur-2xl px-6 sm:px-8 py-3 sm:py-4 rounded-xl font-bold text-white border border-white/10 hover:bg-white/[0.1] hover:border-white/20 transition-all duration-300 text-sm sm:text-base text-center min-h-[48px] flex items-center justify-center shadow-[0_8px_32px_0_rgba(0,0,0,0.2)]"
               >
                 Ver Servicios
               </Link>
@@ -162,7 +162,8 @@ export default function Hero() {
           >
             <div className="absolute -inset-1 bg-gradient-to-r from-emerald-500 to-cyan-400 rounded-2xl blur opacity-20 sm:opacity-30 group-hover:opacity-40 sm:group-hover:opacity-50 transition duration-1000"></div>
 
-            <div className="relative bg-slate-900/80 backdrop-blur-sm rounded-2xl overflow-hidden shadow-2xl aspect-square sm:aspect-[4/3] md:aspect-video lg:aspect-square border border-slate-700/50 flex items-center justify-center">
+            {/* Contenedor principal efecto cristal */}
+            <div className="relative bg-white/[0.03] backdrop-blur-2xl rounded-2xl overflow-hidden shadow-[0_8px_32px_0_rgba(0,0,0,0.3)] hover:shadow-emerald-500/10 transition-all duration-500 aspect-square sm:aspect-[4/3] md:aspect-video lg:aspect-square border border-white/10 flex items-center justify-center">
 
               {/* CONTENEDOR DEL LOGO ANIMADO */}
               <div className="text-center p-6 sm:p-8">
@@ -183,20 +184,20 @@ export default function Hero() {
                     </AnimatePresence>
                   )}
                   
-                  {/* Contenedor del logo - CLICK EN TODA EL ÁREA - Responsive size */}
+                  {/* Contenedor del logo - Cristalizado */}
                   <motion.div
-                    className="relative size-32 sm:size-40 rounded-full bg-gradient-to-br from-slate-800 to-slate-900 border-2 border-slate-600/50 flex items-center justify-center p-4 sm:p-6 shadow-2xl cursor-pointer hover:border-emerald-500/70 transition-all group/logo min-w-[128px] min-h-[128px]"
+                    className="relative size-32 sm:size-40 rounded-full bg-white/5 backdrop-blur-md border border-white/10 flex items-center justify-center p-4 sm:p-6 shadow-2xl cursor-pointer hover:border-emerald-500/50 hover:bg-white/10 transition-all group/logo min-w-[128px] min-h-[128px]"
                     onClick={toggleAudio}
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                     animate={isPlaying ? {
                       scale: [1, 1.03, 1],
-                      borderColor: ["rgba(148, 163, 184, 0.5)", "rgba(16, 185, 129, 0.9)", "rgba(148, 163, 184, 0.5)"]
+                      borderColor: ["rgba(255, 255, 255, 0.1)", "rgba(16, 185, 129, 0.7)", "rgba(255, 255, 255, 0.1)"]
                     } : {}}
                     transition={isPlaying ? { duration: 0.6, repeat: Infinity } : {}}
                     title={isPlaying ? "Pausar presentación" : "Reproducir presentación"}
                   >
-                    {/* Logo SIEMPRE VISIBLE - Responsive */}
+                    {/* Logo SIEMPRE VISIBLE */}
                     <Image
                       src="/logo.svg"
                       alt="Mindbridge IA Logo"
@@ -206,10 +207,10 @@ export default function Hero() {
                       priority
                     />
 
-                    {/* Indicador sutil de play (esquina inferior derecha) - Responsive */}
+                    {/* Indicador sutil de play */}
                     {!isPlaying && (
                       <motion.div
-                        className="absolute -bottom-1 -right-1 size-8 sm:size-10 rounded-full bg-emerald-500/90 flex items-center justify-center shadow-lg shadow-emerald-500/50 border-2 border-slate-800"
+                        className="absolute -bottom-1 -right-1 size-8 sm:size-10 rounded-full bg-emerald-500 flex items-center justify-center shadow-[0_0_15px_rgba(16,185,129,0.6)] border border-emerald-400/50"
                         initial={{ scale: 0 }}
                         animate={{ scale: 1 }}
                         whileHover={{ scale: 1.1 }}
@@ -220,10 +221,10 @@ export default function Hero() {
                       </motion.div>
                     )}
 
-                    {/* Indicador de pausa (esquina inferior derecha) - Responsive */}
+                    {/* Indicador de pausa */}
                     {isPlaying && (
                       <motion.div
-                        className="absolute -bottom-1 -right-1 size-8 sm:size-10 rounded-full bg-cyan-500/90 flex items-center justify-center shadow-lg shadow-cyan-500/50 border-2 border-slate-800"
+                        className="absolute -bottom-1 -right-1 size-8 sm:size-10 rounded-full bg-cyan-500 flex items-center justify-center shadow-[0_0_15px_rgba(6,182,212,0.6)] border border-cyan-400/50"
                         initial={{ scale: 0 }}
                         animate={{ scale: 1 }}
                       >
@@ -235,12 +236,12 @@ export default function Hero() {
                   </motion.div>
                 </div>
 
-                {/* Texto profesional - Responsive */}
-                <p className="text-slate-300 text-xs sm:text-sm font-medium mt-4 sm:mt-6 tracking-wide px-2">
+                {/* Texto profesional */}
+                <p className="text-slate-300 text-xs sm:text-sm font-medium mt-4 sm:mt-6 tracking-wide px-2 drop-shadow-md">
                   {isPlaying ? "Reproduciendo..." : "Toca el logo para escuchar"}
                 </p>
                 
-                {/* Indicador de ondas de audio cuando reproduce - Responsive - SOLO EN CLIENTE */}
+                {/* Indicador de ondas de audio cuando reproduce - SOLO EN CLIENTE */}
                 {isClient && isPlaying && (
                   <AnimatePresence>
                     <motion.div
@@ -252,7 +253,7 @@ export default function Hero() {
                       {[...Array(5)].map((_, i) => (
                         <motion.span
                           key={i}
-                          className="w-0.5 sm:w-1 bg-gradient-to-t from-emerald-500 to-cyan-400 rounded-full"
+                          className="w-0.5 sm:w-1 bg-gradient-to-t from-emerald-400 to-cyan-300 rounded-full shadow-[0_0_8px_rgba(16,185,129,0.8)]"
                           animate={{
                             height: [6, 16, 6],
                           }}

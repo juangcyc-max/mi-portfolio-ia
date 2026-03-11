@@ -97,7 +97,6 @@ function CountUp({ value, suffix }: CountUpProps) {
 
     const animate = () => {
       start += step;
-
       if (Math.abs(start) >= Math.abs(value)) {
         setCount(value);
         setHasAnimated(true);
@@ -108,21 +107,22 @@ function CountUp({ value, suffix }: CountUpProps) {
     };
 
     animationFrame = requestAnimationFrame(animate);
-
     return () => cancelAnimationFrame(animationFrame);
   }, [value, hasAnimated]);
 
-  return (
-    <span>
-      {count}
-      {suffix}
-    </span>
-  );
+  return <span>{count}{suffix}</span>;
 }
 
 /* ================= COMPONENT ================= */
 
 export default function Portfolio() {
+  const scrollToContact = () => {
+    const contactSection = document.getElementById("contacto");
+    if (contactSection) {
+      contactSection.scrollIntoView({ behavior: "smooth" });
+    }
+  };
+
   return (
     <section 
       className="py-12 sm:py-16 md:py-24 px-4 bg-transparent" 
@@ -131,7 +131,7 @@ export default function Portfolio() {
     >
       <div className="max-w-7xl mx-auto">
 
-        {/* HEADER - Responsive */}
+        {/* HEADER */}
         <motion.div
           className="text-center max-w-3xl mx-auto mb-12 sm:mb-16 md:mb-20"
           variants={staggerContainer}
@@ -151,7 +151,8 @@ export default function Portfolio() {
             className="text-3xl sm:text-4xl md:text-5xl font-black mb-4 sm:mb-6 dark:text-white leading-tight px-2"
           >
             Esto es lo que puedo construir{" "}
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-500 to-cyan-400">
+            {/* ✅ GRADIENTE VERDE SOLO (sin cyan) */}
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-emerald-500">
               para ti
             </span>
           </motion.h2>
@@ -165,26 +166,18 @@ export default function Portfolio() {
           </motion.p>
         </motion.div>
 
-        {/* GRID - Responsive: 1 col móvil, 2 tablet, 3 desktop */}
+        {/* GRID */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
           {projects.map((project, index) => {
             const x = useMotionValue(0);
             const y = useMotionValue(0);
-
             const rotateX = useTransform(y, [-50, 50], [8, -8]);
             const rotateY = useTransform(x, [-50, 50], [-8, 8]);
 
             function handleMouseMove(e: React.MouseEvent<HTMLDivElement>) {
               const rect = e.currentTarget.getBoundingClientRect();
-              const mouseX = e.clientX - rect.left - rect.width / 2;
-              const mouseY = e.clientY - rect.top - rect.height / 2;
-              x.set(mouseX);
-              y.set(mouseY);
-            }
-
-            function handleMouseLeave() {
-              x.set(0);
-              y.set(0);
+              x.set(e.clientX - rect.left - rect.width / 2);
+              y.set(e.clientY - rect.top - rect.height / 2);
             }
 
             return (
@@ -192,24 +185,19 @@ export default function Portfolio() {
                 key={index}
                 style={{ rotateX, rotateY }}
                 onMouseMove={handleMouseMove}
-                onMouseLeave={handleMouseLeave}
-                // ✅ Hover reducido en móvil (sin hover real en touch)
+                onMouseLeave={() => { x.set(0); y.set(0); }}
                 whileHover={{ y: -5, scale: 1.02 }}
                 transition={{ type: "spring", stiffness: 200, damping: 20 }}
                 className="group relative perspective-1000"
               >
-                {/* GLOW - Responsive blur */}
-                <div
-                  className={`absolute -inset-1 bg-gradient-to-r ${project.color} opacity-20 sm:opacity-30 blur-lg sm:blur-xl rounded-2xl group-hover:opacity-50 sm:group-hover:opacity-60 transition duration-500`}
-                />
+                <div className={`absolute -inset-1 bg-gradient-to-r ${project.color} opacity-20 sm:opacity-30 blur-lg sm:blur-xl rounded-2xl group-hover:opacity-50 sm:group-hover:opacity-60 transition duration-500`} />
 
-                {/* CARD */}
                 <div className="relative bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 overflow-hidden shadow-xl">
-
-                  {/* LOGO AREA - Responsive height */}
-                  <div className={`h-48 sm:h-56 bg-gradient-to-br ${project.color} flex items-center justify-center relative overflow-hidden`}>
-                    
-                    {/* Logo Container - Responsive padding */}
+                  {/* LOGO AREA - Clickable Link to Demo */}
+                  <Link 
+                    href={project.link}
+                    className={`block w-full h-48 sm:h-56 bg-gradient-to-br ${project.color} flex items-center justify-center relative overflow-hidden`}
+                  >
                     <div className="rounded-xl p-6 sm:p-8 shadow-2xl transition-transform duration-500 group-hover:scale-95 bg-white">
                       <Image
                         src={project.logo}
@@ -220,39 +208,18 @@ export default function Portfolio() {
                         priority={index === 0}
                       />
                     </div>
+                  </Link>
 
-                    {/* DEMO BUTTON OVERLAY - Responsive */}
-                    <div className="absolute inset-0 flex items-center justify-center bg-slate-900/80 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-all duration-300 p-4">
-                      <Link
-                        href={project.link}
-                        className="px-6 py-3 sm:px-8 sm:py-4 bg-white text-slate-900 font-bold rounded-xl shadow-2xl hover:scale-105 transition-transform flex items-center gap-2 text-sm sm:text-base min-h-[48px]"
-                      >
-                        Ver Demo
-                        <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                        </svg>
-                      </Link>
-                    </div>
-                  </div>
-
-                  {/* CONTENT - Responsive padding */}
                   <div className="p-4 sm:p-6">
-                    {/* Category Badge - Responsive */}
                     <span className={`inline-block px-2 py-1 sm:px-3 sm:py-1 text-[10px] sm:text-xs font-bold rounded-full bg-gradient-to-r ${project.color} text-white mb-3 sm:mb-4 uppercase tracking-wide`}>
                       {project.category}
                     </span>
-
-                    {/* Title - Responsive */}
                     <h3 className="text-lg sm:text-xl font-bold dark:text-white mb-2 sm:mb-3 leading-tight">
                       {project.title}
                     </h3>
-
-                    {/* Description - Responsive */}
                     <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 mb-4 leading-relaxed">
                       {project.description}
                     </p>
-
-                    {/* Features - Responsive */}
                     <ul className="space-y-1.5 sm:space-y-2 mb-4 sm:mb-6">
                       {project.features.map((feature, i) => (
                         <li key={i} className="flex items-center gap-2 text-xs font-medium text-slate-500 dark:text-slate-400">
@@ -263,8 +230,6 @@ export default function Portfolio() {
                         </li>
                       ))}
                     </ul>
-
-                    {/* METRICS - Responsive */}
                     <div className="grid grid-cols-3 gap-2 sm:gap-3 pt-3 sm:pt-4 border-t border-slate-200 dark:border-slate-700">
                       {project.metrics.map((metric, i) => (
                         <div key={i} className="text-center p-2 sm:p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50">
@@ -284,7 +249,7 @@ export default function Portfolio() {
           })}
         </div>
 
-        {/* CTA - Responsive */}
+        {/* CTA BUTTON - Verde sólido + scroll a contacto */}
         <motion.div 
           className="text-center mt-12 sm:mt-16 md:mt-20 px-4"
           initial="hidden"
@@ -295,15 +260,15 @@ export default function Portfolio() {
           <p className="text-slate-600 dark:text-slate-400 mb-6 sm:mb-8 text-sm sm:text-base md:text-lg">
             ¿Te gusta alguno de estos proyectos? Puedo adaptarlo a tu negocio.
           </p>
-          <Link
-            href="#contacto"
-            className="inline-flex items-center justify-center gap-2 sm:gap-3 px-6 py-3 sm:px-8 sm:py-4 font-bold text-white rounded-xl bg-gradient-to-r from-emerald-500 to-cyan-500 hover:from-emerald-600 hover:to-cyan-600 transition-all shadow-lg shadow-emerald-500/25 hover:shadow-emerald-500/40 hover:scale-105 text-sm sm:text-base w-full sm:w-auto min-h-[48px]"
+          <button
+            onClick={scrollToContact}
+            className="inline-flex items-center justify-center gap-2 sm:gap-3 px-6 py-3 sm:px-8 sm:py-4 font-bold text-white rounded-xl bg-emerald-500 hover:bg-emerald-600 transition-all shadow-lg shadow-emerald-500/25 hover:shadow-emerald-500/40 hover:scale-105 text-sm sm:text-base w-full sm:w-auto min-h-[48px]"
           >
             Hablemos de tu proyecto
             <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
             </svg>
-          </Link>
+          </button>
         </motion.div>
 
       </div>

@@ -96,7 +96,8 @@ export default function ContactForm() {
         >
           <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black text-slate-900 dark:text-white mb-3 sm:mb-4 px-2 leading-tight">
             ¿Listo para{" "}
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-500 to-cyan-400">
+            {/* ✅ GRADIENTE VERDE SOLO (sin cyan) */}
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-emerald-500">
               empezar
             </span>
             ?

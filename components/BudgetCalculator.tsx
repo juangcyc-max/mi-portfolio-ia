@@ -1,10 +1,33 @@
 "use client";
 
 import { useState } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { fadeInUp } from "@/lib/animations";
 import jsPDF from "jspdf";
-import autoTable from "jspdf-autotable";
+
+// Iconos SVG para darle el toque profesional
+const Icons = {
+  landing: (props: any) => (
+    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" {...props}>
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 10V3L4 14h7v7l9-11h-7z" />
+    </svg>
+  ),
+  corporate: (props: any) => (
+    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" {...props}>
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+    </svg>
+  ),
+  ecommerce: (props: any) => (
+    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" {...props}>
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+    </svg>
+  ),
+  ia: (props: any) => (
+    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" {...props}>
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+    </svg>
+  ),
+};
 
 type ProjectType = "landing" | "corporate" | "ecommerce" | "ia";
 
@@ -54,7 +77,7 @@ const FEATURE_LABELS: Record<keyof Features, string> = {
   aiIntegration: "Integración IA Avanzada",
 };
 
-const IVA_RATE = 0.21; // 21% IVA
+const IVA_RATE = 0.21;
 
 export default function BudgetCalculator() {
   const [projectType, setProjectType] = useState<ProjectType | "">("");
@@ -75,16 +98,11 @@ export default function BudgetCalculator() {
 
   const calculateBudget = (): BudgetRange | null => {
     if (!projectType) return null;
-
     const basePrice = PROJECT_PRICES[projectType as ProjectType];
     let featureTotal = 0;
-
     Object.entries(features).forEach(([feature, enabled]) => {
-      if (enabled) {
-        featureTotal += FEATURE_PRICES[feature as keyof Features];
-      }
+      if (enabled) featureTotal += FEATURE_PRICES[feature as keyof Features];
     });
-
     return {
       min: basePrice.min + featureTotal,
       max: basePrice.max + featureTotal,
@@ -92,344 +110,267 @@ export default function BudgetCalculator() {
   };
 
   const budget = calculateBudget();
-
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat("es-ES").format(price);
-  };
+  const formatPrice = (price: number) => new Intl.NumberFormat("es-ES").format(price);
 
   const handleGetQuote = () => {
     if (!projectType) return;
-    const contactSection = document.getElementById("contacto");
-    if (contactSection) {
-      contactSection.scrollIntoView({ behavior: "smooth" });
-    }
+    document.getElementById("contacto")?.scrollIntoView({ behavior: "smooth" });
   };
 
-  // ✅ GENERAR PDF PROFESIONAL CON DESGLOSE COMPLETO
+  // Lógica de descarga de PDF mantenida intacta
   const downloadPDF = async () => {
     if (!budget || !projectType) return;
-
     const doc = new jsPDF();
     const pageWidth = doc.internal.pageSize.getWidth();
-
     try {
-      // Cargar el logo PNG
       const logoResponse = await fetch('/logo.png');
       const logoBlob = await logoResponse.blob();
       const logoReader = new FileReader();
-      
       const logoBase64 = await new Promise<string>((resolve) => {
         logoReader.onloadend = () => resolve(logoReader.result as string);
         logoReader.readAsDataURL(logoBlob);
       });
 
-      // ========== HEADER CON LOGO ==========
       doc.setFillColor(255, 255, 255);
       doc.rect(0, 0, pageWidth, 75, "F");
-      
-      // ✅ Logo con proporción correcta (606x580 ≈ 1:1)
-      const logoSize = 45; // Cuadrado: 45mm × 45mm
+      const logoSize = 45;
       const logoX = (pageWidth - logoSize) / 2;
-      
       doc.addImage(logoBase64, 'PNG', logoX, 15, logoSize, logoSize);
-      
-      // Línea decorativa verde
       doc.setDrawColor(16, 185, 129);
       doc.setLineWidth(0.5);
       doc.line(0, 73, pageWidth, 73);
-
-      // ========== TÍTULO ==========
       doc.setTextColor(15, 23, 42);
       doc.setFontSize(24);
       doc.setFont("helvetica", "bold");
       doc.text("PRESUPUESTO ESTIMADO", pageWidth / 2, 90, { align: "center" });
-
-      // Fecha y referencia
       doc.setFontSize(9);
       doc.setTextColor(100, 116, 139);
-      const fecha = new Date().toLocaleDateString("es-ES", { 
-        year: "numeric", 
-        month: "long", 
-        day: "numeric" 
-      });
+      const fecha = new Date().toLocaleDateString("es-ES", { year: "numeric", month: "long", day: "numeric" });
       doc.text(`Fecha: ${fecha}`, 14, 98);
       doc.text(`Ref: PRES-${projectType.toUpperCase()}-${new Date().getFullYear()}`, pageWidth - 14, 98, { align: "right" });
-
-      // ========== DESGLOSE DE PRECIOS ==========
       let yPos = 115;
-      
-      // Título de la tabla
       doc.setFontSize(13);
       doc.setFont("helvetica", "bold");
       doc.setTextColor(15, 23, 42);
       doc.text("DESCRIPCIÓN DEL PROYECTO", 14, yPos);
-      
-      // Fondo gris claro para la tabla
       doc.setFillColor(248, 250, 252);
       doc.roundedRect(14, yPos + 2, pageWidth - 28, 80, 3, 3, "F");
-      
-      // Precio del proyecto base
       yPos += 10;
       doc.setFont("helvetica", "bold");
       doc.setFontSize(11);
-      doc.setTextColor(15, 23, 42);
       doc.text(`${PROJECT_LABELS[projectType as ProjectType]}`, 20, yPos);
-      
       doc.setFont("helvetica", "normal");
-      doc.setTextColor(51, 65, 85);
       doc.text(`${formatPrice(budget.min)}€ - ${formatPrice(budget.max)}€`, pageWidth - 20, yPos, { align: "right" });
-      
-      // Línea separadora
-      doc.setDrawColor(226, 232, 240);
-      doc.setLineWidth(0.3);
-      doc.line(20, yPos + 2, pageWidth - 20, yPos + 2);
-      
-      // Funcionalidades seleccionadas
-      const selectedFeatures = Object.entries(features)
-        .filter(([_, enabled]) => enabled);
-      
+      const selectedFeatures = Object.entries(features).filter(([_, enabled]) => enabled);
       if (selectedFeatures.length > 0) {
         yPos += 8;
         doc.setFont("helvetica", "italic");
         doc.setFontSize(10);
-        doc.setTextColor(71, 85, 105);
         doc.text("Funcionalidades adicionales:", 20, yPos);
-        
-        selectedFeatures.forEach(([feature, _], index) => {
+        selectedFeatures.forEach(([feature, _]) => {
           yPos += 6;
           doc.setFont("helvetica", "normal");
           doc.text(`• ${FEATURE_LABELS[feature as keyof Features]}`, 24, yPos);
           doc.text(`+${formatPrice(FEATURE_PRICES[feature as keyof Features])}€`, pageWidth - 20, yPos, { align: "right" });
         });
       }
-      
-      // Subtotal (Base Imponible)
       yPos += 12;
-      doc.setDrawColor(226, 232, 240);
       doc.line(20, yPos, pageWidth - 20, yPos);
       yPos += 8;
-      
       doc.setFont("helvetica", "bold");
-      doc.setFontSize(11);
-      doc.setTextColor(71, 85, 105);
       doc.text("SUBTOTAL (Base Imponible)", 20, yPos);
       doc.text(`${formatPrice(budget.min)}€ - ${formatPrice(budget.max)}€`, pageWidth - 20, yPos, { align: "right" });
-      
-      // IVA 21%
       const ivaMin = budget.min * IVA_RATE;
       const ivaMax = budget.max * IVA_RATE;
-      
       yPos += 7;
       doc.setFont("helvetica", "normal");
       doc.text(`IVA (21%)`, 20, yPos);
       doc.text(`${formatPrice(ivaMin)}€ - ${formatPrice(ivaMax)}€`, pageWidth - 20, yPos, { align: "right" });
-      
-      // Línea separadora gruesa
       yPos += 8;
       doc.setDrawColor(16, 185, 129);
-      doc.setLineWidth(0.5);
       doc.line(20, yPos, pageWidth - 20, yPos);
-      
-      // TOTAL
       const totalMin = budget.min + ivaMin;
       const totalMax = budget.max + ivaMax;
-      
       yPos += 10;
-      doc.setFont("helvetica", "bold");
       doc.setFontSize(13);
       doc.setTextColor(16, 185, 129);
       doc.text("TOTAL (con IVA)", 20, yPos);
       doc.text(`${formatPrice(totalMin)}€ - ${formatPrice(totalMax)}€`, pageWidth - 20, yPos, { align: "right" });
-
-      // ========== NOTAS Y CONDICIONES ==========
       yPos += 20;
-      
       doc.setFontSize(9);
-      doc.setFont("helvetica", "italic");
       doc.setTextColor(148, 163, 184);
       doc.text("* Presupuesto orientativo sujeto a revisión según requisitos específicos.", 14, yPos);
-      yPos += 5;
-      doc.text("* Validez del presupuesto: 30 días desde la fecha de emisión.", 14, yPos);
-      yPos += 5;
-      doc.text("* Forma de pago: 50% al inicio del proyecto, 50% a la entrega.", 14, yPos);
-      yPos += 5;
-      doc.text("* Tiempo estimado de entrega: Según complejidad del proyecto.", 14, yPos);
-
-      // ========== FOOTER ==========
       doc.setFillColor(16, 185, 129);
       doc.rect(0, 250, pageWidth, 30, "F");
-      
       doc.setTextColor(255, 255, 255);
-      doc.setFontSize(11);
-      doc.setFont("helvetica", "bold");
       doc.text("¿Listo para empezar tu proyecto?", pageWidth / 2, 260, { align: "center" });
-      
-      doc.setFont("helvetica", "normal");
-      doc.setFontSize(9);
-      doc.text("juan@mindbridge-ia.com | www.mindbridge-ia.com", pageWidth / 2, 268, { align: "center" });
-      doc.text(`© ${new Date().getFullYear()} Mindbridge IA - Todos los derechos reservados.`, pageWidth / 2, 274, { align: "center" });
-
-      // Guardar
       doc.save(`presupuesto-mindbridge-${projectType}-${new Date().getFullYear()}.pdf`);
-      
     } catch (error) {
-      console.error("Error generando PDF:", error);
-      alert("Hubo un error al generar el PDF. Intenta de nuevo.");
+      alert("Error al generar PDF.");
     }
   };
 
   return (
-    <section 
-      className="py-12 sm:py-16 md:py-20 px-4 bg-transparent" 
-      id="presupuesto"
-      suppressHydrationWarning
-    >
-      <div className="max-w-4xl mx-auto">
-        
-        {/* Header */}
+    <section className="py-24 px-4 relative overflow-hidden" id="presupuesto">
+      {/* Elementos decorativos de fondo para el "extremo" visual */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full -z-10 pointer-events-none opacity-20">
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-emerald-500/30 rounded-full blur-[120px]" />
+        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-cyan-500/30 rounded-full blur-[120px]" />
+      </div>
+
+      <div className="max-w-5xl mx-auto">
         <motion.div
-          className="text-center mb-10 sm:mb-12"
+          className="text-center mb-16"
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true }}
           variants={fadeInUp}
         >
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-slate-900 dark:text-white mb-3">
-            Calcula tu{" "}
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-500 to-cyan-400">
-              Presupuesto
+          <span className="inline-block px-4 py-1.5 mb-4 text-xs font-bold tracking-widest text-emerald-500 uppercase bg-emerald-500/10 rounded-full">
+            Cotizador Inteligente
+          </span>
+          <h2 className="text-4xl md:text-5xl font-black text-slate-900 dark:text-white mb-6 tracking-tight">
+            Diseña tu inversión en{" "}
+            {/* ✅ GRADIENTE VERDE SOLO (sin cyan) */}
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-emerald-500">
+              Tecnología
             </span>
           </h2>
-          <p className="text-sm sm:text-base text-slate-600 dark:text-slate-300 max-w-2xl mx-auto">
-            Selecciona el tipo de proyecto y las funcionalidades que necesitas. 
-            Obtendrás un estimado inmediato.
+          <p className="text-lg text-slate-600 dark:text-slate-400 max-w-2xl mx-auto leading-relaxed">
+            Personaliza tu solución digital. Nuestra IA calcula una estimación precisa basada en estándares actuales de mercado.
           </p>
         </motion.div>
 
-        {/* Calculator Card */}
-        <motion.div
-          className="bg-white/20 dark:bg-slate-900/60 backdrop-blur-md rounded-2xl p-5 sm:p-6 md:p-8 border border-white/40 dark:border-slate-600/60 shadow-xl"
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5 }}
-        >
-          
-          {/* Step 1: Project Type */}
-          <motion.div variants={fadeInUp} initial="hidden" whileInView="visible" viewport={{ once: true }}>
-            <h3 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
-              <span className="w-7 h-7 rounded-full bg-emerald-500 text-white flex items-center justify-center text-sm font-bold">1</span>
-              Tipo de Proyecto
-            </h3>
-            
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-8">
-              {(Object.keys(PROJECT_PRICES) as ProjectType[]).map((type) => (
-                <button
-                  key={type}
-                  onClick={() => {
-                    setProjectType(type);
-                    setShowBudget(true);
-                  }}
-                  className={`p-4 rounded-xl border-2 text-left transition-all ${
-                    projectType === type
-                      ? "border-emerald-500 bg-emerald-500/20 dark:bg-emerald-500/30 shadow-lg shadow-emerald-500/20"
-                      : "border-slate-300 dark:border-slate-600 hover:border-emerald-500/50 dark:hover:border-emerald-400 bg-white/50 dark:bg-slate-800/50"
-                  }`}
-                >
-                  <div className="font-bold text-slate-900 dark:text-white mb-1">
-                    {PROJECT_LABELS[type]}
-                  </div>
-                  <div className="text-xs text-slate-600 dark:text-slate-300 font-medium">
-                    {formatPrice(PROJECT_PRICES[type].min)}€ - {formatPrice(PROJECT_PRICES[type].max)}€
-                  </div>
-                </button>
-              ))}
-            </div>
-          </motion.div>
-
-          {/* Step 2: Features */}
-          <motion.div variants={fadeInUp} initial="hidden" whileInView="visible" viewport={{ once: true }}>
-            <h3 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
-              <span className="w-7 h-7 rounded-full bg-cyan-500 text-white flex items-center justify-center text-sm font-bold">2</span>
-              Funcionalidades Adicionales
-            </h3>
-            
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-8">
-              {(Object.keys(FEATURE_PRICES) as Array<keyof Features>).map((feature) => (
-                <label
-                  key={feature}
-                  className={`flex items-center gap-3 p-3 rounded-xl border-2 cursor-pointer transition-all ${
-                    features[feature]
-                      ? "border-cyan-500 bg-cyan-500/20 dark:bg-cyan-500/30"
-                      : "border-slate-300 dark:border-slate-600 hover:border-cyan-500/50 dark:hover:border-cyan-400 bg-white/50 dark:bg-slate-800/50"
-                  }`}
-                >
-                  <input
-                    type="checkbox"
-                    checked={features[feature]}
-                    onChange={() => toggleFeature(feature)}
-                    className="w-5 h-5 rounded border-slate-400 dark:border-slate-500 text-cyan-500 focus:ring-cyan-500 bg-white dark:bg-slate-700"
-                  />
-                  <div className="flex-1">
-                    <div className="font-semibold text-sm text-slate-900 dark:text-white">
-                      {FEATURE_LABELS[feature]}
-                    </div>
-                    <div className="text-xs text-slate-600 dark:text-slate-300 font-medium">
-                      +{formatPrice(FEATURE_PRICES[feature])}€
-                    </div>
-                  </div>
-                </label>
-              ))}
-            </div>
-          </motion.div>
-
-          {/* Budget Display */}
-          {budget && showBudget && (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              className="bg-gradient-to-r from-emerald-500 to-cyan-500 rounded-xl p-6 text-center text-white shadow-lg"
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+          {/* Columna Izquierda: Selección */}
+          <div className="lg:col-span-7 space-y-8">
+            <motion.div 
+               className="bg-white dark:bg-slate-900/40 backdrop-blur-xl rounded-3xl p-8 border border-slate-200 dark:border-white/10 shadow-2xl shadow-slate-200/50 dark:shadow-none"
+               variants={fadeInUp} initial="hidden" whileInView="visible"
             >
-              <div className="text-sm font-medium mb-2">
-                Presupuesto Estimado
+              <div className="flex items-center gap-4 mb-8">
+                <div className="w-10 h-10 rounded-2xl bg-emerald-500 flex items-center justify-center text-white shadow-lg shadow-emerald-500/30 font-bold">1</div>
+                <h3 className="text-xl font-bold text-slate-800 dark:text-white">Selecciona la base</h3>
               </div>
-              <div className="text-3xl sm:text-4xl font-black mb-2">
-                {formatPrice(budget.min)}€ - {formatPrice(budget.max)}€
-              </div>
-              <div className="text-xs sm:text-sm mb-6 opacity-90">
-                (sin IVA · IVA 21%: {(budget.min * 0.21).toLocaleString("es-ES")}€ - {(budget.max * 0.21).toLocaleString("es-ES")}€)
-              </div>
-              
-              <div className="flex flex-col sm:flex-row gap-3 justify-center">
-                <button
-                  onClick={handleGetQuote}
-                  className="inline-flex items-center justify-center gap-2 bg-white text-emerald-600 px-6 py-3 rounded-xl font-bold hover:scale-105 transition-transform shadow-lg"
-                >
-                  Solicitar Presupuesto Detallado
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                  </svg>
-                </button>
-                
-                <button
-                  onClick={downloadPDF}
-                  className="inline-flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-3 rounded-xl font-bold transition-colors shadow-lg"
-                >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                  </svg>
-                  Descargar PDF
-                </button>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {(Object.keys(PROJECT_PRICES) as ProjectType[]).map((type) => {
+                  const Icon = Icons[type];
+                  return (
+                    <button
+                      key={type}
+                      onClick={() => { setProjectType(type); setShowBudget(true); }}
+                      className={`group relative p-6 rounded-2xl border-2 transition-all duration-300 text-left ${
+                        projectType === type
+                          ? "border-emerald-500 bg-emerald-500/[0.03] dark:bg-emerald-500/10 shadow-inner"
+                          : "border-slate-100 dark:border-white/5 bg-slate-50/50 dark:bg-white/5 hover:border-emerald-500/30"
+                      }`}
+                    >
+                      <Icon className={`w-8 h-8 mb-4 transition-colors ${projectType === type ? "text-emerald-500" : "text-slate-400 group-hover:text-emerald-400"}`} />
+                      <div className="font-bold text-slate-900 dark:text-white text-lg">{PROJECT_LABELS[type]}</div>
+                      <div className="text-sm text-slate-500 mt-1">Desde {formatPrice(PROJECT_PRICES[type].min)}€</div>
+                      {projectType === type && (
+                        <motion.div layoutId="activeType" className="absolute top-4 right-4 w-2 h-2 rounded-full bg-emerald-500" />
+                      )}
+                    </button>
+                  );
+                })}
               </div>
             </motion.div>
-          )}
 
-          {!budget && (
-            <div className="text-center text-slate-600 dark:text-slate-300 font-medium py-4">
-              Selecciona un tipo de proyecto para ver el presupuesto
-            </div>
-          )}
-        </motion.div>
+            <motion.div 
+              className="bg-white dark:bg-slate-900/40 backdrop-blur-xl rounded-3xl p-8 border border-slate-200 dark:border-white/10 shadow-2xl shadow-slate-200/50 dark:shadow-none"
+              variants={fadeInUp} initial="hidden" whileInView="visible"
+            >
+              <div className="flex items-center gap-4 mb-8">
+                <div className="w-10 h-10 rounded-2xl bg-cyan-500 flex items-center justify-center text-white shadow-lg shadow-cyan-500/30 font-bold">2</div>
+                <h3 className="text-xl font-bold text-slate-800 dark:text-white">Potencia tu proyecto</h3>
+              </div>
+
+              <div className="grid grid-cols-1 gap-3">
+                {(Object.keys(FEATURE_PRICES) as Array<keyof Features>).map((feature) => (
+                  <label
+                    key={feature}
+                    className={`flex items-center justify-between p-4 rounded-2xl border-2 cursor-pointer transition-all duration-200 ${
+                      features[feature]
+                        ? "border-cyan-500 bg-cyan-500/[0.03] dark:bg-cyan-500/10"
+                        : "border-slate-100 dark:border-white/5 hover:border-cyan-500/20"
+                    }`}
+                  >
+                    <div className="flex items-center gap-4">
+                      <div className={`w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-colors ${features[feature] ? "bg-cyan-500 border-cyan-500" : "border-slate-300 dark:border-slate-600"}`}>
+                        {features[feature] && <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>}
+                      </div>
+                      <span className="font-semibold text-slate-700 dark:text-slate-200">{FEATURE_LABELS[feature]}</span>
+                    </div>
+                    <span className="text-sm font-mono text-cyan-600 dark:text-cyan-400">+{formatPrice(FEATURE_PRICES[feature])}€</span>
+                    <input type="checkbox" checked={features[feature]} onChange={() => toggleFeature(feature)} className="hidden" />
+                  </label>
+                ))}
+              </div>
+            </motion.div>
+          </div>
+
+          {/* Columna Derecha: Resumen (Sticky) */}
+          <div className="lg:col-span-5 sticky top-24">
+            <AnimatePresence mode="wait">
+              {budget && showBudget ? (
+                <motion.div
+                  key="result"
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.9 }}
+                  className="bg-slate-900 dark:bg-black rounded-[2.5rem] p-10 text-white shadow-[0_20px_50px_rgba(0,0,0,0.3)] border border-white/10 relative overflow-hidden"
+                >
+                  {/* Decoración interna del card */}
+                  <div className="absolute -top-24 -right-24 w-48 h-48 bg-emerald-500/20 rounded-full blur-3xl" />
+                  
+                  <div className="relative z-10 text-center">
+                    <p className="text-emerald-400 font-bold tracking-widest text-xs uppercase mb-4">Inversión Estimada</p>
+                    <div className="text-5xl md:text-6xl font-black mb-4 tracking-tighter">
+                      {formatPrice(budget.min)}€
+                    </div>
+                    <div className="text-slate-400 text-sm mb-8">
+                      Rango máximo hasta {formatPrice(budget.max)}€ <br/>
+                      <span className="text-[10px] uppercase opacity-50 mt-2 block tracking-widest">+ IVA 21% aplicable</span>
+                    </div>
+
+                    <div className="space-y-4">
+                      <button
+                        onClick={handleGetQuote}
+                        className="w-full py-4 px-8 bg-emerald-500 hover:bg-emerald-400 text-slate-900 font-black rounded-2xl transition-all duration-300 shadow-lg shadow-emerald-500/20 hover:scale-[1.02] active:scale-95"
+                      >
+                        RESERVAR CONSULTORÍA
+                      </button>
+                      <button
+                        onClick={downloadPDF}
+                        className="w-full py-4 px-8 bg-white/5 hover:bg-white/10 text-white font-bold rounded-2xl border border-white/10 transition-all flex items-center justify-center gap-3"
+                      >
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                        Exportar PDF Técnico
+                      </button>
+                    </div>
+                    
+                    <p className="mt-8 text-[11px] text-slate-500 leading-relaxed italic">
+                      * Este documento no constituye un contrato legal. Los precios pueden variar según el análisis técnico final de requerimientos.
+                    </p>
+                  </div>
+                </motion.div>
+              ) : (
+                <motion.div
+                  key="placeholder"
+                  className="h-96 flex flex-col items-center justify-center border-4 border-dashed border-slate-200 dark:border-white/5 rounded-[2.5rem] p-10 text-center"
+                >
+                  <div className="w-16 h-16 bg-slate-100 dark:bg-white/5 rounded-full flex items-center justify-center mb-6 animate-pulse">
+                    <svg className="w-8 h-8 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" /></svg>
+                  </div>
+                  <h4 className="text-xl font-bold text-slate-400 mb-2">Esperando tu selección</h4>
+                  <p className="text-slate-500 text-sm">Elige un tipo de proyecto a la izquierda para generar el desglose en tiempo real.</p>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+        </div>
       </div>
     </section>
   );

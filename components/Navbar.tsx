@@ -113,7 +113,8 @@ export default function Navbar() {
                 priority
               />
             </div>
-            <span className="text-lg sm:text-xl font-black tracking-tight text-slate-900 dark:text-transparent dark:bg-clip-text dark:bg-gradient-to-r dark:from-emerald-400 dark:to-cyan-400">
+            {/* ✅ GRADIENTE VERDE SOLO (sin cyan) */}
+            <span className="text-lg sm:text-xl font-black tracking-tight text-slate-900 dark:text-transparent dark:bg-clip-text dark:bg-gradient-to-r dark:from-emerald-400 dark:to-emerald-500">
               Mindbridge IA
             </span>
           </Link>
@@ -128,7 +129,8 @@ export default function Navbar() {
                 className="group relative px-3 lg:px-4 py-2 text-sm font-bold text-slate-800 dark:text-slate-200 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 rounded-md cursor-pointer"
               >
                 {item.label}
-                <span className="absolute bottom-0 left-1/2 w-0 h-0.5 bg-gradient-to-r from-emerald-500 to-cyan-400 group-hover:w-full group-hover:left-0 transition-all duration-300 pointer-events-none"></span>
+                {/* ✅ GRADIENTE VERDE SOLO (sin cyan) */}
+                <span className="absolute bottom-0 left-1/2 w-0 h-0.5 bg-gradient-to-r from-emerald-400 to-emerald-500 group-hover:w-full group-hover:left-0 transition-all duration-300 pointer-events-none"></span>
               </a>
             ))}
           </nav>
@@ -142,7 +144,7 @@ export default function Navbar() {
               <a
                 href="#contacto"
                 onClick={(e) => handleAnchorClick(e, "#contacto")}
-                className="group relative bg-gradient-to-r from-emerald-500 to-cyan-500 hover:from-emerald-600 hover:to-cyan-600 text-white px-5 lg:px-6 py-2.5 rounded-xl font-bold text-sm transition-all shadow-lg shadow-emerald-500/25 hover:shadow-emerald-500/40 hover:scale-105 active:scale-95 overflow-hidden outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-emerald-500 dark:focus-visible:ring-offset-slate-900 cursor-pointer"
+                className="group relative bg-gradient-to-r from-emerald-400 to-emerald-500 hover:from-emerald-500 hover:to-emerald-600 text-white px-5 lg:px-6 py-2.5 rounded-xl font-bold text-sm transition-all shadow-lg shadow-emerald-500/25 hover:shadow-emerald-500/40 hover:scale-105 active:scale-95 overflow-hidden outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-emerald-500 dark:focus-visible:ring-offset-slate-900 cursor-pointer"
               >
                 <span className="relative z-10">Contactar</span>
                 <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 pointer-events-none"></span>
@@ -224,7 +226,7 @@ export default function Navbar() {
                     handleAnchorClick(e, "#contacto");
                     setIsMobileMenuOpen(false);
                   }}
-                  className="flex justify-center w-full bg-gradient-to-r from-emerald-500 to-cyan-500 hover:from-emerald-600 hover:to-cyan-600 text-white px-6 py-4 rounded-xl font-bold text-base transition-all shadow-lg shadow-emerald-500/25 outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-emerald-500 dark:focus-visible:ring-offset-slate-900 cursor-pointer min-h-[56px] flex items-center justify-center"
+                  className="flex justify-center w-full bg-gradient-to-r from-emerald-400 to-emerald-500 hover:from-emerald-500 hover:to-emerald-600 text-white px-6 py-4 rounded-xl font-bold text-base transition-all shadow-lg shadow-emerald-500/25 outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-emerald-500 dark:focus-visible:ring-offset-slate-900 cursor-pointer min-h-[56px] flex items-center justify-center"
                 >
                   Contactar
                 </a>
