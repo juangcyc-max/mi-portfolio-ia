@@ -43,6 +43,8 @@ export default function Navbar() {
   // Scroll manual para anclas
   const handleAnchorClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
     e.preventDefault();
+    setIsMobileMenuOpen(false);
+    
     const element = document.querySelector(href);
     if (element) {
       const navbarHeight = 80;
@@ -54,15 +56,14 @@ export default function Navbar() {
         behavior: "smooth"
       });
     }
-    setIsMobileMenuOpen(false);
   };
 
   return (
     <motion.header
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 border-b ${
-        scrolled || isMobileMenuOpen
-          ? "backdrop-blur-md bg-white/90 dark:bg-slate-900/90 shadow-lg border-slate-200/50 dark:border-slate-700/50"
-          : "backdrop-blur-sm bg-white/20 dark:bg-slate-900/40 border-transparent"
+        scrolled
+          ? "backdrop-blur-md bg-white/95 dark:bg-slate-900/95 shadow-lg border-slate-200/50 dark:border-slate-700/50"
+          : "backdrop-blur-sm bg-white/90 dark:bg-slate-900/90 border-slate-200/50 dark:border-slate-700/50"
       }`}
       initial="hidden"
       animate="visible"
@@ -74,8 +75,7 @@ export default function Navbar() {
           {/* Logo */}
           <Link 
             href="/" 
-            className="flex items-center gap-2 sm:gap-3 select-none z-50"
-            onClick={() => setIsMobileMenuOpen(false)}
+            className="flex items-center gap-2 sm:gap-3 select-none"
           >
             <div className="w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center rounded-xl bg-white/50 dark:bg-slate-800/80 border border-slate-200/50 dark:border-slate-700/50 shadow-sm">
               <Image
@@ -92,7 +92,7 @@ export default function Navbar() {
             </span>
           </Link>
 
-          {/* Navegación Desktop */}
+          {/* Navegación Desktop - SOLO SE VE EN DESKTOP */}
           <nav className="hidden md:flex items-center gap-1">
             {NAV_ITEMS.map((item) => (
               <a
@@ -108,10 +108,10 @@ export default function Navbar() {
           </nav>
 
           {/* Lado Derecho */}
-          <div className="flex items-center gap-2 sm:gap-3 z-50">
+          <div className="flex items-center gap-2 sm:gap-3">
             <ThemeToggle />
 
-            {/* CTA Desktop */}
+            {/* CTA Desktop - SOLO SE VE EN DESKTOP */}
             <div className="hidden md:block">
               <a
                 href="#contacto"
@@ -123,42 +123,59 @@ export default function Navbar() {
               </a>
             </div>
 
-            {/* Botón Hamburguesa */}
+            {/* Botón Hamburguesa - SOLO SE VE EN MÓVIL */}
             <button
               type="button"
-              className="md:hidden flex items-center justify-center p-2 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors min-w-[44px] min-h-[44px]"
+              className="md:hidden flex items-center justify-center p-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors min-w-[44px] min-h-[44px]"
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               aria-label={isMobileMenuOpen ? "Cerrar menú" : "Abrir menú"}
             >
-              <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                {isMobileMenuOpen ? (
+              {isMobileMenuOpen ? (
+                /* X para cerrar */
+                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                ) : (
+                </svg>
+              ) : (
+                /* Hamburguesa para abrir */
+                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-                )}
-              </svg>
+                </svg>
+              )}
             </button>
           </div>
         </div>
       </div>
 
-      {/* Menú Móvil - CORREGIDO */}
+      {/* Overlay oscuro cuando el menú está abierto */}
       <AnimatePresence>
         {isMobileMenuOpen && (
           <motion.div
-            className="fixed inset-0 top-16 left-0 right-0 z-40 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl md:hidden"
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 md:hidden"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setIsMobileMenuOpen(false)}
+          />
+        )}
+      </AnimatePresence>
+
+      {/* Menú Móvil - PANEL LATERAL */}
+      <AnimatePresence>
+        {isMobileMenuOpen && (
+          <motion.div
+            className="fixed top-16 left-0 right-0 bottom-0 z-30 bg-white dark:bg-slate-900 md:hidden overflow-y-auto"
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.3 }}
+            transition={{ duration: 0.3, ease: "easeInOut" }}
           >
-            <div className="flex flex-col p-6 space-y-4 overflow-y-auto h-full pb-32">
+            <div className="flex flex-col p-6 space-y-4">
               {NAV_ITEMS.map((item, index) => (
                 <motion.a
                   key={item.href}
                   href={item.href}
                   onClick={(e) => handleAnchorClick(e, item.href)}
-                  className="block px-6 py-4 text-lg font-bold text-slate-800 dark:text-slate-200 hover:bg-emerald-50 dark:hover:bg-slate-800/50 hover:text-emerald-600 dark:hover:text-emerald-400 rounded-xl transition-all"
+                  className="block px-6 py-4 text-lg font-bold text-slate-800 dark:text-slate-200 bg-slate-50 dark:bg-slate-800/50 hover:bg-emerald-50 dark:hover:bg-slate-800 hover:text-emerald-600 dark:hover:text-emerald-400 rounded-xl transition-all"
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: index * 0.1 }}
@@ -169,7 +186,7 @@ export default function Navbar() {
               
               {/* CTA Mobile */}
               <motion.div
-                className="pt-6 mt-auto"
+                className="pt-6 mt-6 border-t border-slate-200 dark:border-slate-700"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.4 }}
