@@ -1,500 +1,339 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import Image from "next/image";
+import { useTranslation } from "@/lib/i18n/LanguageContext";
 
-/* =========================
-   TIPOS
-========================= */
-
-interface ChatMessage {
+interface Message {
   role: "user" | "assistant";
   content: string;
-  timestamp?: Date;
+  timestamp: Date;
 }
 
-/* =========================
-   PRECIOS (IGUAL QUE CALCULADORA)
-========================= */
-
-// Precios alineados con sección Planes y BudgetCalculator
-const projectPrices = {
-  landing: { min: 990, max: 1990, monthly: 79 },
-  corporativa: { min: 2490, max: 4490, monthly: 149 },
-  tienda: { min: 3500, max: 7990, monthly: 149 },
-  ia: { min: 4990, max: 12000, monthly: 299 }
+const DEMO_RESPONSES: Record<string, string> = {
+  default:
+    "Hola 👋 Soy Mia, asistente de Mindbridge IA. Puedo ayudarte a encontrar la solución digital ideal para tu negocio. ¿Qué tipo de empresa tienes y qué necesitas mejorar digitalmente?\n\n*(Nota: para activar la IA real, añade ANTHROPIC_API_KEY en las variables de entorno)*",
 };
 
-const extras = {
-  seo: 400,
-  chatbot: 600,
-  analytics: 300,
-  cms: 500,
-  idioma: 450,
-  ia_avanzada: 1000
+const INITIAL_MESSAGE: Message = {
+  role: "assistant",
+  content:
+    "Hola 👋 Soy **Mia**, asistente virtual de Mindbridge IA.\n\nEstoy aquí para ayudarte a encontrar la solución digital ideal para tu negocio: web, automatización cloud e IA integrada.\n\n¿En qué puedo ayudarte hoy?",
+  timestamp: new Date(),
 };
-
-/* =========================
-   COMPONENTE
-========================= */
 
 export default function ChatBox() {
-
-  const [messages, setMessages] = useState<ChatMessage[]>([
-    {
-      role: "assistant",
-      content:
-        "Hola 👋 Soy el asistente de Mindbridge IA.\n\n¿Quieres crear una landing page, web corporativa, tienda online o integrar IA?",
-      timestamp: new Date()
-    }
-  ]);
-
+  const { t } = useTranslation();
+  const [messages, setMessages] = useState<Message[]>([INITIAL_MESSAGE]);
   const [input, setInput] = useState("");
-  const [isTyping, setIsTyping] = useState(false);
-  const [loading, setLoading] = useState(false);
-
-  const [conversationStep, setConversationStep] =
-    useState<"project" | "extras" | "final">("project");
-
-  const [selectedProject, setSelectedProject] =
-    useState<keyof typeof projectPrices | null>(null);
-
-  const [total, setTotal] = useState(0);
-
+  const [isStreaming, setIsStreaming] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const abortRef = useRef<AbortController | null>(null);
 
-  /* =========================
-     SCROLL
-  ========================= */
-
-  const scrollToBottom = () => {
-    setTimeout(() => {
-      messagesEndRef.current?.scrollIntoView({
-        behavior: "smooth"
-      });
-    }, 100);
-  };
-
-  useEffect(scrollToBottom, [messages]);
-
-  /* =========================
-     LOCAL STORAGE
-  ========================= */
-
+  // Restore history from localStorage
   useEffect(() => {
-
-    const saved = localStorage.getItem("chatHistory");
-
+    const saved = localStorage.getItem("mia_chat_history");
     if (saved) {
-
-      const parsed = JSON.parse(saved);
-
-      const withDates = parsed.map((msg:any)=>({
-        ...msg,
-        timestamp: new Date(msg.timestamp)
-      }));
-
-      setMessages(withDates);
-
+      try {
+        const parsed = JSON.parse(saved).map((m: Message) => ({
+          ...m,
+          timestamp: new Date(m.timestamp),
+        }));
+        if (parsed.length > 1) setMessages(parsed);
+      } catch {
+        localStorage.removeItem("mia_chat_history");
+      }
     }
+  }, []);
 
-  },[]);
-
-  useEffect(()=>{
-
-    if(messages.length>1){
-      localStorage.setItem("chatHistory",JSON.stringify(messages));
+  // Persist history
+  useEffect(() => {
+    if (messages.length > 1) {
+      localStorage.setItem("mia_chat_history", JSON.stringify(messages));
     }
+  }, [messages]);
 
-  },[messages]);
+  // Auto-scroll
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
 
-  /* =========================
-     STREAMING
-  ========================= */
-
-  const streamMessage = async (text:string)=>{
-
-    setIsTyping(true);
-
-    let output = "";
-
-    const words = text.split(" ");
-
-    for (let i=0;i<words.length;i++){
-
-      output += (i===0 ? "" : " ") + words[i];
-
-      setMessages(prev=>{
-
-        const last = prev[prev.length-1];
-
-        if(last?.role==="assistant"){
-
-          const updated = [...prev];
-          updated[updated.length-1] = {
-            ...last,
-            content: output
-          };
-
-          return updated;
-        }
-
-        return [
-          ...prev,
-          {
-            role:"assistant",
-            content:output,
-            timestamp:new Date()
-          }
-        ];
-      });
-
-      await new Promise(r=>setTimeout(r,40+Math.random()*80));
-    }
-
-    setIsTyping(false);
+  // Auto-resize textarea
+  const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setInput(e.target.value);
+    const ta = e.target;
+    ta.style.height = "auto";
+    ta.style.height = Math.min(ta.scrollHeight, 120) + "px";
   };
-
-  /* =========================
-     REINICIAR CHAT
-  ========================= */
 
   const clearChat = () => {
-
-    setMessages([
-      {
-        role: "assistant",
-        content:
-          "Hola 👋 Soy el asistente de Mindbridge IA.\n\n¿Quieres crear una landing page, web corporativa, tienda online o integrar IA?",
-        timestamp: new Date()
-      }
-    ]);
-
-    setConversationStep("project");
-    setSelectedProject(null);
-    setTotal(0);
-
-    localStorage.removeItem("chatHistory");
+    abortRef.current?.abort();
+    setMessages([INITIAL_MESSAGE]);
+    setIsStreaming(false);
+    localStorage.removeItem("mia_chat_history");
   };
 
-  /* =========================
-     ENVIAR MENSAJE
-  ========================= */
+  const sendMessage = useCallback(async () => {
+    const text = input.trim();
+    if (!text || isStreaming) return;
 
-  const sendMessage = async () => {
+    const userMsg: Message = { role: "user", content: text, timestamp: new Date() };
+    const updatedHistory = [...messages, userMsg];
 
-    if(!input.trim() || loading) return;
-
-    const text = input.toLowerCase();
-
-    setMessages(prev=>[
-      ...prev,
-      {
-        role:"user",
-        content:input,
-        timestamp:new Date()
-      }
-    ]);
-
+    setMessages(updatedHistory);
     setInput("");
-    setLoading(true);
-
-    /* =====================
-       PASO 1 PROYECTO
-    ===================== */
-
-    if(conversationStep==="project"){
-
-      if(text.includes("landing")){
-
-        const price = projectPrices.landing;
-
-        setSelectedProject("landing");
-        setTotal(price.min);
-
-        await streamMessage(
-          `Perfecto 👍\n\nUna **Landing Page** tiene un coste de implementación entre **${price.min}€ y ${price.max}€** + cuota de mantenimiento mensual de **${price.monthly}€/mes** (incluye alojamiento, IA básica y soporte).\n\n¿Quieres añadir funcionalidades como SEO, chatbot o CMS?`
-        );
-
-        setConversationStep("extras");
-        setLoading(false);
-        return;
-      }
-
-      if(text.includes("corporativa")){
-
-        const price = projectPrices.corporativa;
-
-        setSelectedProject("corporativa");
-        setTotal(price.min);
-
-        await streamMessage(
-          `Perfecto 👍\n\nUna **Web Corporativa** tiene un coste de implementación entre **${price.min}€ y ${price.max}€** + cuota mensual de **${price.monthly}€/mes** (cloud, automatizaciones básicas, IA y mantenimiento incluidos).\n\nMuchas empresas añaden CMS o SEO.`
-        );
-
-        setConversationStep("extras");
-        setLoading(false);
-        return;
-      }
-
-      if(text.includes("tienda")){
-
-        const price = projectPrices.tienda;
-
-        setSelectedProject("tienda");
-        setTotal(price.min);
-
-        await streamMessage(
-          `Perfecto 👍\n\nUna **Tienda Online** tiene un coste de implementación entre **${price.min}€ y ${price.max}€** + cuota mensual de **${price.monthly}€/mes** (alojamiento, mantenimiento e IA integrada incluidos).\n\nPodemos añadir analytics, multi-idioma o chatbot.`
-        );
-
-        setConversationStep("extras");
-        setLoading(false);
-        return;
-      }
-
-      if(text.includes("ia")){
-
-        const price = projectPrices.ia;
-
-        setSelectedProject("ia");
-        setTotal(price.min);
-
-        await streamMessage(
-          `Perfecto 👍\n\nUna **solución con IA integrada** tiene un coste de implementación entre **${price.min}€ y ${price.max}€** + cuota mensual de **${price.monthly}€/mes** (infraestructura cloud, automatizaciones avanzadas e IA en puntos clave incluidos).\n\nPodemos añadir IA avanzada, chatbot u otras integraciones.`
-        );
-
-        setConversationStep("extras");
-        setLoading(false);
-        return;
-      }
-
-      await streamMessage(
-        "Para poder ayudarte mejor necesito saber el tipo de proyecto:\n\n• Landing Page\n• Web Corporativa\n• Tienda Online\n• Integración IA"
-      );
-
-      setLoading(false);
-      return;
+    if (textareaRef.current) {
+      textareaRef.current.style.height = "auto";
     }
+    setIsStreaming(true);
 
-    /* =====================
-       PASO 2 EXTRAS
-    ===================== */
+    // Placeholder assistant message
+    const assistantPlaceholder: Message = {
+      role: "assistant",
+      content: "",
+      timestamp: new Date(),
+    };
+    setMessages([...updatedHistory, assistantPlaceholder]);
 
-    if(conversationStep==="extras"){
+    try {
+      const controller = new AbortController();
+      abortRef.current = controller;
 
-      let added = [];
+      // Build messages for the API (exclude initial message if it's the placeholder)
+      const apiMessages = updatedHistory.map((m) => ({
+        role: m.role,
+        content: m.content,
+      }));
 
-      if(text.includes("seo")){
-        setTotal(t=>t+extras.seo);
-        added.push("SEO (+400€)");
+      const res = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ messages: apiMessages }),
+        signal: controller.signal,
+      });
+
+      // Demo mode (no API key)
+      if (res.headers.get("content-type")?.includes("application/json")) {
+        const json = await res.json();
+        if (json.demo) {
+          simulateStream(DEMO_RESPONSES.default, updatedHistory);
+          return;
+        }
       }
 
-      if(text.includes("chatbot")){
-        setTotal(t=>t+extras.chatbot);
-        added.push("Chatbot IA (+600€)");
+      if (!res.ok || !res.body) throw new Error("Stream unavailable");
+
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let accumulated = "";
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        const chunk = decoder.decode(value, { stream: true });
+        accumulated += chunk;
+
+        setMessages((prev) => {
+          const next = [...prev];
+          next[next.length - 1] = {
+            ...next[next.length - 1],
+            content: accumulated,
+          };
+          return next;
+        });
       }
-
-      if(text.includes("analytics")){
-        setTotal(t=>t+extras.analytics);
-        added.push("Analytics (+300€)");
-      }
-
-      if(text.includes("cms")){
-        setTotal(t=>t+extras.cms);
-        added.push("CMS (+500€)");
-      }
-
-      if(text.includes("idioma")){
-        setTotal(t=>t+extras.idioma);
-        added.push("Multi-idioma (+450€)");
-      }
-
-      if(text.includes("ia avanzada")){
-        setTotal(t=>t+extras.ia_avanzada);
-        added.push("IA avanzada (+1000€)");
-      }
-
-      if(added.length===0){
-
-        await streamMessage(
-          "Puedes añadir extras como:\n\nSEO\nChatbot IA\nAnalytics\nCMS\nMulti-idioma\nIA avanzada\n\n¿Quieres alguno?"
-        );
-
-        setLoading(false);
-        return;
-      }
-
-      await streamMessage(
-        `Perfecto 👍 añadimos:\n\n${added.join("\n")}\n\n¿Quieres que te calcule el presupuesto aproximado?`
-      );
-
-      setConversationStep("final");
-      setLoading(false);
-      return;
+    } catch (err: any) {
+      if (err.name === "AbortError") return;
+      // Fallback demo response
+      simulateStream(DEMO_RESPONSES.default, updatedHistory);
+    } finally {
+      setIsStreaming(false);
     }
+  }, [input, isStreaming, messages]);
 
-    /* =====================
-       PASO FINAL
-    ===================== */
-
-    if(conversationStep==="final"){
-
-      const monthly = selectedProject ? projectPrices[selectedProject].monthly : null;
-      const monthlyText = monthly ? `\n + **${monthly}€/mes** de mantenimiento (cloud + IA + soporte incluidos).` : "";
-      await streamMessage(
-        `El presupuesto aproximado para tu proyecto sería desde **${total}€** de implementación.${monthlyText}\n\nSi quieres puedo prepararte una propuesta detallada o agendar una llamada de 15 minutos.`
-      );
-
-      setLoading(false);
-      return;
+  const simulateStream = async (text: string, history: Message[]) => {
+    const words = text.split(" ");
+    let out = "";
+    for (let i = 0; i < words.length; i++) {
+      out += (i === 0 ? "" : " ") + words[i];
+      const snapshot = out;
+      setMessages([
+        ...history,
+        { role: "assistant", content: snapshot, timestamp: new Date() },
+      ]);
+      await new Promise((r) => setTimeout(r, 35 + Math.random() * 55));
     }
-
+    setIsStreaming(false);
   };
 
-  const handleKeyDown = (e:React.KeyboardEvent<HTMLTextAreaElement>)=>{
-    if(e.key==="Enter" && !e.shiftKey){
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       sendMessage();
     }
   };
 
-  const formatTime = (date?:Date)=>{
-    if(!date) return "";
-    return date.toLocaleTimeString("es-ES",{hour:"2-digit",minute:"2-digit"});
+  const formatTime = (d: Date) =>
+    d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+
+  // Simple markdown-to-HTML renderer (bold, newlines, bullets)
+  const renderContent = (content: string) => {
+    if (!content) return null;
+    const lines = content.split("\n");
+    return lines.map((line, i) => {
+      // Bold
+      const parts = line.split(/\*\*(.*?)\*\*/g);
+      const rendered = parts.map((part, j) =>
+        j % 2 === 1 ? <strong key={j}>{part}</strong> : part
+      );
+      // Bullet
+      const isBullet = line.startsWith("• ") || line.startsWith("- ");
+      if (isBullet) {
+        return (
+          <div key={i} className="flex gap-2">
+            <span className="text-emerald-400 flex-shrink-0">•</span>
+            <span>{rendered}</span>
+          </div>
+        );
+      }
+      return (
+        <span key={i}>
+          {rendered}
+          {i < lines.length - 1 && <br />}
+        </span>
+      );
+    });
   };
 
-  /* =========================
-     UI MEJORADA
-  ========================= */
-
   return (
-    <div className="max-w-2xl mx-auto bg-slate-900/80 backdrop-blur-xl border border-white/10 rounded-3xl shadow-2xl flex flex-col h-[700px] overflow-hidden font-sans">
-      
-      {/* HEADER */}
-      <div className="px-6 py-4 bg-white/5 border-b border-white/10 flex justify-between items-center shadow-sm z-10">
-        <div className="flex items-center gap-3">
-          
-          {/* AVATAR CON EL LOGO */}
-          <div className="relative">
-            <div className="w-11 h-11 bg-slate-800/50 rounded-full flex items-center justify-center shadow-lg border border-white/10 overflow-hidden p-1.5">
-              <img 
-                src="/logo.svg" 
-                alt="Mindbridge IA Logo" 
-                className="w-full h-full object-contain"
-              />
-            </div>
-            <span className="absolute bottom-0 right-0 w-3 h-3 bg-emerald-400 border-2 border-slate-900 rounded-full"></span>
-          </div>
+    <div className="max-w-2xl mx-auto flex flex-col h-[680px] sm:h-[700px] rounded-3xl overflow-hidden border border-white/10 shadow-2xl bg-slate-900/80 backdrop-blur-xl">
 
+      {/* ── Header ── */}
+      <div className="px-5 py-4 bg-white/5 border-b border-white/10 flex items-center justify-between flex-shrink-0">
+        <div className="flex items-center gap-3">
+          <div className="relative">
+            <div className="w-10 h-10 rounded-full overflow-hidden ring-2 ring-emerald-500/40 bg-slate-800">
+              <Image src="/logo.svg" alt="Mia" width={40} height={40} />
+            </div>
+            <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-emerald-500 rounded-full border-2 border-slate-900" />
+          </div>
           <div>
-            <h3 className="font-semibold text-white tracking-wide">Mindbridge Assistant</h3>
-            <p className="text-xs text-emerald-400 flex items-center gap-1.5 mt-0.5">
-              <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse"></span>
-              En línea
-            </p>
+            <p className="text-sm font-bold text-white leading-tight">{t("chat_title")}</p>
+            <p className="text-xs text-emerald-400 font-medium">{t("chat_subtitle")}</p>
           </div>
         </div>
 
         <button
           onClick={clearChat}
-          className="p-2.5 rounded-full hover:bg-white/10 text-slate-300 hover:text-white transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
-          title="Reiniciar chat"
+          title={t("chat_clear")}
+          className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-white/10 transition-colors"
         >
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+              d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
           </svg>
         </button>
       </div>
 
-      {/* CHAT BODY */}
-      <div className="flex-1 overflow-y-auto p-6 space-y-6 scroll-smooth">
-        <AnimatePresence>
+      {/* ── Messages ── */}
+      <div className="flex-1 overflow-y-auto px-4 py-5 space-y-4 scroll-smooth">
+        <AnimatePresence initial={false}>
           {messages.map((msg, i) => (
             <motion.div
               key={i}
-              initial={{ opacity: 0, y: 15, scale: 0.95 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              transition={{ duration: 0.3, ease: "easeOut" }}
-              className={`flex ${
-                msg.role === "user" ? "justify-end" : "justify-start"
-              }`}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.25 }}
+              className={`flex gap-3 ${msg.role === "user" ? "flex-row-reverse" : "flex-row"}`}
             >
-              <div
-                className={`max-w-[85%] sm:max-w-[75%] p-4 text-sm leading-relaxed whitespace-pre-line shadow-md relative ${
-                  msg.role === "user"
-                    ? "bg-gradient-to-br from-emerald-500 to-teal-600 text-white rounded-2xl rounded-tr-sm"
-                    : "bg-white text-slate-700 rounded-2xl rounded-tl-sm border border-slate-100"
-                }`}
-              >
-                {msg.content}
+              {/* Avatar */}
+              {msg.role === "assistant" && (
+                <div className="flex-shrink-0 w-8 h-8 rounded-full overflow-hidden bg-slate-800 ring-1 ring-emerald-500/30 mt-1">
+                  <Image src="/logo.svg" alt="Mia" width={32} height={32} />
+                </div>
+              )}
 
+              <div className={`flex flex-col gap-1 max-w-[82%] ${msg.role === "user" ? "items-end" : "items-start"}`}>
                 <div
-                  className={`text-[10px] mt-2 ${
+                  className={`px-4 py-3 rounded-2xl text-sm leading-relaxed ${
                     msg.role === "user"
-                      ? "text-emerald-100/80 text-right"
-                      : "text-slate-400 text-left"
+                      ? "bg-emerald-500 text-white rounded-tr-sm"
+                      : "bg-white/8 text-slate-100 rounded-tl-sm border border-white/10"
                   }`}
                 >
-                  {formatTime(msg.timestamp)}
+                  {msg.role === "assistant" && i === messages.length - 1 && isStreaming && !msg.content ? (
+                    // Typing indicator
+                    <div className="flex gap-1 items-center py-1">
+                      {[0, 1, 2].map((j) => (
+                        <motion.span
+                          key={j}
+                          className="w-1.5 h-1.5 rounded-full bg-emerald-400"
+                          animate={{ y: [0, -5, 0] }}
+                          transition={{ duration: 0.6, repeat: Infinity, delay: j * 0.15 }}
+                        />
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="space-y-0.5">{renderContent(msg.content)}</div>
+                  )}
+
+                  {/* Streaming cursor */}
+                  {msg.role === "assistant" && i === messages.length - 1 && isStreaming && msg.content && (
+                    <motion.span
+                      className="inline-block w-0.5 h-4 bg-emerald-400 ml-0.5 align-middle"
+                      animate={{ opacity: [1, 0] }}
+                      transition={{ duration: 0.5, repeat: Infinity }}
+                    />
+                  )}
                 </div>
+                <span className="text-[10px] text-slate-500 px-1">{formatTime(msg.timestamp)}</span>
               </div>
             </motion.div>
           ))}
         </AnimatePresence>
-
-        {/* TYPING INDICATOR */}
-        {isTyping && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="flex justify-start"
-          >
-            <div className="bg-white/90 backdrop-blur rounded-2xl rounded-tl-sm py-3 px-4 shadow-sm border border-slate-100 flex items-center gap-1.5">
-              <span className="w-2 h-2 bg-slate-400 rounded-full animate-bounce"></span>
-              <span className="w-2 h-2 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '0.15s' }}></span>
-              <span className="w-2 h-2 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '0.3s' }}></span>
-            </div>
-          </motion.div>
-        )}
-
-        <div ref={messagesEndRef} className="h-2" />
+        <div ref={messagesEndRef} />
       </div>
 
-      {/* INPUT AREA */}
-      <div className="p-4 bg-white/5 border-t border-white/10 backdrop-blur-md">
-        <div className="relative flex items-end gap-2">
+      {/* ── Input ── */}
+      <div className="px-4 pb-4 pt-3 border-t border-white/10 flex-shrink-0 bg-slate-900/50">
+        <div className="flex gap-2 items-end bg-white/5 rounded-2xl border border-white/10 px-4 py-2 focus-within:border-emerald-500/50 transition-colors">
           <textarea
-            rows={1}
+            ref={textareaRef}
             value={input}
-            onChange={(e) => setInput(e.target.value)}
+            onChange={handleInputChange}
             onKeyDown={handleKeyDown}
-            placeholder="Escribe tu mensaje..."
-            className="w-full bg-slate-800/60 border border-white/10 rounded-2xl py-3.5 pl-4 pr-12 text-sm text-white placeholder-slate-400 focus:outline-none focus:border-emerald-500/50 focus:ring-2 focus:ring-emerald-500/20 transition-all resize-none shadow-inner"
-            style={{ minHeight: '52px', maxHeight: '120px' }}
+            placeholder={t("chat_placeholder")}
+            disabled={isStreaming}
+            rows={1}
+            className="flex-1 bg-transparent text-slate-100 placeholder-slate-500 text-sm resize-none outline-none py-1.5 leading-relaxed disabled:opacity-50"
+            style={{ minHeight: "36px", maxHeight: "120px" }}
           />
-          
           <button
             onClick={sendMessage}
-            disabled={!input.trim() || loading}
-            className={`absolute right-2 bottom-1.5 p-2 rounded-xl flex items-center justify-center transition-all duration-200 ${
-              !input.trim() || loading
-                ? "text-slate-500 bg-transparent"
-                : "text-white bg-emerald-500 hover:bg-emerald-600 shadow-md transform hover:scale-105"
-            }`}
+            disabled={!input.trim() || isStreaming}
+            className="flex-shrink-0 w-9 h-9 rounded-xl bg-emerald-500 hover:bg-emerald-400 disabled:opacity-40 disabled:cursor-not-allowed text-white flex items-center justify-center transition-all hover:scale-105 active:scale-95 shadow-lg shadow-emerald-500/20 mb-0.5"
           >
-            <svg className="w-4 h-4 translate-x-0.5 translate-y-px" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-            </svg>
+            {isStreaming ? (
+              <motion.div
+                className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full"
+                animate={{ rotate: 360 }}
+                transition={{ duration: 0.8, repeat: Infinity, ease: "linear" }}
+              />
+            ) : (
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                  d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+              </svg>
+            )}
           </button>
         </div>
-        <div className="text-center mt-2 opacity-50">
-          <span className="text-[10px] text-slate-300 tracking-wide">
-            Presiona <strong className="font-semibold">Enter</strong> para enviar
-          </span>
-        </div>
+        <p className="text-[10px] text-slate-600 text-center mt-2">
+          Powered by Claude · {t("chat_subtitle")}
+        </p>
       </div>
-
     </div>
   );
 }

@@ -3,6 +3,7 @@ import { Public_Sans } from "next/font/google";
 import "./globals.css";
 import ThemeProvider from "@/components/ThemeProvider";
 import CustomScrollbar from "@/components/CustomScrollbar";
+import { LanguageProvider } from "@/lib/i18n/LanguageContext";
 
 /* ============================================ */
 /* FUENTE PRINCIPAL */
@@ -123,7 +124,9 @@ export default function RootLayout({
           <CustomScrollbar />
           
           {/* ✅ Contenido principal */}
-          {children}
+          <LanguageProvider>
+            {children}
+          </LanguageProvider>
         </ThemeProvider>
       </body>
     </html>

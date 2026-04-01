@@ -3,18 +3,14 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { fadeInDown } from "@/lib/animations";
 import ThemeToggle from "./ThemeToggle";
+import LanguageSwitcher from "./LanguageSwitcher";
 import Image from "next/image";
 import Link from "next/link";
 import { useState, useEffect } from "react";
-
-const NAV_ITEMS = [
-  { href: "#servicios", label: "Servicios" },
-  { href: "#planes", label: "Planes" },
-  { href: "#demo", label: "Chat IA" },
-  { href: "#portfolio", label: "Portfolio" }
-];
+import { useTranslation } from "@/lib/i18n/LanguageContext";
 
 export default function Navbar() {
+  const { t } = useTranslation();
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -100,7 +96,12 @@ export default function Navbar() {
 
             {/* Desktop Nav */}
             <nav className="hidden md:flex items-center gap-6">
-              {NAV_ITEMS.map((item) => (
+              {[
+                { href: "#servicios", label: t("nav_services") },
+                { href: "#planes",    label: t("nav_plans") },
+                { href: "#demo",      label: t("nav_chat") },
+                { href: "#portfolio", label: t("nav_portfolio") },
+              ].map((item) => (
                 <a
                   key={item.href}
                   href={item.href}
@@ -113,8 +114,9 @@ export default function Navbar() {
             </nav>
 
             {/* Right */}
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
 
+              <LanguageSwitcher />
               <ThemeToggle />
 
               {/* CTA Desktop */}
@@ -123,7 +125,7 @@ export default function Navbar() {
                 onClick={(e) => handleAnchorClick(e, "#contacto")}
                 className="hidden md:inline-flex bg-gradient-to-r from-emerald-400 to-emerald-500 text-white px-5 py-2.5 rounded-xl font-bold text-sm hover:scale-105 transition shadow-lg shadow-emerald-500/20"
               >
-                Contactar
+                {t("nav_contact")}
               </a>
 
               {/* Hamburger */}
@@ -179,7 +181,12 @@ export default function Navbar() {
             >
               <div className="flex flex-col gap-6 mt-20">
 
-                {NAV_ITEMS.map((item) => (
+                {[
+                  { href: "#servicios", label: t("nav_services") },
+                  { href: "#planes",    label: t("nav_plans") },
+                  { href: "#demo",      label: t("nav_chat") },
+                  { href: "#portfolio", label: t("nav_portfolio") },
+                ].map((item) => (
                   <a
                     key={item.href}
                     href={item.href}
@@ -195,7 +202,7 @@ export default function Navbar() {
                   onClick={(e) => handleAnchorClick(e, "#contacto")}
                   className="mt-6 bg-gradient-to-r from-emerald-400 to-emerald-500 text-white py-4 rounded-xl text-center font-bold text-lg"
                 >
-                  Contactar
+                  {t("nav_contact")}
                 </a>
 
               </div>

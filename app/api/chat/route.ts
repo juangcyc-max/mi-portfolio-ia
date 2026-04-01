@@ -1,97 +1,116 @@
-import { NextResponse } from "next/server";
-import { supabase } from "@/lib/supabaseClient";
+import { anthropic } from "@ai-sdk/anthropic";
+import { streamText } from "ai";
+
+const SYSTEM_PROMPT = `You are Mia, the intelligent virtual assistant for Mindbridge IA — a digital solutions agency based in Spain, led by Juan Gutiérrez de la Concha.
+
+YOUR MISSION: Guide potential business clients (SMBs) to understand our services, find the right solution for their needs, and naturally move toward booking a consultation or filling in the contact form.
+
+━━━ CRITICAL LANGUAGE RULE ━━━
+Detect the language of the user's message and ALWAYS respond in THAT EXACT SAME LANGUAGE.
+If someone writes in Japanese, respond in Japanese. French → French. Arabic → Arabic. Always mirror their language.
+
+━━━ PERSONALITY ━━━
+- Warm, professional, and conversational — like a knowledgeable human consultant
+- Concise: 2-4 short paragraphs max per message
+- Use line breaks and bullet points for clarity
+- Never use corporate jargon or buzzwords excessively
+- If asked directly if you're an AI, answer honestly but briefly, then redirect to helping
+
+━━━ ABOUT MINDBRIDGE IA ━━━
+
+We offer complete digital solutions for SMBs combining three areas:
+
+1. CONNECTED WEB DEVELOPMENT
+   - Landing pages, multi-page sites, corporate websites
+   - Lead capture forms and automated follow-ups
+   - WhatsApp Business, email and CRM integrations
+   - Simple internal management panels for teams
+
+2. CLOUD INFRASTRUCTURE 24/7
+   - Managed hosting and cloud deployment
+   - Automated workflows running around the clock
+   - Monthly maintenance, updates and monitoring
+   - Scalable on demand — grows with your business
+
+3. AI INTEGRATED AT KEY POINTS (not sold separately)
+   - Automatic message and inquiry classification
+   - FAQ auto-responses for customer service
+   - Summary, drafting, and assisted writing
+   - Intelligent routing to the right team member
+
+━━━ PRICING ━━━
+
+All plans include: implementation, cloud hosting, 24/7 automations, AI within limits, maintenance & support.
+
+LANZAMIENTO (Launch) — Best for freelancers and small businesses starting out
+• Implementation: €990 one-time
+• Monthly: €79/month
+• Includes: Landing page, contact form, WhatsApp integration, 1 automation flow
+• AI: 500 queries/month included | Overage: +€0.10/query
+
+NEGOCIO (Business) — Best for growing SMBs ⭐ Most popular
+• Implementation: €2,490 one-time
+• Monthly: €149/month
+• Includes: Multi-page site + management panel, CRM integration, 3 automation flows, AI chatbot
+• AI: 2,000 queries/month included | Overage: +€0.08/query
+
+EMPRESA (Enterprise) — Best for established companies with volume
+• Implementation: €4,990+ one-time
+• Monthly: €299/month
+• Includes: Custom web + full cloud infra, unlimited automations (n8n), AI in all key workflows
+• AI: 5,000 queries/month included | Custom overage packages
+
+OPTIONAL ADD-ONS: SEO optimization +€400, AI Chatbot +€600, Advanced Analytics +€300, CMS +€500, Multi-language +€450, Advanced AI Integration +€1,000
+
+━━━ CONTACT & TIMELINES ━━━
+• Email: juangcyc@gmail.com (reply within 24h)
+• Contact form: available on the website (scroll down to "Contacto")
+• Typical project timeline: 2–6 weeks depending on complexity
+• Free 15-minute consultation call available
+
+━━━ CONVERSATION GUIDE ━━━
+1. Welcome them and ask about their business or what they're looking for
+2. Understand their situation: type of business, current digital presence, main pain point
+3. Suggest the most fitting plan with a brief explanation of why
+4. Handle objections (price, complexity, timeline) with concrete facts
+5. End every response with a clear next step — either "fill out the contact form" or "let's schedule a quick call"
+
+━━━ IMPORTANT ━━━
+- Never invent prices, features, or timelines not listed above
+- If you don't know something, say so and suggest they reach out directly
+- Keep focus on value: "one complete package" not "separate tools"
+- If a user seems ready to buy, push gently toward the contact form`;
 
 export async function POST(request: Request) {
   try {
-    const apiKey = process.env.HUGGINGFACE_API_KEY;
-    
-    // Modo demo si no hay API key válida
-    if (!apiKey || apiKey === "hf_xxxxx") {
-      return NextResponse.json({ 
-        response: "[Demo] Hola. En producción, conectaré con IA real para responder sobre servicios web, integración de IA y marketing. ¿En qué puedo ayudarte?" 
-      });
+    const { messages } = await request.json();
+
+    const apiKey = process.env.ANTHROPIC_API_KEY;
+
+    if (!apiKey) {
+      // Graceful demo fallback
+      return new Response(
+        JSON.stringify({
+          error: "ANTHROPIC_API_KEY not configured",
+          demo: true,
+        }),
+        { status: 200, headers: { "Content-Type": "application/json" } }
+      );
     }
 
-    const { message } = await request.json();
-
-    if (!message) {
-      return NextResponse.json({ error: "Mensaje requerido" }, { status: 400 });
-    }
-
-    // ✅ URL LIMPIA - Sin espacios al final
-    const modelUrl = "https://router.huggingface.co/hf-inference/models/gpt2";
-
-    const response = await fetch(modelUrl, {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${apiKey}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        inputs: message,
-        parameters: {
-          max_new_tokens: 80,
-          temperature: 0.7,
-          do_sample: true
-        }
-      })
+    const result = streamText({
+      model: anthropic("claude-haiku-4-5-20251001"),
+      system: SYSTEM_PROMPT,
+      messages,
+      temperature: 0.7,
     });
 
-    // Manejar carga en frío del modelo
-    if (response.status === 503) {
-      return NextResponse.json({ 
-        response: "Activando asistente... espera 10 segundos y vuelve a enviar." 
-      });
-    }
-
-    let text = "";
-    
-    if (response.ok) {
-      const data = await response.json();
-      const fullText = Array.isArray(data) ? data[0]?.generated_text : "";
-      text = fullText?.replace(message, "")?.trim() || "Sin respuesta";
-    } else {
-      // Fallback a modo demo si la API falla
-      text = `[Demo] Recibí: "${message}". En producción, una IA real respondería sobre mis servicios de desarrollo web, integración de IA y marketing digital.`;
-    }
-
-    // ✅ Guardar en Supabase SOLO si el cliente está configurado
-    if (supabase) {
-      supabase
-        .from("chat_queries")
-        .insert({
-          user_message: message,
-          ai_response: text,
-          status: response.ok ? "success" : "fallback"
-        })
-        .then(({ error }) => {
-          if (error) {
-            console.error("Error guardando en Supabase:", error.message);
-          }
-        });
-    } else {
-      console.warn("Supabase no configurado, omitiendo guardado de consulta");
-    }
-
-    return NextResponse.json({ response: text });
-    
-  } catch (error: any) {
-    // Fallback en caso de error crítico
-    const demoResponse = "[Demo] Estoy en modo demostración. En producción, conectaré con IA real para asistir a tus clientes. ¿En qué puedo ayudarte hoy?";
-    
-    // ✅ Intentar guardar el error SOLO si Supabase está disponible
-    if (supabase) {
-      try {
-        await supabase.from("chat_queries").insert({
-          user_message: "ERROR",
-          ai_response: demoResponse,
-          status: "error"
-        });
-      } catch (dbError) {
-        console.error("Error guardando error en Supabase:", dbError);
-      }
-    }
-    
-    return NextResponse.json({ response: demoResponse }, { status: 200 });
+    return result.toTextStreamResponse();
+  } catch (err: any) {
+    console.error("Chat API error:", err);
+    return new Response(
+      JSON.stringify({ error: "Internal error" }),
+      { status: 500, headers: { "Content-Type": "application/json" } }
+    );
   }
 }
