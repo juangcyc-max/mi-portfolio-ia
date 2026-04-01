@@ -45,11 +45,13 @@ interface BudgetRange {
   max: number;
 }
 
+// Precios de implementación alineados con sección Planes:
+// Lanzamiento (landing) → 990€ | Negocio (corporate) → 2.490€ | Empresa (ia) → 4.990€+
 const PROJECT_PRICES: Record<ProjectType, BudgetRange> = {
-  landing: { min: 800, max: 2000 },
-  corporate: { min: 2000, max: 5000 },
-  ecommerce: { min: 3500, max: 10000 },
-  ia: { min: 2500, max: 12000 },
+  landing: { min: 990, max: 1990 },
+  corporate: { min: 2490, max: 4490 },
+  ecommerce: { min: 3500, max: 7990 },
+  ia: { min: 4990, max: 12000 },
 };
 
 const FEATURE_PRICES: Record<keyof Features, number> = {
@@ -75,6 +77,14 @@ const FEATURE_LABELS: Record<keyof Features, string> = {
   cms: "CMS (Gestor de Contenidos)",
   multilingual: "Multi-idioma",
   aiIntegration: "Integración IA Avanzada",
+};
+
+// Cuota mensual de mantenimiento por tipo de proyecto (alineada con Planes)
+const MONTHLY_FEE: Record<ProjectType, number> = {
+  landing: 79,
+  corporate: 149,
+  ecommerce: 149,
+  ia: 299,
 };
 
 const IVA_RATE = 0.21;
@@ -327,13 +337,25 @@ export default function BudgetCalculator() {
                   
                   <div className="relative z-10 text-center">
                     <p className="text-emerald-400 font-bold tracking-widest text-xs uppercase mb-4">Inversión Estimada</p>
-                    <div className="text-5xl md:text-6xl font-black mb-4 tracking-tighter">
+                    <div className="text-5xl md:text-6xl font-black mb-2 tracking-tighter">
                       {formatPrice(budget.min)}€
                     </div>
-                    <div className="text-slate-400 text-sm mb-8">
+                    <div className="text-slate-400 text-sm mb-4">
                       Rango máximo hasta {formatPrice(budget.max)}€ <br/>
                       <span className="text-[10px] uppercase opacity-50 mt-2 block tracking-widest">+ IVA 21% aplicable</span>
                     </div>
+
+                    {/* Cuota mensual */}
+                    {projectType && (
+                      <div className="flex items-center justify-center gap-2 mb-6 px-4 py-3 rounded-2xl bg-white/5 border border-emerald-500/20">
+                        <svg className="w-4 h-4 text-emerald-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                        </svg>
+                        <span className="text-sm text-slate-300">
+                          Mantenimiento mensual: <span className="font-black text-emerald-400">{formatPrice(MONTHLY_FEE[projectType as ProjectType])} €/mes</span>
+                        </span>
+                      </div>
+                    )}
 
                     <div className="space-y-4">
                       <button

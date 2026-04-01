@@ -17,11 +17,12 @@ interface ChatMessage {
    PRECIOS (IGUAL QUE CALCULADORA)
 ========================= */
 
+// Precios alineados con sección Planes y BudgetCalculator
 const projectPrices = {
-  landing: { min: 800, max: 2000 },
-  corporativa: { min: 2000, max: 5000 },
-  tienda: { min: 3500, max: 10000 },
-  ia: { min: 2500, max: 12000 }
+  landing: { min: 990, max: 1990, monthly: 79 },
+  corporativa: { min: 2490, max: 4490, monthly: 149 },
+  tienda: { min: 3500, max: 7990, monthly: 149 },
+  ia: { min: 4990, max: 12000, monthly: 299 }
 };
 
 const extras = {
@@ -212,7 +213,7 @@ export default function ChatBox() {
         setTotal(price.min);
 
         await streamMessage(
-          `Perfecto 👍\n\nUna **Landing Page** suele costar entre **${price.min}€ y ${price.max}€** dependiendo del diseño.\n\n¿Quieres añadir funcionalidades como SEO, chatbot o CMS?`
+          `Perfecto 👍\n\nUna **Landing Page** tiene un coste de implementación entre **${price.min}€ y ${price.max}€** + cuota de mantenimiento mensual de **${price.monthly}€/mes** (incluye alojamiento, IA básica y soporte).\n\n¿Quieres añadir funcionalidades como SEO, chatbot o CMS?`
         );
 
         setConversationStep("extras");
@@ -228,7 +229,7 @@ export default function ChatBox() {
         setTotal(price.min);
 
         await streamMessage(
-          `Perfecto 👍\n\nUna **Web Corporativa** suele estar entre **${price.min}€ y ${price.max}€**.\n\nMuchas empresas añaden CMS o SEO.`
+          `Perfecto 👍\n\nUna **Web Corporativa** tiene un coste de implementación entre **${price.min}€ y ${price.max}€** + cuota mensual de **${price.monthly}€/mes** (cloud, automatizaciones básicas, IA y mantenimiento incluidos).\n\nMuchas empresas añaden CMS o SEO.`
         );
 
         setConversationStep("extras");
@@ -244,7 +245,7 @@ export default function ChatBox() {
         setTotal(price.min);
 
         await streamMessage(
-          `Perfecto 👍\n\nUna **Tienda Online** suele costar entre **${price.min}€ y ${price.max}€**.\n\nPodemos añadir analytics, multi-idioma o chatbot.`
+          `Perfecto 👍\n\nUna **Tienda Online** tiene un coste de implementación entre **${price.min}€ y ${price.max}€** + cuota mensual de **${price.monthly}€/mes** (alojamiento, mantenimiento e IA integrada incluidos).\n\nPodemos añadir analytics, multi-idioma o chatbot.`
         );
 
         setConversationStep("extras");
@@ -260,7 +261,7 @@ export default function ChatBox() {
         setTotal(price.min);
 
         await streamMessage(
-          `Perfecto 👍\n\nUna **integración de IA** suele costar entre **${price.min}€ y ${price.max}€** dependiendo de la complejidad.\n\nPodemos añadir IA avanzada o chatbot.`
+          `Perfecto 👍\n\nUna **solución con IA integrada** tiene un coste de implementación entre **${price.min}€ y ${price.max}€** + cuota mensual de **${price.monthly}€/mes** (infraestructura cloud, automatizaciones avanzadas e IA en puntos clave incluidos).\n\nPodemos añadir IA avanzada, chatbot u otras integraciones.`
         );
 
         setConversationStep("extras");
@@ -339,8 +340,10 @@ export default function ChatBox() {
 
     if(conversationStep==="final"){
 
+      const monthly = selectedProject ? projectPrices[selectedProject].monthly : null;
+      const monthlyText = monthly ? `\n + **${monthly}€/mes** de mantenimiento (cloud + IA + soporte incluidos).` : "";
       await streamMessage(
-        `El presupuesto aproximado para tu proyecto sería desde **${total}€**.\n\nSi quieres puedo prepararte una propuesta detallada o agendar una llamada de 15 minutos.`
+        `El presupuesto aproximado para tu proyecto sería desde **${total}€** de implementación.${monthlyText}\n\nSi quieres puedo prepararte una propuesta detallada o agendar una llamada de 15 minutos.`
       );
 
       setLoading(false);
