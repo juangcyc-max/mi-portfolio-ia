@@ -25,19 +25,19 @@ export default function AIDemo() {
             className="text-emerald-500 font-bold text-xs sm:text-sm uppercase tracking-widest mb-3"
             variants={fadeInUp}
           >
-            Demo Interactiva
+            Asistente IA Real · Powered by Claude
           </motion.p>
-          <motion.h3 
-            className="text-2xl sm:text-3xl md:text-4xl font-black dark:text-white mb-3 sm:mb-4 px-2 leading-tight" 
+          <motion.h3
+            className="text-2xl sm:text-3xl md:text-4xl font-black dark:text-white mb-3 sm:mb-4 px-2 leading-tight"
             variants={fadeInUp}
           >
-            Prueba nuestra IA
+            Habla con Mia
           </motion.h3>
-          <motion.p 
-            className="text-sm sm:text-base text-slate-600 dark:text-slate-400 px-2" 
+          <motion.p
+            className="text-sm sm:text-base text-slate-600 dark:text-slate-400 px-2 max-w-xl mx-auto"
             variants={fadeInUp}
           >
-            Interactúa con un prototipo de nuestro asistente inteligente.
+            Nuestra asistente inteligente responde en tu idioma, conoce todos nuestros servicios y precios, y te guía hacia la solución ideal para tu negocio.
           </motion.p>
         </motion.div>
 

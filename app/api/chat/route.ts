@@ -101,7 +101,7 @@ export async function POST(request: Request) {
     const result = streamText({
       model: anthropic("claude-haiku-4-5-20251001"),
       system: SYSTEM_PROMPT,
-      messages,
+      messages: messages.slice(-20), // máximo últimos 20 mensajes para no exceder contexto
       temperature: 0.7,
     });
 
