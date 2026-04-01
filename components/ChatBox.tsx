@@ -98,19 +98,20 @@ export default function ChatBox() {
         signal: controller.signal,
       });
 
-      // Demo fallback when no API key
-      if (res.headers.get("content-type")?.includes("application/json")) {
+      if (!res.ok || !res.body) throw new Error("Stream unavailable");
+
+      // If JSON came back instead of text stream, it's a demo/error fallback
+      const ct = res.headers.get("content-type") ?? "";
+      if (ct.includes("application/json")) {
         const json = await res.json();
         if (json.demo || json.error) {
-          await simulateStream(
-            "Hola 👋 Soy **MI3.0**. En este momento el servicio de IA no está disponible. Por favor contacta directamente a juangcyc@gmail.com o usa el formulario de contacto.",
-            updatedHistory
-          );
+          const msg = lang === "en"
+            ? "The AI service is temporarily unavailable. Please contact us at juangcyc@gmail.com or use the contact form below."
+            : "El servicio de IA no está disponible ahora mismo. Por favor escríbenos a juangcyc@gmail.com o usa el formulario de contacto.";
+          await simulateStream(msg, updatedHistory);
           return;
         }
       }
-
-      if (!res.ok || !res.body) throw new Error("Stream unavailable");
 
       const reader = res.body.getReader();
       const decoder = new TextDecoder();
@@ -124,31 +125,27 @@ export default function ChatBox() {
 
         setMessages((prev) => {
           const next = [...prev];
-          next[next.length - 1] = {
-            ...next[next.length - 1],
-            content: accumulated,
-          };
+          next[next.length - 1] = { ...next[next.length - 1], content: accumulated };
           return next;
         });
       }
 
-      // If stream returned empty, show a fallback
       if (!accumulated.trim()) {
+        const msg = lang === "en"
+          ? "Sorry, I couldn't process your message. Please try again."
+          : "Lo siento, no pude procesar tu mensaje. ¿Puedes intentarlo de nuevo?";
         setMessages((prev) => {
           const next = [...prev];
-          next[next.length - 1] = {
-            ...next[next.length - 1],
-            content: "Lo siento, no pude procesar tu mensaje. ¿Puedes intentarlo de nuevo?",
-          };
+          next[next.length - 1] = { ...next[next.length - 1], content: msg };
           return next;
         });
       }
     } catch (err: any) {
       if (err.name === "AbortError") return;
-      await simulateStream(
-        "Parece que hay un problema de conexión. Por favor revisa tu conexión e inténtalo de nuevo, o contáctanos directamente en juangcyc@gmail.com.",
-        updatedHistory
-      );
+      const msg = lang === "en"
+        ? "Connection problem. Please check your internet and try again, or contact us at juangcyc@gmail.com."
+        : "Problema de conexión. Por favor revisa tu conexión e inténtalo de nuevo, o contáctanos en juangcyc@gmail.com.";
+      await simulateStream(msg, updatedHistory);
     } finally {
       setIsStreaming(false);
     }

@@ -1,5 +1,3 @@
-export const runtime = "edge"; // Edge runtime streams much faster on Vercel
-
 const SYSTEM_PROMPT = `You are MI3.0, the AI consultant for Mindbridge IA — a digital solutions agency in Spain run by Juan Gutiérrez de la Concha.
 
 ━━━ LANGUAGE RULE (CRITICAL) ━━━
@@ -116,33 +114,52 @@ export async function POST(request: Request) {
       );
     }
 
-    // Parse SSE from Anthropic and re-stream only the text deltas to the client
+    // Re-stream Anthropic SSE → plain text chunks to the browser.
+    // We read the body manually with a line buffer so SSE lines that span
+    // multiple network chunks are never split when parsed.
+    const reader = anthropicRes.body!.getReader();
     const encoder = new TextEncoder();
     const decoder = new TextDecoder();
 
-    const stream = new TransformStream({
-      async transform(chunk, controller) {
-        const text = decoder.decode(chunk, { stream: true });
-        const lines = text.split("\n");
-        for (const line of lines) {
-          if (!line.startsWith("data: ")) continue;
-          const data = line.slice(6).trim();
-          if (data === "[DONE]" || !data) continue;
-          try {
-            const parsed = JSON.parse(data);
-            if (parsed.type === "content_block_delta" && parsed.delta?.type === "text_delta") {
-              controller.enqueue(encoder.encode(parsed.delta.text));
+    const stream = new ReadableStream({
+      async start(controller) {
+        let buffer = "";
+        try {
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            buffer += decoder.decode(value, { stream: true });
+            const lines = buffer.split("\n");
+            // Keep the last (potentially incomplete) line in the buffer
+            buffer = lines.pop() ?? "";
+            for (const line of lines) {
+              if (!line.startsWith("data: ")) continue;
+              const data = line.slice(6).trim();
+              if (!data || data === "[DONE]") continue;
+              try {
+                const parsed = JSON.parse(data);
+                if (
+                  parsed.type === "content_block_delta" &&
+                  parsed.delta?.type === "text_delta" &&
+                  parsed.delta.text
+                ) {
+                  controller.enqueue(encoder.encode(parsed.delta.text));
+                }
+              } catch {
+                // skip malformed SSE line
+              }
             }
-          } catch {
-            // Skip malformed JSON lines
           }
+        } finally {
+          controller.close();
         }
+      },
+      cancel() {
+        reader.cancel();
       },
     });
 
-    anthropicRes.body!.pipeTo(stream.writable);
-
-    return new Response(stream.readable, {
+    return new Response(stream, {
       headers: {
         "Content-Type": "text/plain; charset=utf-8",
         "Cache-Control": "no-cache, no-transform",
