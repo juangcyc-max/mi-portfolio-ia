@@ -2,42 +2,30 @@
 
 import { motion } from "framer-motion";
 import { fadeInUp, staggerContainer } from "@/lib/animations";
+import { useTranslation } from "@/lib/i18n/LanguageContext";
 
 const technologies = [
-  "Next.js",
-  "TypeScript",
-  "Tailwind CSS",
-  "Supabase",
-  "HuggingFace",
-  "React",
-  "Node.js",
-  "PostgreSQL",
-  "Python",
-  "OpenAI API"
+  "Next.js", "TypeScript", "Tailwind CSS", "Supabase",
+  "HuggingFace", "React", "Node.js", "PostgreSQL", "Python", "OpenAI API"
 ];
 
 export default function Technologies() {
+  const { t } = useTranslation();
   return (
-    <section 
-      className="py-12 sm:py-16 md:py-24 px-4" 
-      id="tecnologias"
-      suppressHydrationWarning
-    >
+    <section className="py-12 sm:py-16 md:py-24 px-4" id="tecnologias" suppressHydrationWarning>
       <div className="max-w-7xl mx-auto text-center">
-        
-        {/* Title - Responsive */}
-        <motion.h3 
+
+        <motion.h3
           className="text-xl sm:text-2xl md:text-3xl font-black dark:text-white mb-8 sm:mb-10 md:mb-12 px-2"
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true }}
           variants={fadeInUp}
         >
-          Stack Tecnológico de Vanguardia
+          {t("tech_title")}
         </motion.h3>
 
-        {/* Tech Tags - Responsive gap and sizing */}
-        <motion.div 
+        <motion.div
           className="flex flex-wrap justify-center gap-3 sm:gap-4 max-w-4xl mx-auto px-2"
           initial="hidden"
           whileInView="visible"

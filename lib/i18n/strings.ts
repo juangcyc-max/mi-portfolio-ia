@@ -195,6 +195,56 @@ export const ES_STRINGS = {
   // Footer
   footer_tagline:   "Soluciones digitales para negocios que quieren crecer.",
   footer_rights:    "Todos los derechos reservados.",
+  footer_link_web:  "Desarrollo Web",
+  footer_link_ai:   "IA Generativa",
+  footer_link_auto: "Automatización",
+  footer_link_consulting: "Consultoría Tech",
+  footer_privacy:   "Privacidad",
+  footer_terms:     "Términos",
+
+  // Technologies
+  tech_title: "Stack Tecnológico de Vanguardia",
+
+  // Portfolio
+  port_badge:    "Portafolio Conceptual",
+  port_title1:   "Esto es lo que puedo construir",
+  port_title2:   "para ti",
+  port_subtitle: "Estos son ejemplos de proyectos que puedo desarrollar. Cada uno está diseñado para resolver problemas reales de negocios como el tuyo.",
+  port_cta:      "Hablemos de tu proyecto",
+
+  port_p1_title:    "E-Commerce Fashion IA",
+  port_p1_cat:      "Comercio electrónico + IA",
+  port_p1_desc:     "Tienda online con recomendaciones personalizadas mediante IA.",
+  port_p1_f1:       "Recomendaciones IA",
+  port_p1_f2:       "Carrito inteligente",
+  port_p1_f3:       "Dashboard ventas",
+  port_p1_m1:       "Conversión",
+  port_p1_m2:       "Retención",
+  port_p1_m3:       "Velocidad",
+
+  port_p2_title:    "Dashboard SaaS Analytics",
+  port_p2_cat:      "Panel + Data",
+  port_p2_desc:     "Panel SaaS con métricas en tiempo real y reportes con IA.",
+  port_p2_f1:       "Métricas en vivo",
+  port_p2_f2:       "Alertas automáticas",
+  port_p2_f3:       "Reportes IA",
+  port_p2_m1:       "Usuarios",
+  port_p2_m2:       "Uptime",
+  port_p2_m3:       "API",
+
+  port_p3_title:    "Landing Conversión",
+  port_p3_cat:      "Landing + Marketing",
+  port_p3_desc:     "Landing optimizada con A/B testing y automatización marketing.",
+  port_p3_f1:       "A/B Testing",
+  port_p3_f2:       "Chatbot leads",
+  port_p3_f3:       "Email automation",
+  port_p3_m1:       "Conversión",
+  port_p3_m2:       "Rebote",
+  port_p3_m3:       "Leads",
+
+  // Hero audio
+  hero_audio_play:  "Toca el logo para escuchar",
+  hero_audio_playing: "Reproduciendo...",
 };
 
 export const EN_STRINGS: UIStrings = {
@@ -377,6 +427,53 @@ export const EN_STRINGS: UIStrings = {
 
   footer_tagline:   "Digital solutions for businesses that want to grow.",
   footer_rights:    "All rights reserved.",
+  footer_link_web:  "Web Development",
+  footer_link_ai:   "Generative AI",
+  footer_link_auto: "Automation",
+  footer_link_consulting: "Tech Consulting",
+  footer_privacy:   "Privacy",
+  footer_terms:     "Terms",
+
+  tech_title: "Cutting-Edge Technology Stack",
+
+  port_badge:    "Conceptual Portfolio",
+  port_title1:   "This is what I can build",
+  port_title2:   "for you",
+  port_subtitle: "These are examples of projects I can develop. Each one is designed to solve real business problems like yours.",
+  port_cta:      "Let's talk about your project",
+
+  port_p1_title:    "E-Commerce Fashion AI",
+  port_p1_cat:      "E-commerce + AI",
+  port_p1_desc:     "Online store with personalized recommendations powered by AI.",
+  port_p1_f1:       "AI Recommendations",
+  port_p1_f2:       "Smart Cart",
+  port_p1_f3:       "Sales Dashboard",
+  port_p1_m1:       "Conversion",
+  port_p1_m2:       "Retention",
+  port_p1_m3:       "Speed",
+
+  port_p2_title:    "SaaS Analytics Dashboard",
+  port_p2_cat:      "Dashboard + Data",
+  port_p2_desc:     "SaaS panel with real-time metrics and AI-powered reports.",
+  port_p2_f1:       "Live Metrics",
+  port_p2_f2:       "Automatic Alerts",
+  port_p2_f3:       "AI Reports",
+  port_p2_m1:       "Users",
+  port_p2_m2:       "Uptime",
+  port_p2_m3:       "API",
+
+  port_p3_title:    "Conversion Landing",
+  port_p3_cat:      "Landing + Marketing",
+  port_p3_desc:     "Optimized landing page with A/B testing and marketing automation.",
+  port_p3_f1:       "A/B Testing",
+  port_p3_f2:       "Lead Chatbot",
+  port_p3_f3:       "Email Automation",
+  port_p3_m1:       "Conversion",
+  port_p3_m2:       "Bounce",
+  port_p3_m3:       "Leads",
+
+  hero_audio_play:    "Tap the logo to listen",
+  hero_audio_playing: "Playing...",
 };
 
 export const STATIC_TRANSLATIONS: Partial<Record<string, UIStrings>> = {

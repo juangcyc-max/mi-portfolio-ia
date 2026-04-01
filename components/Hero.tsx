@@ -227,7 +227,7 @@ export default function Hero() {
 
                 {/* Texto - Modo claro/oscuro */}
                 <p className="text-slate-600 dark:text-slate-300 text-xs sm:text-sm font-medium mt-4 sm:mt-6 tracking-wide px-2">
-                  {isPlaying ? "Reproduciendo..." : "Toca el logo para escuchar"}
+                  {isPlaying ? t('hero_audio_playing') : t('hero_audio_play')}
                 </p>
                 
                 {isClient && isPlaying && (
