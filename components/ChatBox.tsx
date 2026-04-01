@@ -104,12 +104,15 @@ export default function ChatBox() {
       setIsTyping(false);
 
       if (data.error || !data.text) {
-        await animateText(OFFLINE[detected]);
+        // Show debug info in development so we know exactly what failed
+        const debugMsg = data.debug ? `\n\n_(debug: ${data.debug})_` : "";
+        await animateText(OFFLINE[detected] + debugMsg);
         return;
       }
 
       await animateText(data.text);
-    } catch {
+    } catch (fetchErr: any) {
+      console.error("[ChatBox] fetch error:", fetchErr?.message);
       setIsTyping(false);
       await animateText(OFFLINE[detected]);
     }

@@ -92,8 +92,10 @@ export async function POST(request: Request) {
     const messages: { role: string; content: string }[] = body.messages ?? [];
 
     if (!process.env.ANTHROPIC_API_KEY) {
-      return Response.json({ error: "no_key" }, { status: 200 });
+      console.error("[chat/route] ANTHROPIC_API_KEY is not set");
+      return Response.json({ error: "no_key", debug: "ANTHROPIC_API_KEY missing" }, { status: 200 });
     }
+    console.log("[chat/route] key present, length:", process.env.ANTHROPIC_API_KEY.length);
 
     // Anthropic requires the first message to have role "user"
     let valid = messages.filter((m) => m.role === "user" || m.role === "assistant");
@@ -114,7 +116,8 @@ export async function POST(request: Request) {
 
     return Response.json({ text });
   } catch (err: any) {
-    console.error("[chat/route] error:", err?.message ?? err);
-    return Response.json({ error: "internal" }, { status: 200 });
+    const msg = err?.message ?? String(err);
+    console.error("[chat/route] error:", msg);
+    return Response.json({ error: "internal", debug: msg }, { status: 200 });
   }
 }
