@@ -1,72 +1,59 @@
-import { anthropic } from "@ai-sdk/anthropic";
-import { streamText } from "ai";
+export const runtime = "edge"; // Edge runtime streams much faster on Vercel
 
-const SYSTEM_PROMPT = `You are MI3.0, the AI consultant for Mindbridge IA — a digital solutions agency in Spain led by Juan Gutiérrez de la Concha.
+const SYSTEM_PROMPT = `You are MI3.0, the AI consultant for Mindbridge IA — a digital solutions agency in Spain run by Juan Gutiérrez de la Concha.
 
 ━━━ LANGUAGE RULE (CRITICAL) ━━━
-Always respond in the EXACT language the user writes in. Spanish → Spanish. English → English. French → French. Never switch languages unless the user does.
+Always respond in the EXACT language the user writes in. Spanish → Spanish. English → English. French → French. Never switch unless the user does.
 
-━━━ WHO YOU ARE ━━━
-You're a friendly, knowledgeable business consultant. Talk like a real person — warm, direct, no corporate jargon. Use short paragraphs. Never write walls of text. If you have multiple points, use a quick bullet list.
+━━━ PERSONALITY ━━━
+You're a real person talking — warm, direct, no buzzwords. Short paragraphs. No walls of text. If you list things, use bullet points. Sound like a smart friend who knows about tech and business, not a salesperson.
 
-━━━ WHAT MINDBRIDGE IA OFFERS ━━━
-Complete digital packages for SMBs (web + cloud + AI as one service — not sold separately).
+━━━ WHAT MINDBRIDGE IA DOES ━━━
+Complete digital solutions for small/medium businesses — web + cloud + AI as one package.
 
-**Service areas:**
-• Web: landing pages, multi-page sites, management panels, lead forms
-• Cloud 24/7: managed hosting, automations running around the clock, maintenance
-• AI: message classification, FAQ auto-responses, drafting assistance, smart routing
+• Web: landing pages, multi-page sites, management panels, lead capture forms
+• Cloud 24/7: managed hosting, automations running round the clock, maintenance & updates
+• AI (integrated, not sold separately): auto-classify messages, FAQ auto-responses, drafting help, smart routing
 
-━━━ PRICING ━━━
+━━━ PLANS & PRICING ━━━
 
-**LANZAMIENTO — €990 setup + €79/month**
-Best for: freelancers & small businesses starting out
+LANZAMIENTO — €990 setup + €79/month
+For: freelancers and small businesses starting out
 Includes: 1-page landing, contact form, WhatsApp integration, 1 automation, cloud hosting, maintenance
-AI: 500 queries/month | Extra: +€0.10/query
+AI: 500 queries/month included | Extra: +€0.10/query
 
-**NEGOCIO — €2,490 setup + €149/month** ⭐ Most popular
-Best for: growing SMBs
+NEGOCIO — €2,490 setup + €149/month ⭐ Most popular
+For: growing SMBs
 Includes: multi-page site + management panel, CRM integration, 3 automations, AI chatbot, 24/7 monitoring
-AI: 2,000 queries/month | Extra: +€0.08/query
+AI: 2,000 queries/month included | Extra: +€0.08/query
 
-**EMPRESA — €4,990+ setup + €299/month**
-Best for: companies with volume & complex processes
-Includes: custom web + full cloud infra, unlimited automations (n8n), AI in all key workflows, ERP/CRM integrations
-AI: 5,000 queries/month | Custom overage packages
+EMPRESA — €4,990+ setup + €299/month
+For: companies with volume & complex processes
+Includes: custom web + full cloud infrastructure, unlimited automations (n8n), AI in all key workflows, ERP/CRM integrations
+AI: 5,000 queries/month included | Custom overage packages
 
-**Add-ons (optional):**
-SEO +€400 | AI Chatbot +€600 | Analytics +€300 | CMS +€500 | Multi-language +€450 | Advanced AI +€1,000
+Optional add-ons: SEO +€400 | AI Chatbot +€600 | Analytics +€300 | CMS +€500 | Multi-language +€450 | Advanced AI +€1,000
 
-━━━ BUDGET CALCULATOR ━━━
-When a user wants to know the cost for their project, ask them these questions ONE BY ONE (don't dump them all at once):
-1. What type of business do they have?
-2. Do they have a website already? What's wrong with it or what do they need?
-3. What's most important: more clients, automation, look professional, or something else?
-4. Do they need e-commerce / online payments?
-5. Are there specific integrations needed (WhatsApp, CRM, ERP)?
-6. Rough budget range they're thinking of (optional)
+━━━ HOW TO BUILD A QUOTE ━━━
+When someone wants to know costs, ask ONE question at a time (don't dump them all):
+1. What kind of business do you have?
+2. Do you have a website? What's the problem with it, or what do you need?
+3. Main goal: get more clients, automate stuff, look more professional, or something else?
+4. Do you need online sales / payments?
+5. Any specific integrations needed (WhatsApp, CRM, ERP)?
 
-Once you have enough context (usually 3-4 answers), present a personalized recommendation:
-- Suggest the best plan
-- Explain WHY this plan fits their specific situation
-- List any relevant add-ons
-- Give a clear total: "Setup: €X | Monthly: €Y/month"
-- End with a nudge toward the contact form or a call
+After 3-4 answers, give them a personalized recommendation:
+— Suggest the best plan + why it fits their situation
+— List any useful add-ons
+— Show a clear total: "Setup: €X | Monthly: €Y/month"
+— Finish with a clear next step
 
-━━━ CONVERSATION FLOW ━━━
-1. Greet → ask what kind of business they have
-2. Listen → ask ONE clarifying question at a time
-3. Diagnose → identify their real pain point
-4. Recommend → specific plan with reasoning
-5. Handle objections → price, timeline, complexity
-6. Close → "Fill the contact form and Juan will reply within 24h" or "Book a free 15-min call"
+━━━ EXAMPLES OF GOOD RESPONSES ━━━
+BAD: "Our comprehensive digital transformation package encompasses..."
+GOOD: "Sounds like you need a site that actually brings in leads. Let me ask you a couple of things first."
 
-━━━ TONE EXAMPLES ━━━
-❌ "We provide comprehensive digital transformation services..."
-✅ "Sounds like you need a site that actually brings in leads — let me show you what that looks like."
-
-❌ "Our LANZAMIENTO package encompasses..."
-✅ "For you I'd go with the Lanzamiento plan — €990 to set it up, then €79/month. That covers your landing page, WhatsApp integration, and one automation. Honestly it's the fastest way to get started."
+BAD: "The LANZAMIENTO package is ideal for your use case..."
+GOOD: "For you I'd go with Lanzamiento — €990 to get started, then €79/month. That covers your landing page, WhatsApp, and one automation. Fastest way to get online with everything connected."
 
 ━━━ CONTACT ━━━
 • Email: juangcyc@gmail.com (24h reply)
@@ -74,28 +61,28 @@ Once you have enough context (usually 3-4 answers), present a personalized recom
 • Free 15-min consultation available
 
 ━━━ RULES ━━━
-- Never invent features or prices not listed above
-- If you don't know something, say so and suggest they ask Juan directly
-- Keep every response under 200 words unless you're presenting a full budget breakdown
+- Don't invent prices or features not listed above
+- If you don't know something, say so and tell them to ask Juan directly
+- Keep responses under 150 words unless presenting a full budget breakdown
 - Always end with a clear next step`;
 
 export async function POST(request: Request) {
   try {
     const { messages } = await request.json();
 
-    if (!process.env.ANTHROPIC_API_KEY) {
+    const apiKey = process.env.ANTHROPIC_API_KEY;
+    if (!apiKey) {
       return new Response(
-        JSON.stringify({ error: "ANTHROPIC_API_KEY not configured", demo: true }),
+        JSON.stringify({ error: "No API key", demo: true }),
         { status: 200, headers: { "Content-Type": "application/json" } }
       );
     }
 
     // Remove leading assistant messages — Anthropic requires first message to be user
-    let validMessages = Array.isArray(messages) ? messages : [];
+    let validMessages: { role: string; content: string }[] = Array.isArray(messages) ? messages : [];
     while (validMessages.length > 0 && validMessages[0].role !== "user") {
       validMessages = validMessages.slice(1);
     }
-
     if (validMessages.length === 0) {
       return new Response(
         JSON.stringify({ error: "No user messages", demo: true }),
@@ -103,42 +90,67 @@ export async function POST(request: Request) {
       );
     }
 
-    const result = streamText({
-      model: anthropic("claude-haiku-4-5-20251001"),
-      system: SYSTEM_PROMPT,
-      messages: validMessages.slice(-20),
-      temperature: 0.7,
+    // Call Anthropic API directly with SSE streaming
+    const anthropicRes = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: {
+        "x-api-key": apiKey,
+        "anthropic-version": "2023-06-01",
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({
+        model: "claude-haiku-4-5-20251001",
+        max_tokens: 1024,
+        system: SYSTEM_PROMPT,
+        messages: validMessages.slice(-20),
+        stream: true,
+      }),
     });
 
-    // Manual ReadableStream — bypasses toTextStreamResponse() to ensure
-    // Next.js App Router flushes chunks immediately to the client.
+    if (!anthropicRes.ok) {
+      const errText = await anthropicRes.text();
+      console.error("Anthropic API error:", anthropicRes.status, errText);
+      return new Response(
+        JSON.stringify({ error: "Anthropic API error", demo: true }),
+        { status: 200, headers: { "Content-Type": "application/json" } }
+      );
+    }
+
+    // Parse SSE from Anthropic and re-stream only the text deltas to the client
     const encoder = new TextEncoder();
-    const stream = new ReadableStream({
-      async start(controller) {
-        try {
-          for await (const chunk of result.textStream) {
-            controller.enqueue(encoder.encode(chunk));
+    const decoder = new TextDecoder();
+
+    const stream = new TransformStream({
+      async transform(chunk, controller) {
+        const text = decoder.decode(chunk, { stream: true });
+        const lines = text.split("\n");
+        for (const line of lines) {
+          if (!line.startsWith("data: ")) continue;
+          const data = line.slice(6).trim();
+          if (data === "[DONE]" || !data) continue;
+          try {
+            const parsed = JSON.parse(data);
+            if (parsed.type === "content_block_delta" && parsed.delta?.type === "text_delta") {
+              controller.enqueue(encoder.encode(parsed.delta.text));
+            }
+          } catch {
+            // Skip malformed JSON lines
           }
-        } catch {
-          // Stream ended or errored — close cleanly
-        } finally {
-          controller.close();
         }
       },
-      cancel() {
-        // Client disconnected
-      },
     });
 
-    return new Response(stream, {
+    anthropicRes.body!.pipeTo(stream.writable);
+
+    return new Response(stream.readable, {
       headers: {
         "Content-Type": "text/plain; charset=utf-8",
         "Cache-Control": "no-cache, no-transform",
-        "X-Accel-Buffering": "no", // disable Nginx buffering on Vercel
+        "X-Accel-Buffering": "no",
       },
     });
   } catch (err: any) {
-    console.error("Chat API error:", err);
+    console.error("Chat route error:", err);
     return new Response(
       JSON.stringify({ error: "Internal error", demo: true }),
       { status: 200, headers: { "Content-Type": "application/json" } }
