@@ -9,7 +9,7 @@ import { useState, useEffect } from "react";
 
 const NAV_ITEMS = [
   { href: "#servicios", label: "Servicios" },
-  { href: "#tecnologias", label: "Tecnologías" },
+  { href: "#planes", label: "Planes" },
   { href: "#demo", label: "Chat IA" },
   { href: "#portfolio", label: "Portfolio" }
 ];

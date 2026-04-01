@@ -70,7 +70,7 @@ export default function HeroSection() {
             </div>
 
             {/* Stats */}
-            <div className="mt-12 flex gap-8">
+            <div className="mt-10 flex flex-wrap gap-6 sm:gap-8">
               <div>
                 <div className="text-3xl font-bold text-[#2D3436]">10K+</div>
                 <div className="text-sm text-gray-500">Clientes felices</div>

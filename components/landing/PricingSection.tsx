@@ -28,7 +28,7 @@ export default function PricingSection() {
         </motion.div>
 
         {/* Pricing Cards */}
-        <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+        <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto items-start">
           {LANDING_CONTENT.pricing.map((plan, index) => (
             <motion.div
               key={plan.id}
@@ -38,7 +38,7 @@ export default function PricingSection() {
               viewport={{ once: true, margin: "-50px" }}
               className={`relative rounded-2xl p-8 ${
                 plan.popular
-                  ? 'bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white shadow-xl shadow-slate-900/20 scale-105 border-2 border-emerald-500/30'
+                  ? 'bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white shadow-xl shadow-slate-900/20 md:scale-105 border-2 border-emerald-500/30'
                   : 'bg-slate-50 border border-slate-200 text-slate-900'
               }`}
             >

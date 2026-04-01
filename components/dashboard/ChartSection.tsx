@@ -46,18 +46,20 @@ export default function ChartSection({
         </div>
       </div>
 
-      <div className="flex items-end justify-between gap-1 sm:gap-2 h-56 relative group">
-        {chart.values.map((value, index) => (
-          <ChartBar
-            key={index}
-            value={value}
-            label={chart.labels[index]}
-            index={index}
-            maxValue={maxValue}
-            unit={chart.unit}
-            isInView={isInView}
-          />
-        ))}
+      <div className="overflow-x-auto -mx-2 px-2">
+        <div className="flex items-end justify-between gap-1 sm:gap-2 h-56 relative group min-w-[320px]">
+          {chart.values.map((value, index) => (
+            <ChartBar
+              key={index}
+              value={value}
+              label={chart.labels[index]}
+              index={index}
+              maxValue={maxValue}
+              unit={chart.unit}
+              isInView={isInView}
+            />
+          ))}
+        </div>
       </div>
     </motion.div>
   );
