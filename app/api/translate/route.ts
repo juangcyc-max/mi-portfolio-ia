@@ -2,6 +2,31 @@ import { NextResponse } from "next/server";
 import { anthropic } from "@ai-sdk/anthropic";
 import { generateText } from "ai";
 
+// Split strings into batches to avoid exceeding token limits
+function chunkObject(obj: Record<string, string>, size: number): Record<string, string>[] {
+  const entries = Object.entries(obj);
+  const chunks: Record<string, string>[] = [];
+  for (let i = 0; i < entries.length; i += size) {
+    chunks.push(Object.fromEntries(entries.slice(i, i + size)));
+  }
+  return chunks;
+}
+
+function extractJSON(text: string): Record<string, string> | null {
+  // Remove markdown fences
+  let clean = text.replace(/```(?:json)?\n?/gi, "").replace(/```/g, "").trim();
+  // Find outermost { }
+  const start = clean.indexOf("{");
+  const end = clean.lastIndexOf("}");
+  if (start === -1 || end === -1 || end <= start) return null;
+  clean = clean.substring(start, end + 1);
+  try {
+    return JSON.parse(clean);
+  } catch {
+    return null;
+  }
+}
+
 export async function POST(request: Request) {
   try {
     const { targetLang, strings } = await request.json();
@@ -10,36 +35,46 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "targetLang and strings required" }, { status: 400 });
     }
 
-    const apiKey = process.env.ANTHROPIC_API_KEY;
-    if (!apiKey) {
+    if (!process.env.ANTHROPIC_API_KEY) {
+      // No key → return originals (Spanish fallback)
       return NextResponse.json({ translations: strings });
     }
 
-    const stringEntries = JSON.stringify(strings, null, 2);
+    // Translate in batches of 40 keys to stay within token limits
+    const batches = chunkObject(strings, 40);
+    const translated: Record<string, string> = {};
 
-    const { text } = await generateText({
-      model: anthropic("claude-haiku-4-5-20251001"),
-      prompt: `You are a professional translator. Translate the following JSON object's VALUES (not keys) from Spanish to ${targetLang}.
+    for (const batch of batches) {
+      const prompt = `Translate the VALUES of this JSON object from Spanish to ${targetLang}.
 
-RULES:
-- Keep all JSON keys exactly as they are
-- Only translate the string values
-- Preserve any special characters, · separators, € symbols, and numbers
-- Keep technical terms like "Cloud", "IA", "AI", "CRM", "WhatsApp", "SEO", "CMS", "MI3.0" as-is
-- Return ONLY valid JSON, no explanation, no markdown code blocks
-- The output must be a valid JSON object
+STRICT RULES:
+- Return ONLY the JSON object — no explanation, no code fences, no markdown
+- Keep all keys exactly as-is
+- Preserve numbers, € symbols, · separators, emojis, and special characters
+- Keep these terms as-is: Cloud, IA, AI, CRM, WhatsApp, SEO, CMS, MI3.0, n8n, SLA
+- Do NOT add any text before or after the JSON
 
-Input JSON:
-${stringEntries}`,
-    });
+${JSON.stringify(batch)}`;
 
-    // Strip markdown code fences if model adds them
-    const clean = text.replace(/^```(?:json)?\n?/i, "").replace(/\n?```$/i, "").trim();
-    const translations = JSON.parse(clean);
+      const { text } = await generateText({
+        model: anthropic("claude-haiku-4-5-20251001"),
+        prompt,
+        temperature: 0,
+      });
 
-    return NextResponse.json({ translations });
+      const parsed = extractJSON(text);
+      if (parsed) {
+        Object.assign(translated, parsed);
+      } else {
+        // Batch failed — copy originals for these keys
+        Object.assign(translated, batch);
+      }
+    }
+
+    return NextResponse.json({ translations: translated });
   } catch (err: any) {
     console.error("Translation error:", err);
+    // Return originals on any failure — never return null
     return NextResponse.json({ translations: null }, { status: 500 });
   }
 }

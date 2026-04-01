@@ -43,7 +43,6 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   const [translations, setTranslations] = useState<UIStrings>(ES_STRINGS);
   const [isTranslating, setIsTranslating] = useState(false);
 
-  // Detect browser language on first mount
   useEffect(() => {
     const stored = localStorage.getItem("mindbridge_lang") as LangCode | null;
     const initial = stored ?? detectBrowserLang();
@@ -57,30 +56,32 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     setLangState(newLang);
     localStorage.setItem("mindbridge_lang", newLang);
 
-    // Apply RTL if needed
     const langMeta = getLang(newLang);
     document.documentElement.dir = langMeta.rtl ? "rtl" : "ltr";
     document.documentElement.lang = newLang;
 
-    // Static translations (es / en)
+    // ES and EN are static — no API call needed
     if (STATIC_TRANSLATIONS[newLang]) {
       setTranslations(STATIC_TRANSLATIONS[newLang] as UIStrings);
       return;
     }
 
-    // Check localStorage cache
+    // Try cache first
     const cacheKey = `mindbridge_t_${newLang}`;
     const cached = localStorage.getItem(cacheKey);
     if (cached) {
       try {
-        setTranslations(JSON.parse(cached));
-        return;
+        const parsed = JSON.parse(cached);
+        if (parsed && typeof parsed === "object") {
+          setTranslations(parsed as UIStrings);
+          return;
+        }
       } catch {
         localStorage.removeItem(cacheKey);
       }
     }
 
-    // Fetch translation from API
+    // Fetch from API
     setIsTranslating(true);
     try {
       const res = await fetch("/api/translate", {
@@ -88,13 +89,23 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ targetLang: newLang, strings: ES_STRINGS }),
       });
+
       if (res.ok) {
         const data = await res.json();
-        setTranslations(data.translations);
-        localStorage.setItem(cacheKey, JSON.stringify(data.translations));
+        // Guard: only apply if we got a valid object with at least some keys
+        if (data?.translations && typeof data.translations === "object" && Object.keys(data.translations).length > 10) {
+          // Merge with ES_STRINGS so missing keys fall back gracefully
+          const merged = { ...ES_STRINGS, ...data.translations } as UIStrings;
+          setTranslations(merged);
+          localStorage.setItem(cacheKey, JSON.stringify(merged));
+        } else {
+          // Translation failed or returned garbage — keep current language visible
+          console.warn("Translation returned invalid data, keeping current language.");
+        }
       }
     } catch (err) {
-      console.warn("Translation failed, falling back to Spanish:", err);
+      console.warn("Translation fetch failed:", err);
+      // Keep current translations — don't show broken UI
     } finally {
       setIsTranslating(false);
     }
@@ -109,7 +120,8 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
 
   const t = useCallback(
     (key: keyof UIStrings): string => {
-      return (translations[key] as string) ?? (ES_STRINGS[key] as string);
+      // Always fall back to Spanish if key is missing in current translation
+      return ((translations[key] as string) || (ES_STRINGS[key] as string)) ?? key;
     },
     [translations]
   );
