@@ -8,148 +8,120 @@ import { useTranslation } from "@/lib/i18n/LanguageContext";
 interface Message {
   role: "user" | "assistant";
   content: string;
-  timestamp: Date;
+  ts: number;
 }
 
-function makeGreeting(text: string): Message {
-  return { role: "assistant", content: text, timestamp: new Date() };
+// Detect dominant language of a string
+function detectLang(text: string): "es" | "en" {
+  const esWords = /\b(hola|qué|cómo|para|tengo|quiero|necesito|gracias|puedo|este|esta|pero|cuando|precio|servicio|negocio|empresa|web|ayuda|buenas|bueno|tienes|también|más|información|quisiera|cuánto|dónde|hace|estoy)\b/i;
+  const enWords = /\b(hello|hi|what|how|for|have|want|need|thanks|can|this|but|when|price|service|business|company|web|help|good|do|you|also|more|information|would|much|where|does|i'm|i've)\b/i;
+  const esCount = (text.match(esWords) || []).length;
+  const enCount = (text.match(enWords) || []).length;
+  return enCount > esCount ? "en" : "es";
 }
+
+const GREETINGS: Record<string, string> = {
+  es: "Hola 👋 Soy **MI3.0**, el asistente de Mindbridge IA.\n\nEstoy aquí para ayudarte a encontrar la solución digital ideal para tu negocio — web, automatización cloud e IA integrada.\n\n¿Cuéntame, qué tipo de negocio tienes?",
+  en: "Hi 👋 I'm **MI3.0**, Mindbridge IA's assistant.\n\nI'm here to help you find the right digital solution for your business — web, cloud automation and integrated AI.\n\nTell me, what kind of business do you have?",
+};
+
+const OFFLINE: Record<string, string> = {
+  es: "El servicio de IA no está disponible ahora mismo. Escríbenos directamente a **juangcyc@gmail.com** o usa el formulario de contacto.",
+  en: "The AI service is temporarily unavailable. Contact us directly at **juangcyc@gmail.com** or use the contact form.",
+};
 
 export default function ChatBox() {
-  const { t, lang } = useTranslation();
-
-  const [messages, setMessages] = useState<Message[]>(() => [
-    makeGreeting(t("chat_greeting")),
-  ]);
+  const { lang } = useTranslation();
+  const [msgLang, setMsgLang] = useState<"es" | "en">(lang as "es" | "en");
+  const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
-  const [isStreaming, setIsStreaming] = useState(false);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const [isTyping, setIsTyping] = useState(false);
+  const bottomRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const abortRef = useRef<AbortController | null>(null);
+  const abortRef = useRef<boolean>(false);
 
-  // Update greeting when language changes
+  // Build greeting based on UI language on first mount
   useEffect(() => {
-    setMessages([makeGreeting(t("chat_greeting"))]);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    const l = (lang === "en" ? "en" : "es") as "es" | "en";
+    setMsgLang(l);
+    setMessages([{ role: "assistant", content: GREETINGS[l], ts: Date.now() }]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [lang]);
 
-  // Auto-scroll
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages, isTyping]);
 
-  const clearChat = useCallback(() => {
-    abortRef.current?.abort();
-    setMessages([makeGreeting(t("chat_greeting"))]);
-    setIsStreaming(false);
-  }, [t]);
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setInput(e.target.value);
-    const ta = e.target;
-    ta.style.height = "auto";
-    ta.style.height = Math.min(ta.scrollHeight, 120) + "px";
-  };
-
-  const simulateStream = async (text: string, history: Message[]) => {
-    const words = text.split(" ");
+  // Animate text word-by-word for a natural feel
+  const animateText = useCallback(async (text: string) => {
+    const words = text.split(/(\s+)/);
     let out = "";
+    setMessages((prev) => [...prev, { role: "assistant", content: "", ts: Date.now() }]);
     for (let i = 0; i < words.length; i++) {
-      out += (i === 0 ? "" : " ") + words[i];
+      if (abortRef.current) break;
+      out += words[i];
       const snapshot = out;
-      setMessages([
-        ...history,
-        { role: "assistant", content: snapshot, timestamp: new Date() },
-      ]);
-      await new Promise((r) => setTimeout(r, 35 + Math.random() * 55));
+      setMessages((prev) => {
+        const next = [...prev];
+        next[next.length - 1] = { ...next[next.length - 1], content: snapshot };
+        return next;
+      });
+      // Vary speed: punctuation = longer pause, normal words = short
+      const delay = /[.!?]/.test(words[i]) ? 60 : /,/.test(words[i]) ? 35 : 18;
+      await new Promise((r) => setTimeout(r, delay));
     }
-    setIsStreaming(false);
-  };
+  }, []);
 
   const sendMessage = useCallback(async () => {
     const text = input.trim();
-    if (!text || isStreaming) return;
+    if (!text || isTyping) return;
 
-    const userMsg: Message = { role: "user", content: text, timestamp: new Date() };
+    // Detect language from user input
+    const detected = detectLang(text);
+    setMsgLang(detected);
 
-    // Full history including the new user message
-    const updatedHistory = [...messages, userMsg];
-    setMessages(updatedHistory);
+    const userMsg: Message = { role: "user", content: text, ts: Date.now() };
+    const history = [...messages, userMsg];
+    setMessages(history);
     setInput("");
     if (textareaRef.current) textareaRef.current.style.height = "auto";
-    setIsStreaming(true);
-
-    // Show typing placeholder
-    setMessages([...updatedHistory, { role: "assistant", content: "", timestamp: new Date() }]);
+    setIsTyping(true);
+    abortRef.current = false;
 
     try {
-      const controller = new AbortController();
-      abortRef.current = controller;
-
-      // Only send actual conversation messages (skip any leading assistant greeting)
-      const apiMessages = updatedHistory
-        .filter((m, i) => !(i === 0 && m.role === "assistant"))
+      const apiMessages = history
+        .filter((m, i) => !(i === 0 && m.role === "assistant")) // skip greeting
         .map((m) => ({ role: m.role, content: m.content }));
 
       const res = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ messages: apiMessages }),
-        signal: controller.signal,
       });
 
-      if (!res.ok || !res.body) throw new Error("Stream unavailable");
+      const data = await res.json();
 
-      // If JSON came back instead of text stream, it's a demo/error fallback
-      const ct = res.headers.get("content-type") ?? "";
-      if (ct.includes("application/json")) {
-        const json = await res.json();
-        if (json.demo || json.error) {
-          const msg = lang === "en"
-            ? "The AI service is temporarily unavailable. Please contact us at juangcyc@gmail.com or use the contact form below."
-            : "El servicio de IA no está disponible ahora mismo. Por favor escríbenos a juangcyc@gmail.com o usa el formulario de contacto.";
-          await simulateStream(msg, updatedHistory);
-          return;
-        }
+      setIsTyping(false);
+
+      if (data.error || !data.text) {
+        await animateText(OFFLINE[detected]);
+        return;
       }
 
-      const reader = res.body.getReader();
-      const decoder = new TextDecoder();
-      let accumulated = "";
-
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        const chunk = decoder.decode(value, { stream: true });
-        accumulated += chunk;
-
-        setMessages((prev) => {
-          const next = [...prev];
-          next[next.length - 1] = { ...next[next.length - 1], content: accumulated };
-          return next;
-        });
-      }
-
-      if (!accumulated.trim()) {
-        const msg = lang === "en"
-          ? "Sorry, I couldn't process your message. Please try again."
-          : "Lo siento, no pude procesar tu mensaje. ¿Puedes intentarlo de nuevo?";
-        setMessages((prev) => {
-          const next = [...prev];
-          next[next.length - 1] = { ...next[next.length - 1], content: msg };
-          return next;
-        });
-      }
-    } catch (err: any) {
-      if (err.name === "AbortError") return;
-      const msg = lang === "en"
-        ? "Connection problem. Please check your internet and try again, or contact us at juangcyc@gmail.com."
-        : "Problema de conexión. Por favor revisa tu conexión e inténtalo de nuevo, o contáctanos en juangcyc@gmail.com.";
-      await simulateStream(msg, updatedHistory);
-    } finally {
-      setIsStreaming(false);
+      await animateText(data.text);
+    } catch {
+      setIsTyping(false);
+      await animateText(OFFLINE[detected]);
     }
-  }, [input, isStreaming, messages, t]);
+  }, [input, isTyping, messages, animateText]);
+
+  const clearChat = () => {
+    abortRef.current = true;
+    const l = msgLang;
+    setMessages([{ role: "assistant", content: GREETINGS[l], ts: Date.now() }]);
+    setIsTyping(false);
+    setInput("");
+  };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
@@ -158,22 +130,28 @@ export default function ChatBox() {
     }
   };
 
-  const formatTime = (d: Date) =>
-    d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+  const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setInput(e.target.value);
+    e.target.style.height = "auto";
+    e.target.style.height = Math.min(e.target.scrollHeight, 120) + "px";
+  };
 
+  const formatTime = (ts: number) =>
+    new Date(ts).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+
+  // Markdown renderer: **bold**, bullet points (• or -)
   const renderContent = (content: string) => {
     if (!content) return null;
-    const lines = content.split("\n");
-    return lines.map((line, i) => {
-      const parts = line.split(/\*\*(.*?)\*\*/g);
+    return content.split("\n").map((line, i, arr) => {
+      const isBullet = /^[•\-]\s/.test(line);
+      const parts = line.replace(/^[•\-]\s/, "").split(/\*\*(.*?)\*\*/g);
       const rendered = parts.map((part, j) =>
-        j % 2 === 1 ? <strong key={j}>{part}</strong> : part
+        j % 2 === 1 ? <strong key={j} className="text-white font-semibold">{part}</strong> : part
       );
-      const isBullet = line.startsWith("• ") || line.startsWith("- ");
       if (isBullet) {
         return (
-          <div key={i} className="flex gap-2">
-            <span className="text-emerald-400 flex-shrink-0">•</span>
+          <div key={i} className="flex gap-2 items-start">
+            <span className="text-emerald-400 mt-0.5 flex-shrink-0">•</span>
             <span>{rendered}</span>
           </div>
         );
@@ -181,33 +159,37 @@ export default function ChatBox() {
       return (
         <span key={i}>
           {rendered}
-          {i < lines.length - 1 && <br />}
+          {i < arr.length - 1 && <br />}
         </span>
       );
     });
   };
 
+  const placeholder = msgLang === "en" ? "Type your message..." : "Escribe tu mensaje...";
+  const clearLabel = msgLang === "en" ? "Clear chat" : "Limpiar chat";
+
   return (
-    <div className="max-w-2xl mx-auto flex flex-col h-[680px] sm:h-[700px] rounded-3xl overflow-hidden border border-white/10 shadow-2xl bg-slate-900/80 backdrop-blur-xl">
+    <div className="max-w-2xl mx-auto flex flex-col h-[680px] sm:h-[700px] rounded-3xl overflow-hidden border border-white/10 shadow-2xl bg-slate-900/90 backdrop-blur-xl">
 
       {/* ── Header ── */}
       <div className="px-5 py-4 bg-white/5 border-b border-white/10 flex items-center justify-between flex-shrink-0">
         <div className="flex items-center gap-3">
           <div className="relative">
-            <div className="w-10 h-10 rounded-full overflow-hidden ring-2 ring-emerald-500/40 bg-slate-800">
+            <div className="w-10 h-10 rounded-full overflow-hidden ring-2 ring-emerald-500/50 bg-slate-800">
               <Image src="/logo.svg" alt="MI3.0" width={40} height={40} />
             </div>
             <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-emerald-500 rounded-full border-2 border-slate-900" />
           </div>
           <div>
-            <p className="text-sm font-bold text-white leading-tight">{t("chat_title")}</p>
-            <p className="text-xs text-emerald-400 font-medium">{t("chat_subtitle")}</p>
+            <p className="text-sm font-bold text-white leading-tight">MI3.0 · Mindbridge</p>
+            <p className="text-xs text-emerald-400 font-medium">
+              {msgLang === "en" ? "Responds in your language" : "Responde en tu idioma"}
+            </p>
           </div>
         </div>
-
         <button
           onClick={clearChat}
-          title={t("chat_clear")}
+          title={clearLabel}
           className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-white/10 transition-colors"
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -218,14 +200,14 @@ export default function ChatBox() {
       </div>
 
       {/* ── Messages ── */}
-      <div className="flex-1 overflow-y-auto px-4 py-5 space-y-4 scroll-smooth">
+      <div className="flex-1 overflow-y-auto px-4 py-5 space-y-4">
         <AnimatePresence initial={false}>
           {messages.map((msg, i) => (
             <motion.div
               key={i}
-              initial={{ opacity: 0, y: 10 }}
+              initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.25 }}
+              transition={{ duration: 0.2 }}
               className={`flex gap-3 ${msg.role === "user" ? "flex-row-reverse" : "flex-row"}`}
             >
               {msg.role === "assistant" && (
@@ -233,66 +215,68 @@ export default function ChatBox() {
                   <Image src="/logo.svg" alt="MI3.0" width={32} height={32} />
                 </div>
               )}
-
               <div className={`flex flex-col gap-1 max-w-[82%] ${msg.role === "user" ? "items-end" : "items-start"}`}>
-                <div
-                  className={`px-4 py-3 rounded-2xl text-sm leading-relaxed ${
-                    msg.role === "user"
-                      ? "bg-emerald-500 text-white rounded-tr-sm"
-                      : "bg-white/8 text-slate-100 rounded-tl-sm border border-white/10"
-                  }`}
-                >
-                  {msg.role === "assistant" && i === messages.length - 1 && isStreaming && !msg.content ? (
-                    <div className="flex gap-1 items-center py-1">
-                      {[0, 1, 2].map((j) => (
-                        <motion.span
-                          key={j}
-                          className="w-1.5 h-1.5 rounded-full bg-emerald-400"
-                          animate={{ y: [0, -5, 0] }}
-                          transition={{ duration: 0.6, repeat: Infinity, delay: j * 0.15 }}
-                        />
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="space-y-0.5">{renderContent(msg.content)}</div>
-                  )}
-
-                  {msg.role === "assistant" && i === messages.length - 1 && isStreaming && msg.content && (
-                    <motion.span
-                      className="inline-block w-0.5 h-4 bg-emerald-400 ml-0.5 align-middle"
-                      animate={{ opacity: [1, 0] }}
-                      transition={{ duration: 0.5, repeat: Infinity }}
-                    />
-                  )}
+                <div className={`px-4 py-3 rounded-2xl text-sm leading-relaxed ${
+                  msg.role === "user"
+                    ? "bg-emerald-500 text-white rounded-tr-sm"
+                    : "bg-slate-800/80 text-slate-100 rounded-tl-sm border border-white/8"
+                }`}>
+                  <div className="space-y-0.5">{renderContent(msg.content)}</div>
                 </div>
-                <span className="text-[10px] text-slate-500 px-1">{formatTime(msg.timestamp)}</span>
+                <span className="text-[10px] text-slate-500 px-1">{formatTime(msg.ts)}</span>
               </div>
             </motion.div>
           ))}
         </AnimatePresence>
-        <div ref={messagesEndRef} />
+
+        {/* Typing indicator */}
+        {isTyping && (
+          <motion.div
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="flex gap-3"
+          >
+            <div className="flex-shrink-0 w-8 h-8 rounded-full overflow-hidden bg-slate-800 ring-1 ring-emerald-500/30 mt-1">
+              <Image src="/logo.svg" alt="MI3.0" width={32} height={32} />
+            </div>
+            <div className="px-4 py-3 rounded-2xl rounded-tl-sm bg-slate-800/80 border border-white/8">
+              <div className="flex gap-1 items-center h-4">
+                {[0, 1, 2].map((j) => (
+                  <motion.span
+                    key={j}
+                    className="w-1.5 h-1.5 rounded-full bg-emerald-400"
+                    animate={{ y: [0, -5, 0] }}
+                    transition={{ duration: 0.5, repeat: Infinity, delay: j * 0.15 }}
+                  />
+                ))}
+              </div>
+            </div>
+          </motion.div>
+        )}
+
+        <div ref={bottomRef} />
       </div>
 
       {/* ── Input ── */}
-      <div className="px-4 pb-4 pt-3 border-t border-white/10 flex-shrink-0 bg-slate-900/50">
-        <div className="flex gap-2 items-end bg-white/5 rounded-2xl border border-white/10 px-4 py-2 focus-within:border-emerald-500/50 transition-colors">
+      <div className="px-4 pb-4 pt-3 border-t border-white/10 flex-shrink-0 bg-slate-900/60">
+        <div className="flex gap-2 items-end bg-slate-800/60 rounded-2xl border border-white/10 px-4 py-2 focus-within:border-emerald-500/60 transition-colors">
           <textarea
             ref={textareaRef}
             value={input}
             onChange={handleInputChange}
             onKeyDown={handleKeyDown}
-            placeholder={t("chat_placeholder")}
-            disabled={isStreaming}
+            placeholder={placeholder}
+            disabled={isTyping}
             rows={1}
             className="flex-1 bg-transparent text-slate-100 placeholder-slate-500 text-sm resize-none outline-none py-1.5 leading-relaxed disabled:opacity-50"
             style={{ minHeight: "36px", maxHeight: "120px" }}
           />
           <button
             onClick={sendMessage}
-            disabled={!input.trim() || isStreaming}
+            disabled={!input.trim() || isTyping}
             className="flex-shrink-0 w-9 h-9 rounded-xl bg-emerald-500 hover:bg-emerald-400 disabled:opacity-40 disabled:cursor-not-allowed text-white flex items-center justify-center transition-all hover:scale-105 active:scale-95 shadow-lg shadow-emerald-500/20 mb-0.5"
           >
-            {isStreaming ? (
+            {isTyping ? (
               <motion.div
                 className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full"
                 animate={{ rotate: 360 }}
@@ -300,14 +284,13 @@ export default function ChatBox() {
               />
             ) : (
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                  d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
               </svg>
             )}
           </button>
         </div>
         <p className="text-[10px] text-slate-600 text-center mt-2">
-          Powered by Claude · {t("chat_subtitle")}
+          Powered by Claude · MI3.0 Mindbridge IA
         </p>
       </div>
     </div>
