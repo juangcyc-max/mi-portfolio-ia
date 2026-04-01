@@ -4,8 +4,10 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { fadeInUp } from "@/lib/animations";
 import { supabase, isSupabaseConfigured } from "@/lib/supabaseClient";
+import { useTranslation } from "@/lib/i18n/LanguageContext";
 
 export default function ContactForm() {
+  const { t } = useTranslation();
   const [contactName, setContactName] = useState("");
   const [contactEmail, setContactEmail] = useState("");
   const [contactMessage, setContactMessage] = useState("");
@@ -17,7 +19,7 @@ export default function ContactForm() {
     e.preventDefault();
     
     if (!contactName || !contactEmail || !contactMessage) {
-      setError("Por favor completa todos los campos");
+      setError(t('contact_error_required'));
       return;
     }
 
@@ -103,7 +105,7 @@ export default function ContactForm() {
             ?
           </h2>
           <p className="text-sm sm:text-base md:text-lg text-slate-600 dark:text-slate-400 max-w-2xl mx-auto px-2">
-            Cuéntame sobre tu proyecto y te contacto en menos de 24 horas.
+            {t('contact_subtitle')}
           </p>
         </motion.div>
 
@@ -139,10 +141,10 @@ export default function ContactForm() {
               </div>
               
               <h3 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white mb-2">
-                ¡Mensaje enviado!
+                {t('contact_success_title')}
               </h3>
               <p className="text-sm sm:text-base text-slate-600 dark:text-slate-400 px-2">
-                Te contacto muy pronto. Gracias por confiar en Mindbridge IA.
+                {t('contact_success_desc')}
               </p>
             </motion.div>
           ) : (
@@ -162,14 +164,14 @@ export default function ContactForm() {
               {/* Name */}
               <motion.div variants={fadeInUp} initial="hidden" whileInView="visible" viewport={{ once: true }}>
                 <label className="block text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
-                  Nombre completo *
+                  {t('contact_name')} *
                 </label>
                 <input
                   type="text"
                   value={contactName}
                   onChange={(e) => setContactName(e.target.value)}
                   className="w-full bg-white/20 dark:bg-slate-900/50 border border-white/30 dark:border-slate-700/50 rounded-lg px-4 py-3 text-sm focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 dark:text-white placeholder-slate-500 transition-colors min-h-[48px]"
-                  placeholder="Tu nombre"
+                  placeholder={t('contact_name_placeholder')}
                   required
                   disabled={submitting}
                   autoCapitalize="words"
@@ -179,7 +181,7 @@ export default function ContactForm() {
               {/* Email */}
               <motion.div variants={fadeInUp} initial="hidden" whileInView="visible" viewport={{ once: true }}>
                 <label className="block text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
-                  Email *
+                  {t('contact_email')} *
                 </label>
                 <input
                   type="email"
@@ -197,13 +199,13 @@ export default function ContactForm() {
               {/* Message */}
               <motion.div variants={fadeInUp} initial="hidden" whileInView="visible" viewport={{ once: true }}>
                 <label className="block text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
-                  Mensaje *
+                  {t('contact_message')} *
                 </label>
                 <textarea
                   value={contactMessage}
                   onChange={(e) => setContactMessage(e.target.value)}
                   className="w-full bg-white/20 dark:bg-slate-900/50 border border-white/30 dark:border-slate-700/50 rounded-lg px-4 py-3 text-sm focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 dark:text-white placeholder-slate-500 resize-none transition-colors min-h-[120px] sm:min-h-[140px]"
-                  placeholder="Cuéntame sobre tu proyecto..."
+                  placeholder={t('contact_msg_placeholder')}
                   rows={5}
                   required
                   disabled={submitting}
@@ -220,18 +222,18 @@ export default function ContactForm() {
                   {submitting ? (
                     <>
                       <span className="w-4 h-4 sm:w-5 sm:h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
-                      <span className="hidden sm:inline">Enviando...</span>
-                      <span className="sm:hidden">Enviando</span>
+                      <span className="hidden sm:inline">{t('contact_sending')}</span>
+                      <span className="sm:hidden">{t('contact_sending')}</span>
                     </>
                   ) : (
-                    "Enviar Mensaje"
+                    t('contact_send')
                   )}
                 </button>
               </motion.div>
 
               {/* Privacy Note */}
               <p className="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 text-center px-4">
-                Tus datos están protegidos. No comparto información con terceros.
+                {t('contact_privacy')}
               </p>
             </form>
           )}

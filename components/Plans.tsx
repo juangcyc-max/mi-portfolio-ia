@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { fadeInUp, staggerContainer } from "@/lib/animations";
+import { useTranslation } from "@/lib/i18n/LanguageContext";
 
 type Plan = {
   id: string;
@@ -23,80 +24,6 @@ type Plan = {
   badge?: string;
 };
 
-const plans: Plan[] = [
-  {
-    id: "launch",
-    name: "Lanzamiento",
-    tagline: "Para autónomos y negocios que empiezan",
-    implementation: "990 €",
-    monthly: "79 €/mes",
-    forWho: "Ideal para negocios que necesitan presencia digital profesional con automatizaciones básicas y captación de leads.",
-    includes: [
-      "Landing page o web de 1 página",
-      "Formulario de contacto conectado",
-      "Integración WhatsApp Business",
-      "1 automatización de email o notificación",
-      "Alojamiento cloud gestionado",
-      "Mantenimiento y actualizaciones",
-    ],
-    ai: "500 consultas IA/mes incluidas",
-    aiOverage: "+0,10 € por consulta adicional",
-    support: "Soporte por email (48h)",
-    cta: "Empezar con Lanzamiento",
-    color: "from-slate-800 to-slate-900",
-    border: "border-slate-200 dark:border-white/10",
-    badge: undefined,
-  },
-  {
-    id: "business",
-    name: "Negocio",
-    tagline: "Para PYMEs que quieren crecer con digital",
-    popular: true,
-    implementation: "2.490 €",
-    monthly: "149 €/mes",
-    forWho: "Solución completa para empresas que necesitan web avanzada, automatizaciones, IA conversacional y conexión con su CRM.",
-    includes: [
-      "Web multi-página + panel de gestión simple",
-      "Captación de leads con CRM integrado",
-      "3 automatizaciones de flujo (email, WhatsApp, CRM)",
-      "Chatbot IA para preguntas frecuentes",
-      "Integración con herramientas existentes",
-      "Alojamiento cloud + monitorización 24/7",
-    ],
-    ai: "2.000 consultas IA/mes incluidas",
-    aiOverage: "+0,08 € por consulta adicional",
-    support: "Soporte WhatsApp + email (24h)",
-    cta: "Empezar con Negocio",
-    color: "from-emerald-600 to-emerald-700",
-    border: "border-emerald-500/30",
-    badge: "Más popular",
-  },
-  {
-    id: "enterprise",
-    name: "Empresa",
-    tagline: "Para empresas con procesos y volumen",
-    implementation: "4.990 € +",
-    monthly: "299 €/mes",
-    monthlyNote: "Ajustable según alcance",
-    forWho: "Desarrollo a medida, infraestructura cloud completa, automatizaciones avanzadas con n8n y IA integrada en todos los puntos clave del negocio.",
-    includes: [
-      "Desarrollo web y producto a medida",
-      "Infraestructura cloud full-stack",
-      "Automatizaciones ilimitadas (n8n + API)",
-      "IA integrada en múltiples flujos del negocio",
-      "Panel de control para el equipo",
-      "Integraciones con ERP, CRM, e-commerce",
-    ],
-    ai: "5.000 consultas IA/mes incluidas",
-    aiOverage: "Paquetes adicionales a medida",
-    support: "Soporte prioritario + SLA (4h respuesta)",
-    cta: "Solicitar propuesta",
-    color: "from-slate-800 to-slate-900",
-    border: "border-slate-200 dark:border-white/10",
-    badge: undefined,
-  },
-];
-
 const Checkmark = ({ className }: { className?: string }) => (
   <svg className={`w-4 h-4 flex-shrink-0 ${className}`} fill="currentColor" viewBox="0 0 20 20">
     <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
@@ -104,7 +31,100 @@ const Checkmark = ({ className }: { className?: string }) => (
 );
 
 export default function Plans() {
+  const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState<"implementation" | "monthly">("monthly");
+
+  const plans: Plan[] = [
+    {
+      id: "launch",
+      name: t('p1_name'),
+      tagline: t('p1_tagline'),
+      implementation: "990 €",
+      monthly: "79 €/mes",
+      forWho: t('p1_for_who'),
+      includes: [
+        t('p1_f1'),
+        t('p1_f2'),
+        t('p1_f3'),
+        t('p1_f4'),
+        t('p1_f5'),
+        t('p1_f6'),
+      ],
+      ai: t('p1_ai'),
+      aiOverage: t('p1_ai_overage'),
+      support: t('p1_support'),
+      cta: t('p1_cta'),
+      color: "from-slate-800 to-slate-900",
+      border: "border-slate-200 dark:border-white/10",
+      badge: undefined,
+    },
+    {
+      id: "business",
+      name: t('p2_name'),
+      tagline: t('p2_tagline'),
+      popular: true,
+      implementation: "2.490 €",
+      monthly: "149 €/mes",
+      forWho: t('p2_for_who'),
+      includes: [
+        t('p2_f1'),
+        t('p2_f2'),
+        t('p2_f3'),
+        t('p2_f4'),
+        t('p2_f5'),
+        t('p2_f6'),
+      ],
+      ai: t('p2_ai'),
+      aiOverage: t('p2_ai_overage'),
+      support: t('p2_support'),
+      cta: t('p2_cta'),
+      color: "from-emerald-600 to-emerald-700",
+      border: "border-emerald-500/30",
+      badge: t('plans_popular'),
+    },
+    {
+      id: "enterprise",
+      name: t('p3_name'),
+      tagline: t('p3_tagline'),
+      implementation: "4.990 € +",
+      monthly: "299 €/mes",
+      monthlyNote: "Ajustable según alcance",
+      forWho: t('p3_for_who'),
+      includes: [
+        t('p3_f1'),
+        t('p3_f2'),
+        t('p3_f3'),
+        t('p3_f4'),
+        t('p3_f5'),
+        t('p3_f6'),
+      ],
+      ai: t('p3_ai'),
+      aiOverage: t('p3_ai_overage'),
+      support: t('p3_support'),
+      cta: t('p3_cta'),
+      color: "from-slate-800 to-slate-900",
+      border: "border-slate-200 dark:border-white/10",
+      badge: undefined,
+    },
+  ];
+
+  const notes = [
+    {
+      icon: "M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z",
+      title: t('plans_note1_title'),
+      desc: t('plans_note1_desc'),
+    },
+    {
+      icon: "M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15",
+      title: t('plans_note2_title'),
+      desc: t('plans_note2_desc'),
+    },
+    {
+      icon: "M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2",
+      title: t('plans_note3_title'),
+      desc: t('plans_note3_desc'),
+    },
+  ];
 
   const scrollToContact = () => {
     document.getElementById("contacto")?.scrollIntoView({ behavior: "smooth" });
@@ -126,22 +146,22 @@ export default function Plans() {
             className="inline-block px-4 py-1.5 mb-6 text-[10px] font-black tracking-[0.2em] text-emerald-600 dark:text-emerald-400 uppercase bg-emerald-500/10 dark:bg-emerald-400/10 rounded-full border border-emerald-500/20 dark:border-emerald-400/20"
             variants={fadeInUp}
           >
-            Planes y Precios
+            {t('plans_badge')}
           </motion.span>
           <motion.h2
             className="text-4xl sm:text-5xl md:text-6xl font-black text-slate-900 dark:text-white mb-6 tracking-tight leading-[1.1]"
             variants={fadeInUp}
           >
-            Inversión clara,{" "}
+            {t('plans_title1')}{" "}
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-emerald-500">
-              resultados medibles
+              {t('plans_title2')}
             </span>
           </motion.h2>
           <motion.p
             className="text-lg text-slate-600 dark:text-slate-300 font-medium max-w-2xl mx-auto leading-relaxed mb-8"
             variants={fadeInUp}
           >
-            Cada plan incluye implementación inicial, cuota mensual de mantenimiento, uso de IA dentro del límite y soporte técnico. Sin sorpresas, sin costes ocultos.
+            {t('plans_subtitle')}
           </motion.p>
 
           {/* Toggle */}
@@ -153,13 +173,13 @@ export default function Plans() {
               onClick={() => setActiveTab("monthly")}
               className={`px-5 py-2 rounded-xl text-sm font-bold transition-all duration-300 ${activeTab === "monthly" ? "bg-white dark:bg-slate-700 text-emerald-600 dark:text-emerald-400 shadow-sm" : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200"}`}
             >
-              Cuota mensual
+              {t('plans_toggle_monthly')}
             </button>
             <button
               onClick={() => setActiveTab("implementation")}
               className={`px-5 py-2 rounded-xl text-sm font-bold transition-all duration-300 ${activeTab === "implementation" ? "bg-white dark:bg-slate-700 text-emerald-600 dark:text-emerald-400 shadow-sm" : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200"}`}
             >
-              Implementación
+              {t('plans_toggle_impl')}
             </button>
           </motion.div>
         </motion.div>
@@ -204,7 +224,7 @@ export default function Plans() {
                         <span className="text-5xl font-black text-white">{plan.monthly.split(" ")[0]}</span>
                         <span className="text-white/60 font-medium">/mes</span>
                       </div>
-                      <p className="text-white/50 text-xs mt-1">+ {plan.implementation} de implementación</p>
+                      <p className="text-white/50 text-xs mt-1">+ {plan.implementation} {t('plans_impl_prefix')}</p>
                       {plan.monthlyNote && (
                         <p className="text-emerald-300 text-xs mt-0.5">{plan.monthlyNote}</p>
                       )}
@@ -214,8 +234,8 @@ export default function Plans() {
                       <div className="flex items-baseline gap-2">
                         <span className="text-5xl font-black text-white">{plan.implementation}</span>
                       </div>
-                      <p className="text-white/50 text-xs mt-1">pago único de implementación</p>
-                      <p className="text-white/50 text-xs">luego {plan.monthly}</p>
+                      <p className="text-white/50 text-xs mt-1">{t('plans_impl_prefix')}</p>
+                      <p className="text-white/50 text-xs">{t('plans_monthly_then')} {plan.monthly}</p>
                     </div>
                   )}
                 </div>
@@ -230,7 +250,7 @@ export default function Plans() {
 
                 {/* Includes */}
                 <div>
-                  <p className="text-xs font-black tracking-widest text-slate-400 dark:text-slate-500 uppercase mb-3">Incluye</p>
+                  <p className="text-xs font-black tracking-widest text-slate-400 dark:text-slate-500 uppercase mb-3">{t('plans_includes')}</p>
                   <ul className="space-y-2.5">
                     {plan.includes.map((item) => (
                       <li key={item} className="flex items-start gap-3 text-sm text-slate-700 dark:text-slate-200 font-medium">
@@ -283,23 +303,7 @@ export default function Plans() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
         >
-          {[
-            {
-              icon: "M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z",
-              title: "Sin IA ilimitada",
-              desc: "Cada plan incluye un volumen razonable. Si lo superas, cobramos solo el exceso a tarifa fija. Transparent y predecible.",
-            },
-            {
-              icon: "M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15",
-              title: "Escala cuando lo necesites",
-              desc: "Puedes cambiar de plan en cualquier momento. El cloud crece con tu negocio sin migraciones costosas.",
-            },
-            {
-              icon: "M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2",
-              title: "Propuesta a medida",
-              desc: "¿Necesitas algo diferente? Diseñamos un plan personalizado. Sin corsés ni paquetes que no encajan.",
-            },
-          ].map((item, i) => (
+          {notes.map((item, i) => (
             <div key={i} className="flex gap-4 p-6 rounded-2xl bg-white/50 dark:bg-slate-900/30 backdrop-blur-xl border border-slate-200/50 dark:border-white/10">
               <div className="flex-shrink-0 size-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -321,9 +325,9 @@ export default function Plans() {
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
         >
-          Todos los precios son orientativos y se ajustan al alcance del proyecto. IVA no incluido.{" "}
+          {t('plans_faq')}{" "}
           <button onClick={scrollToContact} className="text-emerald-600 dark:text-emerald-400 font-bold hover:underline">
-            Contacta para un presupuesto exacto
+            {t('plans_faq_link')}
           </button>
         </motion.p>
       </div>

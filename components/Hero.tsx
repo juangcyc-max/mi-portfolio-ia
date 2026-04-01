@@ -5,8 +5,10 @@ import { fadeInUp, staggerContainer } from "@/lib/animations";
 import Image from "next/image";
 import Link from "next/link";
 import { useState, useRef, useEffect } from "react";
+import { useTranslation } from "@/lib/i18n/LanguageContext";
 
 export default function Hero() {
+  const { t } = useTranslation();
   const [isPlaying, setIsPlaying] = useState(false);
   const [isClient, setIsClient] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
@@ -71,8 +73,8 @@ export default function Hero() {
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
               </span>
-              <span className="hidden xs:inline">Disponible para Proyectos</span>
-              <span className="xs:hidden">Disponible</span>
+              <span className="hidden xs:inline">{t('hero_available')}</span>
+              <span className="xs:hidden">{t('hero_available')}</span>
             </motion.div>
 
             {/* TITLE - ✅ GRADIENTE VERDE SOLO (sin cyan/blanco) */}
@@ -91,8 +93,7 @@ export default function Hero() {
               className="text-base sm:text-lg md:text-xl text-slate-600 dark:text-slate-300 leading-relaxed max-w-xl"
               variants={fadeInUp}
             >
-              Desarrollo Web y Automatizaciones con IA Integrada para Empresas.
-              Soluciones de vanguardia que transforman la productividad.
+              {t('hero_subtitle')}
             </motion.p>
 
             {/* BIO CARD - Glassmorphism con soporte claro/oscuro */}
@@ -117,12 +118,11 @@ export default function Hero() {
                 </h3>
 
                 <p className="text-emerald-600 dark:text-emerald-400 text-xs sm:text-sm font-semibold mb-1 sm:mb-2">
-                  Especialista en Web + IA
+                  {t('hero_role')}
                 </p>
 
                 <p className="text-[10px] sm:text-xs text-slate-600 dark:text-slate-300 leading-relaxed font-medium">
-                  Impulsando la innovación tecnológica mediante arquitecturas
-                  modernas y modelos de lenguaje avanzados.
+                  {t('hero_bio')}
                 </p>
               </div>
             </motion.div>
@@ -136,14 +136,14 @@ export default function Hero() {
                 href="#demo"
                 className="w-full sm:w-auto bg-gradient-to-r from-emerald-400 to-emerald-500 hover:from-emerald-500 hover:to-emerald-600 text-white px-6 sm:px-8 py-3 sm:py-4 rounded-xl font-black text-sm sm:text-base transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-lg shadow-emerald-500/25 hover:shadow-emerald-500/40 border border-emerald-400/50 text-center min-h-[48px] flex items-center justify-center"
               >
-                Empezar Proyecto
+                {t('hero_cta_primary')}
               </Link>
 
               <Link
                 href="#servicios"
                 className="w-full sm:w-auto bg-emerald-500/10 dark:bg-white/[0.03] backdrop-blur-2xl px-6 sm:px-8 py-3 sm:py-4 rounded-xl font-bold text-emerald-700 dark:text-white border border-emerald-500/20 dark:border-white/10 hover:bg-emerald-500/20 dark:hover:bg-white/[0.1] hover:border-emerald-500/40 dark:hover:border-white/20 transition-all duration-300 text-sm sm:text-base text-center min-h-[48px] flex items-center justify-center shadow-sm dark:shadow-[0_8px_32px_0_rgba(0,0,0,0.2)]"
               >
-                Ver Servicios
+                {t('hero_cta_secondary')}
               </Link>
             </motion.div>
           </motion.div>

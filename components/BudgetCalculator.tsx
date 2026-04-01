@@ -4,6 +4,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { fadeInUp } from "@/lib/animations";
 import jsPDF from "jspdf";
+import { useTranslation } from "@/lib/i18n/LanguageContext";
 
 // Iconos SVG para darle el toque profesional
 const Icons = {
@@ -63,21 +64,6 @@ const FEATURE_PRICES: Record<keyof Features, number> = {
   aiIntegration: 1000,
 };
 
-const PROJECT_LABELS: Record<ProjectType, string> = {
-  landing: "Landing Page",
-  corporate: "Sitio Corporativo",
-  ecommerce: "Tienda Online",
-  ia: "Integración IA",
-};
-
-const FEATURE_LABELS: Record<keyof Features, string> = {
-  seo: "SEO Optimizado",
-  chatbot: "Chatbot IA",
-  analytics: "Analytics Avanzado",
-  cms: "CMS (Gestor de Contenidos)",
-  multilingual: "Multi-idioma",
-  aiIntegration: "Integración IA Avanzada",
-};
 
 // Cuota mensual de mantenimiento por tipo de proyecto (alineada con Planes)
 const MONTHLY_FEE: Record<ProjectType, number> = {
@@ -90,6 +76,24 @@ const MONTHLY_FEE: Record<ProjectType, number> = {
 const IVA_RATE = 0.21;
 
 export default function BudgetCalculator() {
+  const { t } = useTranslation();
+
+  const PROJECT_LABELS: Record<ProjectType, string> = {
+    landing: t('proj_landing'),
+    corporate: t('proj_corporate'),
+    ecommerce: t('proj_ecommerce'),
+    ia: t('proj_ia'),
+  };
+
+  const FEATURE_LABELS: Record<keyof Features, string> = {
+    seo: t('feat_seo'),
+    chatbot: t('feat_chatbot'),
+    analytics: t('feat_analytics'),
+    cms: t('feat_cms'),
+    multilingual: t('feat_multilingual'),
+    aiIntegration: t('feat_ai_advanced'),
+  };
+
   const [projectType, setProjectType] = useState<ProjectType | "">("");
   const [features, setFeatures] = useState<Features>({
     seo: false,
@@ -237,17 +241,17 @@ export default function BudgetCalculator() {
           variants={fadeInUp}
         >
           <span className="inline-block px-4 py-1.5 mb-4 text-xs font-bold tracking-widest text-emerald-500 uppercase bg-emerald-500/10 rounded-full">
-            Cotizador Inteligente
+            {t('calc_badge')}
           </span>
           <h2 className="text-4xl md:text-5xl font-black text-slate-900 dark:text-white mb-6 tracking-tight">
-            Diseña tu inversión en{" "}
+            {t('calc_title')}{" "}
             {/* ✅ GRADIENTE VERDE SOLO (sin cyan) */}
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-emerald-500">
-              Tecnología
+              {t('calc_title_hl')}
             </span>
           </h2>
           <p className="text-lg text-slate-600 dark:text-slate-400 max-w-2xl mx-auto leading-relaxed">
-            Personaliza tu solución digital. Nuestra IA calcula una estimación precisa basada en estándares actuales de mercado.
+            {t('calc_subtitle')}
           </p>
         </motion.div>
 
@@ -260,7 +264,7 @@ export default function BudgetCalculator() {
             >
               <div className="flex items-center gap-4 mb-8">
                 <div className="w-10 h-10 rounded-2xl bg-emerald-500 flex items-center justify-center text-white shadow-lg shadow-emerald-500/30 font-bold">1</div>
-                <h3 className="text-xl font-bold text-slate-800 dark:text-white">Selecciona la base</h3>
+                <h3 className="text-xl font-bold text-slate-800 dark:text-white">{t('calc_step1')}</h3>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -278,7 +282,7 @@ export default function BudgetCalculator() {
                     >
                       <Icon className={`w-8 h-8 mb-4 transition-colors ${projectType === type ? "text-emerald-500" : "text-slate-400 group-hover:text-emerald-400"}`} />
                       <div className="font-bold text-slate-900 dark:text-white text-lg">{PROJECT_LABELS[type]}</div>
-                      <div className="text-sm text-slate-500 mt-1">Desde {formatPrice(PROJECT_PRICES[type].min)}€</div>
+                      <div className="text-sm text-slate-500 mt-1">{t('calc_from')} {formatPrice(PROJECT_PRICES[type].min)}€</div>
                       {projectType === type && (
                         <motion.div layoutId="activeType" className="absolute top-4 right-4 w-2 h-2 rounded-full bg-emerald-500" />
                       )}
@@ -294,7 +298,7 @@ export default function BudgetCalculator() {
             >
               <div className="flex items-center gap-4 mb-8">
                 <div className="w-10 h-10 rounded-2xl bg-cyan-500 flex items-center justify-center text-white shadow-lg shadow-cyan-500/30 font-bold">2</div>
-                <h3 className="text-xl font-bold text-slate-800 dark:text-white">Potencia tu proyecto</h3>
+                <h3 className="text-xl font-bold text-slate-800 dark:text-white">{t('calc_step2')}</h3>
               </div>
 
               <div className="grid grid-cols-1 gap-3">
@@ -336,13 +340,13 @@ export default function BudgetCalculator() {
                   <div className="absolute -top-24 -right-24 w-48 h-48 bg-emerald-500/20 rounded-full blur-3xl" />
                   
                   <div className="relative z-10 text-center">
-                    <p className="text-emerald-400 font-bold tracking-widest text-xs uppercase mb-4">Inversión Estimada</p>
+                    <p className="text-emerald-400 font-bold tracking-widest text-xs uppercase mb-4">{t('calc_estimated')}</p>
                     <div className="text-5xl md:text-6xl font-black mb-2 tracking-tighter">
                       {formatPrice(budget.min)}€
                     </div>
                     <div className="text-slate-400 text-sm mb-4">
-                      Rango máximo hasta {formatPrice(budget.max)}€ <br/>
-                      <span className="text-[10px] uppercase opacity-50 mt-2 block tracking-widest">+ IVA 21% aplicable</span>
+                      {t('calc_max')} {formatPrice(budget.max)}€ <br/>
+                      <span className="text-[10px] uppercase opacity-50 mt-2 block tracking-widest">{t('calc_iva')}</span>
                     </div>
 
                     {/* Cuota mensual */}
@@ -352,7 +356,7 @@ export default function BudgetCalculator() {
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                         </svg>
                         <span className="text-sm text-slate-300">
-                          Mantenimiento mensual: <span className="font-black text-emerald-400">{formatPrice(MONTHLY_FEE[projectType as ProjectType])} €/mes</span>
+                          {t('calc_monthly_label')} <span className="font-black text-emerald-400">{formatPrice(MONTHLY_FEE[projectType as ProjectType])} €/mes</span>
                         </span>
                       </div>
                     )}
@@ -362,19 +366,19 @@ export default function BudgetCalculator() {
                         onClick={handleGetQuote}
                         className="w-full py-4 px-8 bg-emerald-500 hover:bg-emerald-400 text-slate-900 font-black rounded-2xl transition-all duration-300 shadow-lg shadow-emerald-500/20 hover:scale-[1.02] active:scale-95"
                       >
-                        RESERVAR CONSULTORÍA
+                        {t('calc_booking')}
                       </button>
                       <button
                         onClick={downloadPDF}
                         className="w-full py-4 px-8 bg-white/5 hover:bg-white/10 text-white font-bold rounded-2xl border border-white/10 transition-all flex items-center justify-center gap-3"
                       >
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
-                        Exportar PDF Técnico
+                        {t('calc_pdf')}
                       </button>
                     </div>
                     
                     <p className="mt-8 text-[11px] text-slate-500 leading-relaxed italic">
-                      * Este documento no constituye un contrato legal. Los precios pueden variar según el análisis técnico final de requerimientos.
+                      {t('calc_note')}
                     </p>
                   </div>
                 </motion.div>
@@ -386,8 +390,8 @@ export default function BudgetCalculator() {
                   <div className="w-16 h-16 bg-slate-100 dark:bg-white/5 rounded-full flex items-center justify-center mb-6 animate-pulse">
                     <svg className="w-8 h-8 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" /></svg>
                   </div>
-                  <h4 className="text-xl font-bold text-slate-400 mb-2">Esperando tu selección</h4>
-                  <p className="text-slate-500 text-sm">Elige un tipo de proyecto a la izquierda para generar el desglose en tiempo real.</p>
+                  <h4 className="text-xl font-bold text-slate-400 mb-2">{t('calc_placeholder')}</h4>
+                  <p className="text-slate-500 text-sm">{t('calc_placeholder2')}</p>
                 </motion.div>
               )}
             </AnimatePresence>

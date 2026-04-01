@@ -2,72 +2,7 @@
 
 import { motion } from "framer-motion";
 import { fadeInUp, staggerContainer } from "@/lib/animations";
-
-const services = [
-  {
-    tag: "Web & Producto Digital",
-    title: "Tu web, una herramienta de negocio",
-    description:
-      "Creamos páginas web, landings y paneles que generan leads, procesan formularios y se conectan a tus procesos internos. No solo información: captación, CRM, WhatsApp y email integrados desde el primer día.",
-    icon: (
-      <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.2}
-          d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-      </svg>
-    ),
-    features: [
-      "Landings & sitios corporativos",
-      "Formularios de captación de leads",
-      "Integración WhatsApp, email y CRM",
-      "Paneles simples para tu equipo",
-    ],
-    color: "from-emerald-500/20 to-teal-500/20",
-    border: "group-hover:border-emerald-500/50 dark:group-hover:border-emerald-400/50",
-    accent: "emerald",
-  },
-  {
-    tag: "Cloud como Centro",
-    title: "Infraestructura cloud que trabaja 24/7",
-    description:
-      "El cloud es el corazón de tu solución digital. Alojamiento, ejecución continua de automatizaciones, mantenimiento, escalabilidad e integraciones API, todo incluido en una sola cuota mensual.",
-    icon: (
-      <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.2}
-          d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" />
-      </svg>
-    ),
-    features: [
-      "Hosting gestionado y configurado",
-      "Automatizaciones corriendo 24/7",
-      "Mantenimiento y actualizaciones",
-      "Escalabilidad bajo demanda",
-    ],
-    color: "from-sky-500/20 to-indigo-500/20",
-    border: "group-hover:border-sky-500/50 dark:group-hover:border-sky-400/50",
-    accent: "sky",
-  },
-  {
-    tag: "IA Integrada",
-    title: "IA en los puntos donde más aporta",
-    description:
-      "No vendemos 'IA suelta'. La integramos en los momentos clave de tu flujo: clasificar mensajes, responder preguntas frecuentes, resumir información, redactar respuestas y derivar casos al equipo correcto.",
-    icon: (
-      <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.2}
-          d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-      </svg>
-    ),
-    features: [
-      "Clasificación automática de mensajes",
-      "Respuestas a preguntas frecuentes",
-      "Resumen y redacción asistida",
-      "Derivación inteligente de casos",
-    ],
-    color: "from-violet-500/20 to-purple-500/20",
-    border: "group-hover:border-violet-500/50 dark:group-hover:border-violet-400/50",
-    accent: "violet",
-  },
-];
+import { useTranslation } from "@/lib/i18n/LanguageContext";
 
 const accentMap: Record<string, { pill: string; dot: string; icon: string }> = {
   emerald: {
@@ -88,6 +23,56 @@ const accentMap: Record<string, { pill: string; dot: string; icon: string }> = {
 };
 
 export default function Services() {
+  const { t } = useTranslation();
+
+  const services = [
+    {
+      tag: t('s1_tag'),
+      title: t('s1_title'),
+      description: t('s1_desc'),
+      icon: (
+        <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.2}
+            d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+        </svg>
+      ),
+      features: [t('s1_f1'), t('s1_f2'), t('s1_f3'), t('s1_f4')],
+      color: "from-emerald-500/20 to-teal-500/20",
+      border: "group-hover:border-emerald-500/50 dark:group-hover:border-emerald-400/50",
+      accent: "emerald",
+    },
+    {
+      tag: t('s2_tag'),
+      title: t('s2_title'),
+      description: t('s2_desc'),
+      icon: (
+        <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.2}
+            d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" />
+        </svg>
+      ),
+      features: [t('s2_f1'), t('s2_f2'), t('s2_f3'), t('s2_f4')],
+      color: "from-sky-500/20 to-indigo-500/20",
+      border: "group-hover:border-sky-500/50 dark:group-hover:border-sky-400/50",
+      accent: "sky",
+    },
+    {
+      tag: t('s3_tag'),
+      title: t('s3_title'),
+      description: t('s3_desc'),
+      icon: (
+        <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.2}
+            d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+        </svg>
+      ),
+      features: [t('s3_f1'), t('s3_f2'), t('s3_f3'), t('s3_f4')],
+      color: "from-violet-500/20 to-purple-500/20",
+      border: "group-hover:border-violet-500/50 dark:group-hover:border-violet-400/50",
+      accent: "violet",
+    },
+  ];
+
   const scrollToSection = (id: string) => {
     document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
   };
@@ -108,23 +93,23 @@ export default function Services() {
             className="inline-block px-4 py-1.5 mb-6 text-[10px] font-black tracking-[0.2em] text-emerald-600 dark:text-emerald-400 uppercase bg-emerald-500/10 dark:bg-emerald-400/10 rounded-full border border-emerald-500/20 dark:border-emerald-400/20 backdrop-blur-md"
             variants={fadeInUp}
           >
-            Soluciones para negocios reales
+            {t('services_badge')}
           </motion.span>
           <motion.h2
             className="text-4xl sm:text-5xl md:text-6xl font-black text-slate-900 dark:text-white mb-8 tracking-tight leading-[1.1] drop-shadow-sm dark:drop-shadow-lg"
             variants={fadeInUp}
           >
-            Web · Cloud · IA
+            {t('services_title1')}
             <br />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-emerald-500 drop-shadow-sm">
-              todo en un solo servicio
+              {t('services_title2')}
             </span>
           </motion.h2>
           <motion.p
             className="text-lg md:text-xl text-slate-600 dark:text-slate-300 font-medium max-w-2xl mx-auto leading-relaxed"
             variants={fadeInUp}
           >
-            No vendemos herramientas sueltas. Entregamos soluciones digitales completas para pequeñas y medianas empresas: web conectada, infraestructura cloud e IA incluida donde realmente aporta valor.
+            {t('services_subtitle')}
           </motion.p>
         </motion.div>
 
@@ -194,16 +179,16 @@ export default function Services() {
           viewport={{ once: true }}
         >
           <p className="text-sm font-bold tracking-widest text-emerald-600 dark:text-emerald-400 uppercase mb-3">
-            Todo incluido en una sola cuota
+            {t('services_included')}
           </p>
           <div className="flex flex-wrap justify-center gap-x-8 gap-y-2 text-slate-600 dark:text-slate-300 text-sm font-medium">
             {[
-              "Alojamiento cloud",
-              "Mantenimiento mensual",
-              "Automatizaciones activas",
-              "IA en flujos clave",
-              "Soporte técnico",
-              "Actualizaciones incluidas",
+              t('services_inc1'),
+              t('services_inc2'),
+              t('services_inc3'),
+              t('services_inc4'),
+              t('services_inc5'),
+              t('services_inc6'),
             ].map((item) => (
               <span key={item} className="flex items-center gap-2">
                 <svg className="w-4 h-4 text-emerald-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
@@ -226,13 +211,13 @@ export default function Services() {
             onClick={() => scrollToSection("planes")}
             className="px-8 py-4 bg-gradient-to-r from-emerald-400 to-emerald-500 hover:from-emerald-500 hover:to-emerald-600 text-white font-black rounded-2xl transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-lg shadow-emerald-500/25 hover:shadow-emerald-500/40"
           >
-            VER PLANES Y PRECIOS
+            {t('services_cta1').toUpperCase()}
           </button>
           <button
             onClick={() => scrollToSection("contacto")}
             className="px-8 py-4 bg-white/60 dark:bg-white/5 hover:bg-white dark:hover:bg-white/10 text-slate-700 dark:text-slate-200 font-bold rounded-2xl border border-slate-200 dark:border-white/10 transition-all duration-300 backdrop-blur-md"
           >
-            Hablar con un experto
+            {t('services_cta2')}
           </button>
         </motion.div>
 

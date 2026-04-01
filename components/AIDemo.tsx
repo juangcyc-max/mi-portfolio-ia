@@ -3,8 +3,10 @@
 import { motion } from "framer-motion";
 import { fadeInUp, staggerContainer } from "@/lib/animations";
 import ChatBox from "./ChatBox";
+import { useTranslation } from "@/lib/i18n/LanguageContext";
 
 export default function AIDemo() {
+  const { t } = useTranslation();
   return (
     <section 
       className="py-12 sm:py-16 md:py-24 px-4 bg-transparent" 
@@ -25,19 +27,19 @@ export default function AIDemo() {
             className="text-emerald-500 font-bold text-xs sm:text-sm uppercase tracking-widest mb-3"
             variants={fadeInUp}
           >
-            Asistente IA Real · Powered by Claude
+            {t('demo_badge')}
           </motion.p>
           <motion.h3
             className="text-2xl sm:text-3xl md:text-4xl font-black dark:text-white mb-3 sm:mb-4 px-2 leading-tight"
             variants={fadeInUp}
           >
-            Habla con Mia
+            {t('demo_title')}
           </motion.h3>
           <motion.p
             className="text-sm sm:text-base text-slate-600 dark:text-slate-400 px-2 max-w-xl mx-auto"
             variants={fadeInUp}
           >
-            Nuestra asistente inteligente responde en tu idioma, conoce todos nuestros servicios y precios, y te guía hacia la solución ideal para tu negocio.
+            {t('demo_subtitle')}
           </motion.p>
         </motion.div>
 
