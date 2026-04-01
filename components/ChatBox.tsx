@@ -11,148 +11,45 @@ interface Message {
   timestamp: Date;
 }
 
-const DEMO_RESPONSES: Record<string, string> = {
-  default:
-    "Hola 👋 Soy Mia, asistente de Mindbridge IA. Puedo ayudarte a encontrar la solución digital ideal para tu negocio. ¿Qué tipo de empresa tienes y qué necesitas mejorar digitalmente?\n\n*(Nota: para activar la IA real, añade ANTHROPIC_API_KEY en las variables de entorno)*",
-};
-
-const INITIAL_MESSAGE: Message = {
-  role: "assistant",
-  content:
-    "Hola 👋 Soy **Mia**, asistente virtual de Mindbridge IA.\n\nEstoy aquí para ayudarte a encontrar la solución digital ideal para tu negocio: web, automatización cloud e IA integrada.\n\n¿En qué puedo ayudarte hoy?",
-  timestamp: new Date(),
-};
+function makeGreeting(text: string): Message {
+  return { role: "assistant", content: text, timestamp: new Date() };
+}
 
 export default function ChatBox() {
-  const { t } = useTranslation();
-  const [messages, setMessages] = useState<Message[]>([INITIAL_MESSAGE]);
+  const { t, lang } = useTranslation();
+
+  const [messages, setMessages] = useState<Message[]>(() => [
+    makeGreeting(t("chat_greeting")),
+  ]);
   const [input, setInput] = useState("");
   const [isStreaming, setIsStreaming] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const abortRef = useRef<AbortController | null>(null);
 
-  // Restore history from localStorage
+  // Update greeting when language changes
   useEffect(() => {
-    const saved = localStorage.getItem("mia_chat_history");
-    if (saved) {
-      try {
-        const parsed = JSON.parse(saved).map((m: Message) => ({
-          ...m,
-          timestamp: new Date(m.timestamp),
-        }));
-        if (parsed.length > 1) setMessages(parsed);
-      } catch {
-        localStorage.removeItem("mia_chat_history");
-      }
-    }
-  }, []);
-
-  // Persist history
-  useEffect(() => {
-    if (messages.length > 1) {
-      localStorage.setItem("mia_chat_history", JSON.stringify(messages));
-    }
-  }, [messages]);
+    setMessages([makeGreeting(t("chat_greeting"))]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [lang]);
 
   // Auto-scroll
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  // Auto-resize textarea
+  const clearChat = useCallback(() => {
+    abortRef.current?.abort();
+    setMessages([makeGreeting(t("chat_greeting"))]);
+    setIsStreaming(false);
+  }, [t]);
+
   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setInput(e.target.value);
     const ta = e.target;
     ta.style.height = "auto";
     ta.style.height = Math.min(ta.scrollHeight, 120) + "px";
   };
-
-  const clearChat = () => {
-    abortRef.current?.abort();
-    setMessages([INITIAL_MESSAGE]);
-    setIsStreaming(false);
-    localStorage.removeItem("mia_chat_history");
-  };
-
-  const sendMessage = useCallback(async () => {
-    const text = input.trim();
-    if (!text || isStreaming) return;
-
-    const userMsg: Message = { role: "user", content: text, timestamp: new Date() };
-    const updatedHistory = [...messages, userMsg];
-
-    setMessages(updatedHistory);
-    setInput("");
-    if (textareaRef.current) {
-      textareaRef.current.style.height = "auto";
-    }
-    setIsStreaming(true);
-
-    // Placeholder assistant message
-    const assistantPlaceholder: Message = {
-      role: "assistant",
-      content: "",
-      timestamp: new Date(),
-    };
-    setMessages([...updatedHistory, assistantPlaceholder]);
-
-    try {
-      const controller = new AbortController();
-      abortRef.current = controller;
-
-      // Build messages for the API (exclude initial message if it's the placeholder)
-      const apiMessages = updatedHistory.map((m) => ({
-        role: m.role,
-        content: m.content,
-      }));
-
-      const res = await fetch("/api/chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages: apiMessages }),
-        signal: controller.signal,
-      });
-
-      // Demo mode (no API key)
-      if (res.headers.get("content-type")?.includes("application/json")) {
-        const json = await res.json();
-        if (json.demo) {
-          simulateStream(DEMO_RESPONSES.default, updatedHistory);
-          return;
-        }
-      }
-
-      if (!res.ok || !res.body) throw new Error("Stream unavailable");
-
-      const reader = res.body.getReader();
-      const decoder = new TextDecoder();
-      let accumulated = "";
-
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-
-        const chunk = decoder.decode(value, { stream: true });
-        accumulated += chunk;
-
-        setMessages((prev) => {
-          const next = [...prev];
-          next[next.length - 1] = {
-            ...next[next.length - 1],
-            content: accumulated,
-          };
-          return next;
-        });
-      }
-    } catch (err: any) {
-      if (err.name === "AbortError") return;
-      // Fallback demo response
-      simulateStream(DEMO_RESPONSES.default, updatedHistory);
-    } finally {
-      setIsStreaming(false);
-    }
-  }, [input, isStreaming, messages]);
 
   const simulateStream = async (text: string, history: Message[]) => {
     const words = text.split(" ");
@@ -169,6 +66,94 @@ export default function ChatBox() {
     setIsStreaming(false);
   };
 
+  const sendMessage = useCallback(async () => {
+    const text = input.trim();
+    if (!text || isStreaming) return;
+
+    const userMsg: Message = { role: "user", content: text, timestamp: new Date() };
+
+    // Full history including the new user message
+    const updatedHistory = [...messages, userMsg];
+    setMessages(updatedHistory);
+    setInput("");
+    if (textareaRef.current) textareaRef.current.style.height = "auto";
+    setIsStreaming(true);
+
+    // Show typing placeholder
+    setMessages([...updatedHistory, { role: "assistant", content: "", timestamp: new Date() }]);
+
+    try {
+      const controller = new AbortController();
+      abortRef.current = controller;
+
+      // Only send actual conversation messages (skip any leading assistant greeting)
+      const apiMessages = updatedHistory
+        .filter((m, i) => !(i === 0 && m.role === "assistant"))
+        .map((m) => ({ role: m.role, content: m.content }));
+
+      const res = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ messages: apiMessages }),
+        signal: controller.signal,
+      });
+
+      // Demo fallback when no API key
+      if (res.headers.get("content-type")?.includes("application/json")) {
+        const json = await res.json();
+        if (json.demo || json.error) {
+          await simulateStream(
+            "Hola 👋 Soy **MI3.0**. En este momento el servicio de IA no está disponible. Por favor contacta directamente a juangcyc@gmail.com o usa el formulario de contacto.",
+            updatedHistory
+          );
+          return;
+        }
+      }
+
+      if (!res.ok || !res.body) throw new Error("Stream unavailable");
+
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let accumulated = "";
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        const chunk = decoder.decode(value, { stream: true });
+        accumulated += chunk;
+
+        setMessages((prev) => {
+          const next = [...prev];
+          next[next.length - 1] = {
+            ...next[next.length - 1],
+            content: accumulated,
+          };
+          return next;
+        });
+      }
+
+      // If stream returned empty, show a fallback
+      if (!accumulated.trim()) {
+        setMessages((prev) => {
+          const next = [...prev];
+          next[next.length - 1] = {
+            ...next[next.length - 1],
+            content: "Lo siento, no pude procesar tu mensaje. ¿Puedes intentarlo de nuevo?",
+          };
+          return next;
+        });
+      }
+    } catch (err: any) {
+      if (err.name === "AbortError") return;
+      await simulateStream(
+        "Parece que hay un problema de conexión. Por favor revisa tu conexión e inténtalo de nuevo, o contáctanos directamente en juangcyc@gmail.com.",
+        updatedHistory
+      );
+    } finally {
+      setIsStreaming(false);
+    }
+  }, [input, isStreaming, messages, t]);
+
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
@@ -179,17 +164,14 @@ export default function ChatBox() {
   const formatTime = (d: Date) =>
     d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
 
-  // Simple markdown-to-HTML renderer (bold, newlines, bullets)
   const renderContent = (content: string) => {
     if (!content) return null;
     const lines = content.split("\n");
     return lines.map((line, i) => {
-      // Bold
       const parts = line.split(/\*\*(.*?)\*\*/g);
       const rendered = parts.map((part, j) =>
         j % 2 === 1 ? <strong key={j}>{part}</strong> : part
       );
-      // Bullet
       const isBullet = line.startsWith("• ") || line.startsWith("- ");
       if (isBullet) {
         return (
@@ -216,7 +198,7 @@ export default function ChatBox() {
         <div className="flex items-center gap-3">
           <div className="relative">
             <div className="w-10 h-10 rounded-full overflow-hidden ring-2 ring-emerald-500/40 bg-slate-800">
-              <Image src="/logo.svg" alt="Mia" width={40} height={40} />
+              <Image src="/logo.svg" alt="MI3.0" width={40} height={40} />
             </div>
             <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-emerald-500 rounded-full border-2 border-slate-900" />
           </div>
@@ -249,10 +231,9 @@ export default function ChatBox() {
               transition={{ duration: 0.25 }}
               className={`flex gap-3 ${msg.role === "user" ? "flex-row-reverse" : "flex-row"}`}
             >
-              {/* Avatar */}
               {msg.role === "assistant" && (
                 <div className="flex-shrink-0 w-8 h-8 rounded-full overflow-hidden bg-slate-800 ring-1 ring-emerald-500/30 mt-1">
-                  <Image src="/logo.svg" alt="Mia" width={32} height={32} />
+                  <Image src="/logo.svg" alt="MI3.0" width={32} height={32} />
                 </div>
               )}
 
@@ -265,7 +246,6 @@ export default function ChatBox() {
                   }`}
                 >
                   {msg.role === "assistant" && i === messages.length - 1 && isStreaming && !msg.content ? (
-                    // Typing indicator
                     <div className="flex gap-1 items-center py-1">
                       {[0, 1, 2].map((j) => (
                         <motion.span
@@ -280,7 +260,6 @@ export default function ChatBox() {
                     <div className="space-y-0.5">{renderContent(msg.content)}</div>
                   )}
 
-                  {/* Streaming cursor */}
                   {msg.role === "assistant" && i === messages.length - 1 && isStreaming && msg.content && (
                     <motion.span
                       className="inline-block w-0.5 h-4 bg-emerald-400 ml-0.5 align-middle"

@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { createGoogleGenerativeAI } from "@ai-sdk/google";
+import { anthropic } from "@ai-sdk/anthropic";
 import { generateText } from "ai";
 
 export async function POST(request: Request) {
@@ -10,24 +10,22 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "targetLang and strings required" }, { status: 400 });
     }
 
-    const apiKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY;
+    const apiKey = process.env.ANTHROPIC_API_KEY;
     if (!apiKey) {
       return NextResponse.json({ translations: strings });
     }
 
-    const google = createGoogleGenerativeAI({ apiKey });
-
     const stringEntries = JSON.stringify(strings, null, 2);
 
     const { text } = await generateText({
-      model: google("gemini-2.0-flash"),
+      model: anthropic("claude-haiku-4-5-20251001"),
       prompt: `You are a professional translator. Translate the following JSON object's VALUES (not keys) from Spanish to ${targetLang}.
 
 RULES:
 - Keep all JSON keys exactly as they are
 - Only translate the string values
-- Preserve any HTML tags, special characters, · separators, € symbols, and numbers
-- Keep technical terms like "Cloud", "IA", "AI", "CRM", "WhatsApp", "SEO", "CMS" as-is or use the common term in the target language
+- Preserve any special characters, · separators, € symbols, and numbers
+- Keep technical terms like "Cloud", "IA", "AI", "CRM", "WhatsApp", "SEO", "CMS", "MI3.0" as-is
 - Return ONLY valid JSON, no explanation, no markdown code blocks
 - The output must be a valid JSON object
 
@@ -42,7 +40,6 @@ ${stringEntries}`,
     return NextResponse.json({ translations });
   } catch (err: any) {
     console.error("Translation error:", err);
-    // Return original strings as fallback
     return NextResponse.json({ translations: null }, { status: 500 });
   }
 }

@@ -1,7 +1,7 @@
 import { anthropic } from "@ai-sdk/anthropic";
 import { streamText } from "ai";
 
-const SYSTEM_PROMPT = `You are Mia, the intelligent virtual assistant for Mindbridge IA — a digital solutions agency based in Spain, led by Juan Gutiérrez de la Concha.
+const SYSTEM_PROMPT = `You are MI3.0, the intelligent virtual assistant for Mindbridge IA — a digital solutions agency based in Spain, led by Juan Gutiérrez de la Concha.
 
 YOUR MISSION: Guide potential business clients (SMBs) to understand our services, find the right solution for their needs, and naturally move toward booking a consultation or filling in the contact form.
 
@@ -88,20 +88,30 @@ export async function POST(request: Request) {
     const apiKey = process.env.ANTHROPIC_API_KEY;
 
     if (!apiKey) {
-      // Graceful demo fallback
       return new Response(
-        JSON.stringify({
-          error: "ANTHROPIC_API_KEY not configured",
-          demo: true,
-        }),
+        JSON.stringify({ error: "ANTHROPIC_API_KEY not configured", demo: true }),
         { status: 200, headers: { "Content-Type": "application/json" } }
+      );
+    }
+
+    // Anthropic requires messages to start with role "user".
+    // Drop any leading assistant messages (e.g. the visual greeting).
+    let validMessages = messages;
+    while (validMessages.length > 0 && validMessages[0].role !== "user") {
+      validMessages = validMessages.slice(1);
+    }
+
+    if (validMessages.length === 0) {
+      return new Response(
+        JSON.stringify({ error: "No user messages" }),
+        { status: 400, headers: { "Content-Type": "application/json" } }
       );
     }
 
     const result = streamText({
       model: anthropic("claude-haiku-4-5-20251001"),
       system: SYSTEM_PROMPT,
-      messages: messages.slice(-20), // máximo últimos 20 mensajes para no exceder contexto
+      messages: validMessages.slice(-20),
       temperature: 0.7,
     });
 

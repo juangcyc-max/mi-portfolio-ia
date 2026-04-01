@@ -181,15 +181,16 @@ export const ES_STRINGS = {
 
   // AIDemo
   demo_badge:    "Asistente IA Real · Powered by Claude",
-  demo_title:    "Habla con Mia",
+  demo_title:    "Habla con MI3.0",
   demo_subtitle: "Nuestra asistente inteligente responde en tu idioma, conoce todos nuestros servicios y precios, y te guía hacia la solución ideal para tu negocio.",
 
   // Chat
-  chat_title:       "Asistente Mindbridge",
+  chat_title:       "MI3.0 · Mindbridge",
   chat_subtitle:    "Responde en tu idioma",
   chat_placeholder: "Escribe tu mensaje...",
   chat_clear:       "Limpiar chat",
   chat_online:      "En línea",
+  chat_greeting:    "Hola 👋 Soy **MI3.0**, asistente virtual de Mindbridge IA.\n\nEstoy aquí para ayudarte a encontrar la solución digital ideal para tu negocio: web, automatización cloud e IA integrada.\n\n¿En qué puedo ayudarte hoy?",
 
   // Footer
   footer_tagline:   "Soluciones digitales para negocios que quieren crecer.",
@@ -364,14 +365,15 @@ export const EN_STRINGS: UIStrings = {
   contact_error_required:   "Please complete all fields",
 
   demo_badge:    "Real AI Assistant · Powered by Claude",
-  demo_title:    "Talk to Mia",
+  demo_title:    "Talk to MI3.0",
   demo_subtitle: "Our intelligent assistant responds in your language, knows all our services and prices, and guides you toward the ideal solution for your business.",
 
-  chat_title:       "Mindbridge Assistant",
+  chat_title:       "MI3.0 · Mindbridge",
   chat_subtitle:    "Responds in your language",
   chat_placeholder: "Type your message...",
   chat_clear:       "Clear chat",
   chat_online:      "Online",
+  chat_greeting:    "Hi 👋 I'm **MI3.0**, Mindbridge IA's virtual assistant.\n\nI'm here to help you find the ideal digital solution for your business: web, cloud automation and integrated AI.\n\nHow can I help you today?",
 
   footer_tagline:   "Digital solutions for businesses that want to grow.",
   footer_rights:    "All rights reserved.",
