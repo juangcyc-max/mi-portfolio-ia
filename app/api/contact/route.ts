@@ -129,11 +129,13 @@ export async function POST(request: Request) {
     }
 
     // Guardar lead y mensaje en Supabase
-    const { data: lead } = await supabaseAdmin
+    const { data: lead, error: leadError } = await supabaseAdmin
       .from("leads")
       .insert({ name, email, source: "contact_form", status: "new" })
       .select("id")
       .single();
+
+    if (leadError) console.error("Error insertando lead:", leadError);
 
     if (lead?.id) {
       await supabaseAdmin.from("messages").insert({
