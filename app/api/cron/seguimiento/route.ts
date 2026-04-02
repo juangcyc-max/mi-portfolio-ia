@@ -3,13 +3,12 @@ import { Resend } from "resend";
 import { createClient } from "@supabase/supabase-js";
 import { seguimientoLeadHtml } from "@/lib/emails/seguimiento-lead";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
-
 export async function GET(request: Request) {
+  const resend = new Resend(process.env.RESEND_API_KEY);
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  );
   // Verificar que es una llamada autorizada de Vercel Cron
   const authHeader = request.headers.get("authorization");
   if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
