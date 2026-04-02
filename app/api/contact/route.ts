@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { Resend } from "resend";
 import { createClient } from "@supabase/supabase-js";
 import { rateLimit } from "@/lib/rateLimit";
+import { confirmacionContactoHtml } from "@/lib/emails/confirmacion-contacto";
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -133,6 +134,15 @@ export async function POST(request: Request) {
         { status: 500 }
       );
     }
+
+    // Email de confirmación al cliente
+    await resend.emails.send({
+      from: "Juan · Mindbridge IA <hola@mindbride.net>",
+      to: [email],
+      subject: `He recibido tu mensaje, ${name} ✅`,
+      html: confirmacionContactoHtml({ name }),
+      text: `Hola ${name}, he recibido tu mensaje y te responderé en menos de 24 horas. Un saludo, Juan · Mindbridge IA`,
+    });
 
     // Guardar lead y mensaje en Supabase
     const { data: lead, error: leadError } = await supabaseAdmin
