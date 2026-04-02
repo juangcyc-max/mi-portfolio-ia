@@ -5,10 +5,6 @@ import { createClient } from "@supabase/supabase-js";
 import { rateLimit } from "@/lib/rateLimit";
 import { confirmacionContactoHtml } from "@/lib/emails/confirmacion-contacto";
 
-const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
 
 // IMPORTANTE: En producción, NEXT_PUBLIC_SITE_URL debe ser tu dominio real (ej. https://mindbridge.ia)
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
@@ -99,6 +95,10 @@ function getEmailTemplate({ name, email, message, projectType, budget, logoUrl }
 
 export async function POST(request: Request) {
   try {
+    const supabaseAdmin = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!
+    );
     const ip = request.headers.get("x-forwarded-for") ?? "unknown";
     if (!rateLimit(ip, 5, 60_000)) {
       return NextResponse.json({ error: "Demasiadas solicitudes. Espera un momento." }, { status: 429 });

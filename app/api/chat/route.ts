@@ -3,11 +3,6 @@ import { anthropic } from "@ai-sdk/anthropic";
 import { createClient } from "@supabase/supabase-js";
 import { rateLimit } from "@/lib/rateLimit";
 
-const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
-
 const SYSTEM_PROMPT = `You are MI3.0, the virtual sales consultant for Mindbridge IA — a digital agency in Spain run by Juan Gutiérrez de la Concha. You help small and medium businesses get online with web, cloud and AI solutions.
 
 ═══ LANGUAGE RULE — TOP PRIORITY ═══
@@ -95,6 +90,10 @@ Say: "This sounds like a great fit — let me connect you with Juan directly. Dr
 
 export async function POST(request: Request) {
   try {
+    const supabaseAdmin = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!
+    );
     const ip = request.headers.get("x-forwarded-for") ?? "unknown";
     if (!rateLimit(ip, 20, 60_000)) {
       return Response.json({ error: "rate_limit", debug: "Demasiadas solicitudes" }, { status: 429 });
