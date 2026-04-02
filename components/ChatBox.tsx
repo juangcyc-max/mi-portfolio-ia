@@ -36,6 +36,8 @@ export default function ChatBox() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [isTyping, setIsTyping] = useState(false);
+  const [conversationId, setConversationId] = useState<string | null>(null);
+  const sessionId = useRef<string>(`session-${Date.now()}-${Math.random().toString(36).slice(2)}`);
   const bottomRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const abortRef = useRef<boolean>(false);
@@ -96,10 +98,17 @@ export default function ChatBox() {
       const res = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages: apiMessages }),
+        body: JSON.stringify({
+          messages: apiMessages,
+          sessionId: sessionId.current,
+          conversationId,
+        }),
       });
 
       const data = await res.json();
+      if (data.conversationId && !conversationId) {
+        setConversationId(data.conversationId);
+      }
 
       setIsTyping(false);
 

@@ -1,5 +1,11 @@
 import { generateText } from "ai";
 import { anthropic } from "@ai-sdk/anthropic";
+import { createClient } from "@supabase/supabase-js";
+
+const supabaseAdmin = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+);
 
 const SYSTEM_PROMPT = `You are MI3.0, the virtual sales consultant for Mindbridge IA — a digital agency in Spain run by Juan Gutiérrez de la Concha. You help small and medium businesses get online with web, cloud and AI solutions.
 
@@ -90,6 +96,7 @@ export async function POST(request: Request) {
   try {
     const body = await request.json();
     const messages: { role: string; content: string }[] = body.messages ?? [];
+    const sessionId: string = body.sessionId ?? `anon-${Date.now()}`;
 
     if (!process.env.ANTHROPIC_API_KEY) {
       console.error("[chat/route] ANTHROPIC_API_KEY is not set");
@@ -114,7 +121,43 @@ export async function POST(request: Request) {
       temperature: 0.75,
     });
 
-    return Response.json({ text });
+    // Guardar conversación y mensajes en Supabase
+    try {
+      const lastUserMsg = valid[valid.length - 1];
+
+      // Crear conversación si es el primer mensaje
+      let conversationId: string | null = body.conversationId ?? null;
+      if (!conversationId) {
+        const { data: conv } = await supabaseAdmin
+          .from("conversations")
+          .insert({ session_id: sessionId, channel: "web_chat", status: "open" })
+          .select("id")
+          .single();
+        conversationId = conv?.id ?? null;
+      }
+
+      if (conversationId) {
+        // Guardar mensaje del usuario
+        await supabaseAdmin.from("chat_messages").insert({
+          conversation_id: conversationId,
+          role: "user",
+          content: lastUserMsg.content,
+          is_ai: false,
+        });
+        // Guardar respuesta de la IA
+        await supabaseAdmin.from("chat_messages").insert({
+          conversation_id: conversationId,
+          role: "assistant",
+          content: text,
+          is_ai: true,
+        });
+      }
+
+      return Response.json({ text, conversationId });
+    } catch (dbErr) {
+      console.error("[chat/route] error guardando en Supabase:", dbErr);
+      return Response.json({ text });
+    }
   } catch (err: any) {
     const msg = err?.message ?? String(err);
     console.error("[chat/route] error:", msg);
