@@ -45,6 +45,9 @@ export const metadata: Metadata = {
     "presencia digital pymes",
     "Mindbridge IA"
   ],
+  verification: {
+    google: "W19JTMyAdhc7Rq7qGlPHIduU3upoGT2Kx5mQK8GuTko",
+  },
   authors: [{ name: "Mindbridge IA" }],
   creator: "Mindbridge IA",
   publisher: "Mindbridge IA",
