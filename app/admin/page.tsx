@@ -38,13 +38,13 @@ export default function AdminDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-950 text-white">
+    <div className="min-h-screen bg-slate-100 text-slate-900">
       {/* Header */}
-      <header className="border-b border-gray-800 px-6 py-4 flex items-center justify-between">
+      <header className="border-b border-slate-200 px-6 py-4 flex items-center justify-between">
         <h1 className="text-lg font-bold text-emerald-400">Mindbridge IA — Admin</h1>
         <button
           onClick={handleLogout}
-          className="text-sm text-gray-400 hover:text-white transition-colors"
+          className="text-sm text-slate-500 hover:text-slate-900 transition-colors"
         >
           Cerrar sesión
         </button>
@@ -77,8 +77,8 @@ function StatCard({ label, value, color }: { label: string; value: number; color
     blue: 'text-blue-400',
   }
   return (
-    <div className="bg-gray-900 border border-gray-800 rounded-xl p-5">
-      <p className="text-sm text-gray-400">{label}</p>
+    <div className="bg-white border border-slate-200 rounded-xl p-5">
+      <p className="text-sm text-slate-500">{label}</p>
       <p className={`text-3xl font-bold mt-1 ${colors[color]}`}>{value}</p>
     </div>
   )
@@ -88,10 +88,10 @@ function NavCard({ href, title, description }: { href: string; title: string; de
   return (
     <Link
       href={href}
-      className="bg-gray-900 border border-gray-800 rounded-xl p-5 hover:border-emerald-500 transition-colors block"
+      className="bg-white border border-slate-200 rounded-xl p-5 hover:border-emerald-500 transition-colors block"
     >
-      <h3 className="font-semibold text-white">{title}</h3>
-      <p className="text-sm text-gray-400 mt-1">{description}</p>
+      <h3 className="font-semibold text-slate-900">{title}</h3>
+      <p className="text-sm text-slate-500 mt-1">{description}</p>
     </Link>
   )
 }

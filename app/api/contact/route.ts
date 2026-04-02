@@ -2,6 +2,7 @@
 import { NextResponse } from "next/server";
 import { Resend } from "resend";
 import { createClient } from "@supabase/supabase-js";
+import { rateLimit } from "@/lib/rateLimit";
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -97,6 +98,11 @@ function getEmailTemplate({ name, email, message, projectType, budget, logoUrl }
 
 export async function POST(request: Request) {
   try {
+    const ip = request.headers.get("x-forwarded-for") ?? "unknown";
+    if (!rateLimit(ip, 5, 60_000)) {
+      return NextResponse.json({ error: "Demasiadas solicitudes. Espera un momento." }, { status: 429 });
+    }
+
     const resend = new Resend(process.env.RESEND_API_KEY);
     const data = await request.json();
     const { name, email, message, budget, projectType } = data;

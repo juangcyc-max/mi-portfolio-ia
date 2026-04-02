@@ -1,6 +1,7 @@
 import { generateText } from "ai";
 import { anthropic } from "@ai-sdk/anthropic";
 import { createClient } from "@supabase/supabase-js";
+import { rateLimit } from "@/lib/rateLimit";
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -78,10 +79,10 @@ Suggest talking to Juan when:
 - User is frustrated or has urgent issues
 - They explicitly ask for a human
 
-Say: "This sounds like a great fit — let me connect you with Juan directly. Drop a message at juangcyc@gmail.com or fill the contact form on this page."
+Say: "This sounds like a great fit — let me connect you with Juan directly. Drop a message at juangutierrezdelaconcha@mindbride.net or fill the contact form on this page."
 
 ═══ CONTACT ═══
-• Email: juangcyc@gmail.com (replies within 24h)
+• Email: juangutierrezdelaconcha@mindbride.net (replies within 24h)
 • Contact form: on this website (scroll to "Contacto")
 • Free 15-min consultation call available on request
 
@@ -94,6 +95,11 @@ Say: "This sounds like a great fit — let me connect you with Juan directly. Dr
 
 export async function POST(request: Request) {
   try {
+    const ip = request.headers.get("x-forwarded-for") ?? "unknown";
+    if (!rateLimit(ip, 20, 60_000)) {
+      return Response.json({ error: "rate_limit", debug: "Demasiadas solicitudes" }, { status: 429 });
+    }
+
     const body = await request.json();
     const messages: { role: string; content: string }[] = body.messages ?? [];
     const sessionId: string = body.sessionId ?? `anon-${Date.now()}`;

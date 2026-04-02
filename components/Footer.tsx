@@ -24,6 +24,9 @@ export default function Footer() {
           </div>
 
           <nav className="flex flex-wrap justify-center gap-x-4 gap-y-2 text-[10px] sm:text-xs text-slate-500 dark:text-slate-400">
+            <Link href="/admin" className="hover:text-emerald-500 transition-colors py-1 px-2 -mx-2 min-h-[32px] flex items-center opacity-30 hover:opacity-100">
+              ⚙
+            </Link>
             <Link href="#servicios" className="hover:text-emerald-500 transition-colors py-1 px-2 -mx-2 min-h-[32px] flex items-center">
               {t("footer_link_web")}
             </Link>
