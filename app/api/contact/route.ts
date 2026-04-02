@@ -106,8 +106,8 @@ export async function POST(request: Request) {
     const logoUrl = `${SITE_URL}/logo.svg`; 
 
     const { error: resendError } = await resend.emails.send({
-      from: "Mindbridge Contacto <onboarding@resend.dev>",
-      to: ["juangcyc@gmail.com"],
+      from: "Mindbridge IA <hola@mindbride.net>",
+      to: ["juangutierrezdelaconcha@mindbride.net"],
       replyTo: email,
       subject: `Nuevo mensaje - ${name}${projectType ? ` | ${projectType}` : ""}`,
       html: getEmailTemplate({ name, email, message, projectType, budget, logoUrl }),
