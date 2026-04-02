@@ -23,10 +23,15 @@ export default function Footer() {
             </p>
           </div>
 
+          {/* Email de contacto */}
+          <a
+            href="mailto:juangutierrezdelaconcha@mindbride.net"
+            className="text-[10px] sm:text-xs text-slate-400 dark:text-slate-500 hover:text-emerald-500 transition-colors"
+          >
+            juangutierrezdelaconcha@mindbride.net
+          </a>
+
           <nav className="flex flex-wrap justify-center gap-x-4 gap-y-2 text-[10px] sm:text-xs text-slate-500 dark:text-slate-400">
-            <Link href="/admin/login" className="hover:text-emerald-500 transition-colors py-1 px-2 -mx-2 min-h-[32px] flex items-center opacity-10 hover:opacity-60 text-slate-400">
-              ⚙
-            </Link>
             <Link href="#servicios" className="hover:text-emerald-500 transition-colors py-1 px-2 -mx-2 min-h-[32px] flex items-center">
               {t("footer_link_web")}
             </Link>
@@ -40,11 +45,18 @@ export default function Footer() {
               {t("footer_link_consulting")}
             </Link>
             <span className="text-slate-300 dark:text-slate-600 hidden sm:inline">|</span>
-            <Link href="#" className="hover:text-emerald-500 transition-colors py-1 px-2 -mx-2 min-h-[32px] flex items-center">
-              {t("footer_privacy")}
+            <Link href="/aviso-legal" className="hover:text-emerald-500 transition-colors py-1 px-2 -mx-2 min-h-[32px] flex items-center">
+              Aviso Legal
             </Link>
-            <Link href="#" className="hover:text-emerald-500 transition-colors py-1 px-2 -mx-2 min-h-[32px] flex items-center">
-              {t("footer_terms")}
+            <Link href="/privacidad" className="hover:text-emerald-500 transition-colors py-1 px-2 -mx-2 min-h-[32px] flex items-center">
+              Privacidad
+            </Link>
+            <Link href="/cookies" className="hover:text-emerald-500 transition-colors py-1 px-2 -mx-2 min-h-[32px] flex items-center">
+              Cookies
+            </Link>
+            <span className="text-slate-300 dark:text-slate-600 hidden sm:inline">|</span>
+            <Link href="/admin/login" className="hover:text-emerald-500 transition-colors py-1 px-2 -mx-2 min-h-[32px] flex items-center opacity-10 hover:opacity-60">
+              ⚙
             </Link>
           </nav>
 
