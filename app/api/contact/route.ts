@@ -1,6 +1,12 @@
 // app/api/contact/route.ts
 import { NextResponse } from "next/server";
 import { Resend } from "resend";
+import { createClient } from "@supabase/supabase-js";
+
+const supabaseAdmin = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+);
 
 // IMPORTANTE: En producción, NEXT_PUBLIC_SITE_URL debe ser tu dominio real (ej. https://mindbridge.ia)
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
@@ -120,6 +126,26 @@ export async function POST(request: Request) {
         { error: "Error al enviar el mensaje a través del proveedor" },
         { status: 500 }
       );
+    }
+
+    // Guardar lead y mensaje en Supabase
+    const { data: lead } = await supabaseAdmin
+      .from("leads")
+      .insert({ name, email, source: "contact_form", status: "new" })
+      .select("id")
+      .single();
+
+    if (lead?.id) {
+      await supabaseAdmin.from("messages").insert({
+        lead_id: lead.id,
+        name,
+        email,
+        subject: projectType || "Contacto web",
+        body: message,
+        source: "contact_form",
+        status: "unread",
+        priority: "normal",
+      });
     }
 
     return NextResponse.json(
