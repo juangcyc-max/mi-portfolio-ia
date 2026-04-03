@@ -23,13 +23,23 @@ export default function Footer() {
             </p>
           </div>
 
-          {/* Email de contacto */}
-          <a
-            href="mailto:juangutierrezdelaconcha@mindbride.net"
-            className="text-[10px] sm:text-xs text-slate-400 dark:text-slate-500 hover:text-emerald-500 transition-colors"
-          >
-            juangutierrezdelaconcha@mindbride.net
-          </a>
+          {/* Email e Instagram */}
+          <div className="flex items-center gap-4">
+            <a
+              href="mailto:juangutierrezdelaconcha@mindbride.net"
+              className="text-[10px] sm:text-xs text-slate-400 dark:text-slate-500 hover:text-emerald-500 transition-colors"
+            >
+              juangutierrezdelaconcha@mindbride.net
+            </a>
+            <a
+              href="https://instagram.com/mindbridgeia"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-[10px] sm:text-xs text-slate-400 dark:text-slate-500 hover:text-emerald-500 transition-colors"
+            >
+              @mindbridgeia
+            </a>
+          </div>
 
           <nav className="flex flex-wrap justify-center gap-x-4 gap-y-2 text-[10px] sm:text-xs text-slate-500 dark:text-slate-400">
             <Link href="#servicios" className="hover:text-emerald-500 transition-colors py-1 px-2 -mx-2 min-h-[32px] flex items-center">
