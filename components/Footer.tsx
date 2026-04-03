@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { Mail } from "lucide-react";
 import { useTranslation } from "@/lib/i18n/LanguageContext";
 
 export default function Footer() {
@@ -24,19 +25,21 @@ export default function Footer() {
           </div>
 
           {/* Email e Instagram */}
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-6">
             <a
               href="mailto:juangutierrezdelaconcha@mindbride.net"
-              className="text-[10px] sm:text-xs text-slate-400 dark:text-slate-500 hover:text-emerald-500 transition-colors"
+              className="flex items-center gap-2 text-xs text-slate-400 dark:text-slate-400 hover:text-emerald-500 transition-colors"
             >
+              <Mail size={16} />
               juangutierrezdelaconcha@mindbride.net
             </a>
             <a
               href="https://instagram.com/mindbridgeia"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-[10px] sm:text-xs text-slate-400 dark:text-slate-500 hover:text-emerald-500 transition-colors"
+              className="flex items-center gap-2 text-xs text-slate-400 dark:text-slate-400 hover:text-emerald-500 transition-colors"
             >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></svg>
               @mindbridgeia
             </a>
           </div>
