@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { getSupabaseClient } from '@/lib/supabaseAdmin'
+import ReplyForm from '@/components/admin/ReplyForm'
 
 const supabase = getSupabaseClient()
 
@@ -116,15 +117,9 @@ export default function BudgetsPage() {
                       <p className="text-slate-700 whitespace-pre-wrap">{req.additional_info}</p>
                     </div>
                   )}
-                  <div className="col-span-2 flex gap-3 mt-2">
-                    <a
-                      href={`mailto:${req.email}?subject=Presupuesto Mindbridge IA`}
-                      className="text-sm bg-emerald-600 hover:bg-emerald-500 text-slate-900 px-4 py-2 rounded-lg transition-colors"
-                    >
-                      Responder por email
-                    </a>
+                  <div className="col-span-2 mt-2">
+                    <ReplyForm to={req.email} name={req.name} defaultSubject="Presupuesto Mindbridge IA" />
                   </div>
-                </div>
               )}
             </div>
           ))

@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { getSupabaseClient } from '@/lib/supabaseAdmin'
+import ReplyForm from '@/components/admin/ReplyForm'
 
 const supabase = getSupabaseClient()
 
@@ -101,14 +102,7 @@ export default function MessagesPage() {
               {expanded === msg.id && (
                 <div className="px-5 pb-5 border-t border-slate-200 pt-4">
                   <p className="text-slate-600 text-sm whitespace-pre-wrap">{msg.body}</p>
-                  <div className="mt-4 flex gap-3">
-                    <a
-                      href={`mailto:${msg.email}?subject=Re: Tu consulta en Mindbridge IA`}
-                      className="text-sm bg-emerald-600 hover:bg-emerald-500 text-slate-900 px-4 py-2 rounded-lg transition-colors"
-                    >
-                      Responder por email
-                    </a>
-                  </div>
+                  <ReplyForm to={msg.email} name={msg.name} />
                 </div>
               )}
             </div>

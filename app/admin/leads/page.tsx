@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { getSupabaseClient } from '@/lib/supabaseAdmin'
+import ReplyForm from '@/components/admin/ReplyForm'
 
 const supabase = getSupabaseClient()
 
@@ -118,13 +119,7 @@ export default function LeadsPage() {
                       ) : (
                         <p className="text-slate-400 text-sm italic mb-4">Sin mensaje</p>
                       )}
-                      <a
-                        href={`mailto:${lead.email}?subject=Re: Tu consulta en Mindbridge IA&body=Hola ${lead.name},%0A%0A`}
-                        onClick={() => updateStatus(lead.id, 'contacted')}
-                        className="inline-flex items-center gap-2 text-sm bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-lg transition-colors"
-                      >
-                        Responder por email
-                      </a>
+                      <ReplyForm to={lead.email} name={lead.name} />
                     </div>
                   )}
                 </div>
