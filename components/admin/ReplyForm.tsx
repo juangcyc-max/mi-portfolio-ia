@@ -1,7 +1,6 @@
 'use client'
 
 import { useState } from 'react'
-import { getSupabaseClient } from '@/lib/supabaseAdmin'
 
 interface ReplyFormProps {
   to: string
@@ -21,25 +20,24 @@ export default function ReplyForm({ to, name, defaultSubject }: ReplyFormProps) 
     setSending(true)
     setError('')
 
-    const supabase = getSupabaseClient()
-    const { data: { session } } = await supabase.auth.getSession()
+    try {
+      const res = await fetch('/api/admin/reply', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ to, name, subject, body }),
+      })
 
-    const res = await fetch('/api/admin/reply', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${session?.access_token}`,
-      },
-      body: JSON.stringify({ to, name, subject, body }),
-    })
+      const data = await res.json()
+      setSending(false)
 
-    const data = await res.json()
-    setSending(false)
-
-    if (data.success) {
-      setSent(true)
-    } else {
-      setError(data.error || 'Error al enviar')
+      if (data.success) {
+        setSent(true)
+      } else {
+        setError(data.error || 'Error al enviar')
+      }
+    } catch {
+      setSending(false)
+      setError('Error de conexión')
     }
   }
 

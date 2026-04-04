@@ -1,22 +1,10 @@
 import { NextResponse } from 'next/server'
 import { Resend } from 'resend'
-import { createClient } from '@supabase/supabase-js'
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
 
 export async function POST(request: Request) {
   try {
-    // Verificar sesión admin
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!
-    )
-    const authHeader = request.headers.get('authorization')
-    if (!authHeader) return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
-
-    const { data: { user } } = await supabase.auth.getUser(authHeader.replace('Bearer ', ''))
-    if (!user) return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
-
     const { to, name, subject, body } = await request.json()
     if (!to || !name || !body) {
       return NextResponse.json({ error: 'Faltan campos obligatorios' }, { status: 400 })
