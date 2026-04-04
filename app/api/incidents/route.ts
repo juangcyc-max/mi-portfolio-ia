@@ -25,7 +25,7 @@ export async function POST(request: Request) {
     let resolvedByAI = false
 
     try {
-      const { text } = await generateText({
+      const aiCall = generateText({
         model: anthropic('claude-haiku-4-5-20251001'),
         system: `Eres el sistema de soporte técnico de Mindbridge IA.
 Analiza incidencias de clientes y determina si puedes resolverlas automáticamente.
@@ -53,6 +53,10 @@ Servicio afectado: ${service || 'No especificado'}
 Urgencia: ${priority}
 Problema: ${description}`,
       })
+      const timeout = new Promise<{ text: string }>((_, reject) =>
+        setTimeout(() => reject(new Error('AI timeout')), 7000)
+      )
+      const { text } = await Promise.race([aiCall, timeout])
 
       if (text.trim() === 'ESCALAR') {
         resolvedByAI = false
@@ -77,7 +81,8 @@ Problema: ${description}`,
     })
 
     // Email a Juan (siempre)
-    const priorityLabel = { normal: 'Normal', high: 'Alta', urgent: '🚨 URGENTE' }[priority] || priority
+    const priorityMap: Record<string, string> = { normal: 'Normal', high: 'Alta', urgent: '🚨 URGENTE' }
+    const priorityLabel = priorityMap[priority] || priority
     await resend.emails.send({
       from: 'Soporte Mindbridge IA <hola@mindbride.net>',
       to: ['juangutierrezdelaconcha@mindbride.net'],
