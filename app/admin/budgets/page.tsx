@@ -120,6 +120,7 @@ export default function BudgetsPage() {
                   <div className="col-span-2 mt-2">
                     <ReplyForm to={req.email} name={req.name} defaultSubject="Presupuesto Mindbridge IA" />
                   </div>
+                </div>
               )}
             </div>
           ))
