@@ -90,10 +90,6 @@ Say: "This sounds like a great fit — let me connect you with Juan directly. Dr
 
 export async function POST(request: Request) {
   try {
-    const supabaseAdmin = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-    );
     const ip = request.headers.get("x-forwarded-for") ?? "unknown";
     if (!rateLimit(ip, 20, 60_000)) {
       return Response.json({ error: "rate_limit", debug: "Demasiadas solicitudes" }, { status: 429 });
@@ -128,6 +124,10 @@ export async function POST(request: Request) {
 
     // Guardar conversación y mensajes en Supabase
     try {
+      const supabaseAdmin = createClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+      );
       const lastUserMsg = valid[valid.length - 1];
 
       // Crear conversación si es el primer mensaje
