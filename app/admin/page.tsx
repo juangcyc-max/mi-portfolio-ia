@@ -72,6 +72,8 @@ export default function AdminDashboard() {
           <NavCard href="/admin/messages" title="Mensajes" description="Bandeja de mensajes del formulario" />
           <NavCard href="/admin/budgets" title="Presupuestos" description="Solicitudes y propuestas generadas" />
           <NavCard href="/admin/conversations" title="Conversaciones" description="Chats del asistente IA" />
+          <NavCard href="/admin/ai-replies" title="Respuestas IA" description="Emails generados automáticamente por IA" />
+          <NavCard href="/admin/incidents" title="Incidencias" description="Soporte técnico de clientes" />
         </div>
       </div>
     </div>

@@ -2,8 +2,9 @@
 import { NextResponse } from "next/server";
 import { Resend } from "resend";
 import { createClient } from "@supabase/supabase-js";
+import { generateText } from "ai";
+import { anthropic } from "@ai-sdk/anthropic";
 import { rateLimit } from "@/lib/rateLimit";
-import { confirmacionContactoHtml } from "@/lib/emails/confirmacion-contacto";
 
 
 // IMPORTANTE: En producción, NEXT_PUBLIC_SITE_URL debe ser tu dominio real (ej. https://mindbridge.ia)
@@ -135,13 +136,69 @@ export async function POST(request: Request) {
       );
     }
 
-    // Email de confirmación al cliente
+    // Generar respuesta IA personalizada
+    let aiResponse = `Hola ${name},\n\nGracias por contactar con Mindbridge IA. He recibido tu mensaje y te responderé en menos de 24 horas.\n\nUn saludo,\nJuan · Mindbridge IA`;
+    try {
+      const { text } = await generateText({
+        model: anthropic("claude-haiku-4-5-20251001"),
+        system: `Eres el asistente de Mindbridge IA, agencia digital de Juan Gutiérrez de la Concha en España.
+Respondes emails de clientes potenciales de forma profesional, cálida y directa.
+SERVICIOS Y PRECIOS:
+- Plan Lanzamiento: €990 setup + €79/mes (landing, formulario, WhatsApp, 1 automatización)
+- Plan Negocio: €2.490 setup + €149/mes (web multipágina, CRM, chatbot IA, 3 automatizaciones)
+- Plan Empresa: €4.990+ setup + €299/mes (infraestructura completa, automatizaciones ilimitadas)
+- Extras: SEO €400, Chatbot avanzado €600, Analytics €300, CMS €500, Multiidioma €450
+NORMAS:
+- Responde siempre en español
+- Sé cálido pero profesional, como un experto de confianza
+- Si preguntan por precio, da la información concreta
+- Máximo 3 párrafos cortos
+- Termina siempre con: "Un saludo,\nJuan · Mindbridge IA\nmindbride.net"
+- NO pongas asunto en el texto, solo el cuerpo del email`,
+        prompt: `El cliente ${name} ha enviado este mensaje desde el formulario de contacto:\n\n"${message}"\n\nEscribe una respuesta personalizada que responda a su consulta específica.`,
+      });
+      aiResponse = text;
+    } catch (aiError) {
+      console.error("Error generando respuesta IA:", aiError);
+    }
+
+    // Construir HTML del email de respuesta
+    const aiEmailHtml = `
+<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"></head>
+<body style="margin:0;padding:0;font-family:system-ui,sans-serif;background:#f8fafc;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f8fafc;padding:40px 20px;">
+    <tr><td align="center">
+      <table style="max-width:600px;width:100%;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,0.08);">
+        <tr><td style="padding:28px 24px;text-align:center;border-bottom:2px solid #e2e8f0;">
+          <img src="${logoUrl}" alt="Mindbridge IA" width="160" style="max-width:160px;height:auto;display:block;margin:0 auto;" />
+        </td></tr>
+        <tr><td style="padding:32px 24px;">
+          <div style="font-size:15px;color:#334155;line-height:1.8;white-space:pre-wrap;">${aiResponse.replace(/\n/g, '<br/>')}</div>
+        </td></tr>
+        <tr><td style="background:#f8fafc;padding:16px 24px;text-align:center;border-top:1px solid #e2e8f0;">
+          <p style="margin:0;font-size:11px;color:#94a3b8;">Mindbridge IA · Cantabria, España · <a href="${SITE_URL}" style="color:#10b981;text-decoration:none;">${SITE_URL.replace('https://','')}</a></p>
+        </td></tr>
+      </table>
+    </td></tr>
+  </table>
+</body></html>`;
+
     await resend.emails.send({
       from: "Juan · Mindbridge IA <hola@mindbride.net>",
       to: [email],
-      subject: `He recibido tu mensaje, ${name} ✅`,
-      html: confirmacionContactoHtml({ name }),
-      text: `Hola ${name}, he recibido tu mensaje y te responderé en menos de 24 horas. Un saludo, Juan · Mindbridge IA`,
+      subject: `Re: Tu consulta en Mindbridge IA`,
+      html: aiEmailHtml,
+      text: aiResponse,
+    });
+
+    // Guardar respuesta IA en Supabase
+    await supabaseAdmin.from("ai_replies").insert({
+      to_email: email,
+      to_name: name,
+      original_message: message,
+      ai_response: aiResponse,
+      subject: `Re: Tu consulta en Mindbridge IA`,
+      source: "contact_form",
     });
 
     // Guardar lead y mensaje en Supabase
