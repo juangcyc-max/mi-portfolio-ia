@@ -15,17 +15,21 @@ export default function AdminDashboard() {
     pendingBudgets: 0,
     conversations: 0,
     pageViews: 0,
+    aiReplies: 0,
+    incidents: 0,
   })
 
   useEffect(() => {
     async function loadStats() {
-      const [{ count: leads }, { count: unreadMessages }, { count: pendingBudgets }, { count: conversations }, { count: pageViews }] =
+      const [{ count: leads }, { count: unreadMessages }, { count: pendingBudgets }, { count: conversations }, { count: pageViews }, { count: aiReplies }, { count: incidents }] =
         await Promise.all([
           supabase.from('leads').select('*', { count: 'exact', head: true }),
           supabase.from('messages').select('*', { count: 'exact', head: true }).eq('status', 'unread'),
           supabase.from('budget_requests').select('*', { count: 'exact', head: true }).eq('status', 'pending'),
           supabase.from('conversations').select('*', { count: 'exact', head: true }),
           supabase.from('page_views').select('*', { count: 'exact', head: true }),
+          supabase.from('ai_replies').select('*', { count: 'exact', head: true }),
+          supabase.from('incidents').select('*', { count: 'exact', head: true }).eq('status', 'open'),
         ])
       setStats({
         leads: leads || 0,
@@ -33,6 +37,8 @@ export default function AdminDashboard() {
         pendingBudgets: pendingBudgets || 0,
         conversations: conversations || 0,
         pageViews: pageViews || 0,
+        aiReplies: aiReplies || 0,
+        incidents: incidents || 0,
       })
     }
     loadStats()
@@ -58,12 +64,14 @@ export default function AdminDashboard() {
 
       <div className="p-6 max-w-5xl mx-auto">
         {/* Stats */}
-        <div className="grid grid-cols-2 sm:grid-cols-5 gap-4 mb-8">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
           <StatCard label="Leads" value={stats.leads} color="emerald" />
           <StatCard label="Sin leer" value={stats.unreadMessages} color="yellow" />
           <StatCard label="Presupuestos" value={stats.pendingBudgets} color="blue" />
           <StatCard label="Conversaciones" value={stats.conversations} color="purple" />
           <StatCard label="Visitas web" value={stats.pageViews} color="pink" />
+          <StatCard label="Resp. IA" value={stats.aiReplies} color="indigo" />
+          <StatCard label="Incidencias abiertas" value={stats.incidents} color="red" />
         </div>
 
         {/* Nav */}
@@ -87,6 +95,8 @@ function StatCard({ label, value, color }: { label: string; value: number; color
     blue: 'text-blue-400',
     purple: 'text-purple-400',
     pink: 'text-pink-400',
+    indigo: 'text-indigo-400',
+    red: 'text-red-400',
   }
   return (
     <div className="bg-white border border-slate-200 rounded-xl p-5">

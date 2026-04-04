@@ -11,6 +11,7 @@ interface Message {
   ts: number;
 }
 
+
 // Detect dominant language of a string
 function detectLang(text: string): "es" | "en" {
   const esWords = /\b(hola|qué|cómo|para|tengo|quiero|necesito|gracias|puedo|este|esta|pero|cuando|precio|servicio|negocio|empresa|web|ayuda|buenas|bueno|tienes|también|más|información|quisiera|cuánto|dónde|hace|estoy)\b/i;
@@ -37,6 +38,9 @@ export default function ChatBox() {
   const [input, setInput] = useState("");
   const [isTyping, setIsTyping] = useState(false);
   const [conversationId, setConversationId] = useState<string | null>(null);
+  const [incident, setIncident] = useState<{ id: string; submitted: boolean } | null>(null);
+  const [incidentForm, setIncidentForm] = useState({ name: "", email: "" });
+  const [incidentSending, setIncidentSending] = useState(false);
   const sessionId = useRef<string>(`session-${Date.now()}-${Math.random().toString(36).slice(2)}`);
   const bottomRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -113,19 +117,39 @@ export default function ChatBox() {
       setIsTyping(false);
 
       if (data.error || !data.text) {
-        // Show debug info in development so we know exactly what failed
         const debugMsg = data.debug ? `\n\n_(debug: ${data.debug})_` : "";
         await animateText(OFFLINE[detected] + debugMsg);
         return;
       }
 
       await animateText(data.text);
+
+      if (data.incidentDetected && data.incidentId && !incident) {
+        setIncident({ id: data.incidentId, submitted: false });
+      }
     } catch (fetchErr: any) {
       console.error("[ChatBox] fetch error:", fetchErr?.message);
       setIsTyping(false);
       await animateText(OFFLINE[detected]);
     }
   }, [input, isTyping, messages, animateText]);
+
+  const submitIncidentEmail = async () => {
+    if (!incident || !incidentForm.email.includes("@")) return;
+    setIncidentSending(true);
+    try {
+      await fetch("/api/chat/incident-email", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ incidentId: incident.id, name: incidentForm.name, email: incidentForm.email }),
+      });
+      setIncident({ ...incident, submitted: true });
+    } catch {
+      // silent
+    } finally {
+      setIncidentSending(false);
+    }
+  };
 
   const clearChat = () => {
     abortRef.current = true;
@@ -268,6 +292,43 @@ export default function ChatBox() {
 
         <div ref={bottomRef} />
       </div>
+
+      {/* ── Incident capture panel ── */}
+      {incident && !incident.submitted && (
+        <div className="mx-4 mb-3 p-4 rounded-2xl border border-yellow-500/30 bg-yellow-500/5 flex-shrink-0">
+          <p className="text-xs text-yellow-400 font-semibold mb-2">Hemos registrado tu incidencia. Déjanos tu email para enviarte confirmación:</p>
+          <div className="flex flex-col gap-2">
+            <input
+              type="text"
+              placeholder="Tu nombre"
+              value={incidentForm.name}
+              onChange={e => setIncidentForm(f => ({ ...f, name: e.target.value }))}
+              className="bg-slate-800 text-slate-100 text-sm rounded-xl px-3 py-2 outline-none border border-white/10 focus:border-yellow-500/50 placeholder-slate-500"
+            />
+            <div className="flex gap-2">
+              <input
+                type="email"
+                placeholder="tu@email.com"
+                value={incidentForm.email}
+                onChange={e => setIncidentForm(f => ({ ...f, email: e.target.value }))}
+                className="flex-1 bg-slate-800 text-slate-100 text-sm rounded-xl px-3 py-2 outline-none border border-white/10 focus:border-yellow-500/50 placeholder-slate-500"
+              />
+              <button
+                onClick={submitIncidentEmail}
+                disabled={incidentSending || !incidentForm.email.includes("@")}
+                className="px-4 py-2 bg-yellow-500 hover:bg-yellow-400 disabled:opacity-40 text-slate-900 text-sm font-semibold rounded-xl transition-colors"
+              >
+                {incidentSending ? "..." : "Enviar"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {incident?.submitted && (
+        <div className="mx-4 mb-3 p-3 rounded-2xl border border-emerald-500/30 bg-emerald-500/5 flex-shrink-0">
+          <p className="text-xs text-emerald-400 font-semibold">Confirmación enviada a {incidentForm.email}. Juan te contactará pronto.</p>
+        </div>
+      )}
 
       {/* ── Input ── */}
       <div className="px-4 pb-4 pt-3 border-t border-white/10 flex-shrink-0 bg-slate-900/60">
