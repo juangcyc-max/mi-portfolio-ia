@@ -6,11 +6,12 @@ interface ReplyFormProps {
   to: string
   name: string
   defaultSubject?: string
+  defaultBody?: string
 }
 
-export default function ReplyForm({ to, name, defaultSubject }: ReplyFormProps) {
+export default function ReplyForm({ to, name, defaultSubject, defaultBody }: ReplyFormProps) {
   const [subject, setSubject] = useState(defaultSubject || `Re: Tu consulta en Mindbridge IA`)
-  const [body, setBody] = useState(`Gracias por contactar con Mindbridge IA.\n\n`)
+  const [body, setBody] = useState(defaultBody || `Gracias por contactar con Mindbridge IA.\n\n`)
   const [sending, setSending] = useState(false)
   const [sent, setSent] = useState(false)
   const [error, setError] = useState('')
