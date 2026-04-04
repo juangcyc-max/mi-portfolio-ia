@@ -112,11 +112,17 @@ export default function IncidentsPage() {
                   {inc.status !== 'resolved' && (
                     <div>
                       <p className="text-xs text-slate-400 mb-2">Responder manualmente</p>
-                      <ReplyForm
-                        to={inc.client_email}
-                        name={inc.client_name}
-                        defaultSubject={`Re: Tu incidencia en Mindbridge IA`}
-                      />
+                      {!inc.client_email || inc.client_email === 'pendiente' ? (
+                        <p className="text-xs text-yellow-600 bg-yellow-50 border border-yellow-200 rounded-lg px-3 py-2">
+                          El cliente aún no ha proporcionado su email. Cuando lo facilite desde el chat, aparecerá aquí.
+                        </p>
+                      ) : (
+                        <ReplyForm
+                          to={inc.client_email}
+                          name={inc.client_name}
+                          defaultSubject={`Re: Tu incidencia en Mindbridge IA`}
+                        />
+                      )}
                     </div>
                   )}
                 </div>

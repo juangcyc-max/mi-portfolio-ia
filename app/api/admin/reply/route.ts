@@ -9,6 +9,9 @@ export async function POST(request: Request) {
     if (!to || !name || !body) {
       return NextResponse.json({ error: 'Faltan campos obligatorios' }, { status: 400 })
     }
+    if (!to.includes('@')) {
+      return NextResponse.json({ error: 'Email del destinatario no válido. El cliente no ha proporcionado su email todavía.' }, { status: 400 })
+    }
 
     const resend = new Resend(process.env.RESEND_API_KEY)
     const logoUrl = `${SITE_URL}/logo.svg`
