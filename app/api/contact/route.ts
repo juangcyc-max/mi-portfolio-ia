@@ -166,6 +166,25 @@ export async function POST(request: Request) {
       });
     }
 
+    // Enviar notificación push al móvil admin
+    try {
+      const { data: tokens } = await supabaseAdmin.from('push_tokens').select('token');
+      if (tokens && tokens.length > 0) {
+        await fetch('https://exp.host/--/api/v2/push/send', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(tokens.map((t: { token: string }) => ({
+            to: t.token,
+            title: `Nuevo mensaje de ${name}`,
+            body: message.slice(0, 100),
+            sound: 'default',
+          }))),
+        });
+      }
+    } catch (pushError) {
+      console.error('Error enviando push:', pushError);
+    }
+
     return NextResponse.json(
       { success: true, message: "Email enviado correctamente" },
       { status: 200 }
