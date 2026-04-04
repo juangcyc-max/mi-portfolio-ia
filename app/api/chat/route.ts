@@ -92,7 +92,7 @@ export async function POST(request: Request) {
   try {
     const supabaseAdmin = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
     );
     const ip = request.headers.get("x-forwarded-for") ?? "unknown";
     if (!rateLimit(ip, 20, 60_000)) {
