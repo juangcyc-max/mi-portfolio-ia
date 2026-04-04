@@ -4,6 +4,7 @@ import "./globals.css";
 import ThemeProvider from "@/components/ThemeProvider";
 import CustomScrollbar from "@/components/CustomScrollbar";
 import { LanguageProvider } from "@/lib/i18n/LanguageContext";
+import PageViewTracker from "@/components/PageViewTracker";
 
 /* ============================================ */
 /* FUENTE PRINCIPAL */
@@ -128,6 +129,7 @@ export default function RootLayout({
           
           {/* ✅ Contenido principal */}
           <LanguageProvider>
+            <PageViewTracker />
             {children}
           </LanguageProvider>
         </ThemeProvider>
