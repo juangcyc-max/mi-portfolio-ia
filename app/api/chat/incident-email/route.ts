@@ -16,13 +16,14 @@ export async function POST(request: Request) {
     const resend = new Resend(process.env.RESEND_API_KEY)
 
     // Update incident with real client data
-    await supabase
+    const { error: updateError } = await supabase
       .from('incidents')
       .update({ client_name: name || 'Visitante', client_email: email })
       .eq('id', incidentId)
+    if (updateError) console.error('incident update error:', updateError)
 
     // Confirmation email to client
-    await resend.emails.send({
+    const { error: emailError } = await resend.emails.send({
       from: 'Soporte · Mindbridge IA <hola@mindbride.net>',
       to: [email],
       subject: 'Incidencia recibida — Estamos en ello',
@@ -53,6 +54,11 @@ export async function POST(request: Request) {
   </table>
 </body></html>`,
     })
+
+    if (emailError) {
+      console.error('Resend error in incident-email:', emailError)
+      return NextResponse.json({ error: 'Error enviando email', detail: emailError }, { status: 500 })
+    }
 
     return NextResponse.json({ success: true })
   } catch (err) {

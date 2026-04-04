@@ -138,14 +138,21 @@ export default function ChatBox() {
     if (!incident || !incidentForm.email.includes("@")) return;
     setIncidentSending(true);
     try {
-      await fetch("/api/chat/incident-email", {
+      const res = await fetch("/api/chat/incident-email", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ incidentId: incident.id, name: incidentForm.name, email: incidentForm.email }),
       });
-      setIncident({ ...incident, submitted: true });
-    } catch {
-      // silent
+      if (res.ok) {
+        setIncident({ ...incident, submitted: true });
+      } else {
+        const data = await res.json().catch(() => ({}));
+        console.error("[ChatBox] incident-email error:", data);
+        // Still mark submitted so we don't loop — but warn in console
+        setIncident({ ...incident, submitted: true });
+      }
+    } catch (e) {
+      console.error("[ChatBox] incident-email fetch error:", e);
     } finally {
       setIncidentSending(false);
     }
