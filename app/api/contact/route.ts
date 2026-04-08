@@ -176,7 +176,12 @@ NORMAS:
           <div style="font-size:15px;color:#334155;line-height:1.8;white-space:pre-wrap;">${aiResponse.replace(/\n/g, '<br/>')}</div>
         </td></tr>
         <tr><td style="background:#f8fafc;padding:16px 24px;text-align:center;border-top:1px solid #e2e8f0;">
-          <p style="margin:0;font-size:11px;color:#94a3b8;">Mindbridge IA · Cantabria, España · <a href="${SITE_URL}" style="color:#10b981;text-decoration:none;">${SITE_URL.replace('https://','')}</a></p>
+          <p style="margin:0;font-size:12px;color:#64748b;line-height:1.8;">
+            <strong style="color:#0f172a;">Juan · Mindbridge IA</strong><br/>
+            🌐 <a href="${SITE_URL}" style="color:#10b981;text-decoration:none;">${SITE_URL.replace('https://','')}</a> &nbsp;·&nbsp;
+            📱 <a href="https://wa.me/34613096449" style="color:#10b981;text-decoration:none;">+34 613 096 449</a><br/>
+            📸 <a href="https://www.instagram.com/mindbridgeia/" style="color:#10b981;text-decoration:none;">@mindbridgeia</a>
+          </p>
         </td></tr>
       </table>
     </td></tr>
