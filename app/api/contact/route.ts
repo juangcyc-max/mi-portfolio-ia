@@ -223,6 +223,17 @@ NORMAS:
       });
     }
 
+    // Enviar notificación a n8n (Telegram)
+    try {
+      await fetch("https://n8n.mindbride.net/webhook/8d91e476-8714-4bbd-875d-39cf41d974a6", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, email, message, projectType, budget }),
+      });
+    } catch (n8nError) {
+      console.error("Error enviando a n8n:", n8nError);
+    }
+
     // Enviar notificación push al móvil admin
     try {
       const { data: tokens } = await supabaseAdmin.from('push_tokens').select('token');
