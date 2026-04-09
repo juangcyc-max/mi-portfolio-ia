@@ -6,9 +6,9 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: "*",
         allow: "/",
-        disallow: ["/admin/", "/api/"],
+        disallow: ["/admin/", "/api/", "/_next/"],
       },
     ],
-    sitemap: "https://mindbride.net/sitemap.xml",
+    sitemap: "https://www.mindbride.net/sitemap.xml",
   };
 }

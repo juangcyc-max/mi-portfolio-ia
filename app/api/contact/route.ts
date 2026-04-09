@@ -239,6 +239,17 @@ NORMAS:
       console.error("Error enviando a n8n:", n8nError);
     }
 
+    // Guardar lead en Google Sheets
+    try {
+      await fetch("https://n8n.mindbride.net/webhook/fb1526ce-8728-4040-91ca-46edbc603801", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, email, message, projectType, budget }),
+      });
+    } catch (sheetsError) {
+      console.error("Error enviando a Google Sheets:", sheetsError);
+    }
+
     // Enviar notificación push al móvil admin
     try {
       const { data: tokens } = await supabaseAdmin.from('push_tokens').select('token');
