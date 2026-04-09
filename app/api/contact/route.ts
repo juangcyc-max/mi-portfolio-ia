@@ -189,7 +189,7 @@ NORMAS:
 </body></html>`;
 
     await resend.emails.send({
-      from: "Juan · Mindbridge IA <hola@mindbride.net>",
+      from: "Juan · Mindbridge IA <juangutierrezdelaconcha@mindbride.net>",
       to: [email],
       subject: `Re: Tu consulta en Mindbridge IA`,
       html: aiEmailHtml,
