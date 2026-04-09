@@ -153,7 +153,7 @@ NORMAS:
 - Sé cálido pero profesional, como un experto de confianza
 - Si preguntan por precio, da la información concreta
 - Máximo 3 párrafos cortos
-- Termina siempre con: "Un saludo,\nJuan · Mindbridge IA\nmindbride.net"
+- Termina siempre con exactamente esto (sin cambiar nada): "Un saludo,\nJuan · Mindbridge IA\nwww.mindbride.net"\n- IMPORTANTE: el dominio es mindbride.net (sin la 'g'), nunca escribas mindbridge.net
 - NO pongas asunto en el texto, solo el cuerpo del email`,
         prompt: `El cliente ${name} ha enviado este mensaje desde el formulario de contacto:\n\n"${message}"\n\nEscribe una respuesta personalizada que responda a su consulta específica.`,
       });
