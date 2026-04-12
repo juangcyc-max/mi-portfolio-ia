@@ -5,6 +5,7 @@ import ThemeProvider from "@/components/ThemeProvider";
 import CustomScrollbar from "@/components/CustomScrollbar";
 import { LanguageProvider } from "@/lib/i18n/LanguageContext";
 import PageViewTracker from "@/components/PageViewTracker";
+import CookieBanner from "@/components/CookieBanner";
 
 /* ============================================ */
 /* FUENTE PRINCIPAL */
@@ -131,6 +132,7 @@ export default function RootLayout({
           <LanguageProvider>
             <PageViewTracker />
             {children}
+            <CookieBanner />
           </LanguageProvider>
         </ThemeProvider>
       </body>
