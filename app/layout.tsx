@@ -25,7 +25,7 @@ const publicSans = Public_Sans({
 /* ============================================ */
 
 export const metadataBase = new URL(
-  process.env.NEXT_PUBLIC_SITE_URL || "https://www.mindbride.net"
+  process.env.NEXT_PUBLIC_SITE_URL || "https://mindbride.net"
 );
 
 /* ============================================ */
@@ -70,7 +70,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "es_ES",
-    url: "https://www.mindbride.net",
+    url: "https://mindbride.net",
     siteName: "Mindbridge IA",
     title: "Mindbridge IA | Desarrollo Web + Inteligencia Artificial",
     description: "Desarrollo web de élite y automatizaciones con IA integrada para empresas.",
