@@ -53,6 +53,9 @@ export const metadata: Metadata = {
   authors: [{ name: "Mindbridge IA" }],
   creator: "Mindbridge IA",
   publisher: "Mindbridge IA",
+  alternates: {
+    canonical: "https://mindbride.net",
+  },
   robots: {
     index: true,
     follow: true,
