@@ -83,16 +83,21 @@ async function descargarPDF(f: Factura) {
   const slate50: [number, number, number] = [248, 250, 252]
   const white: [number, number, number] = [255, 255, 255]
 
-  // ── Cargar logo como base64
+  // ── Cargar logo como base64 via canvas
   let logoBase64: string | null = null
   try {
-    const res = await fetch('/logo.png')
-    const blob = await res.blob()
     logoBase64 = await new Promise<string>((resolve, reject) => {
-      const reader = new FileReader()
-      reader.onloadend = () => resolve(reader.result as string)
-      reader.onerror = reject
-      reader.readAsDataURL(blob)
+      const img = new window.Image()
+      img.crossOrigin = 'anonymous'
+      img.onload = () => {
+        const canvas = document.createElement('canvas')
+        canvas.width = img.naturalWidth
+        canvas.height = img.naturalHeight
+        canvas.getContext('2d')!.drawImage(img, 0, 0)
+        resolve(canvas.toDataURL('image/png'))
+      }
+      img.onerror = reject
+      img.src = '/logo.png'
     })
   } catch { /* si falla, continúa sin logo */ }
 
