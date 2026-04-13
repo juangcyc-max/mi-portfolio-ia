@@ -91,6 +91,10 @@ export default function Footer() {
             </Link>
           </nav>
 
+          <p className="text-[10px] text-slate-400 dark:text-slate-600 text-center">
+            Mindbridge IA opera bajo el dominio <span className="font-medium text-slate-500 dark:text-slate-500">mindbride.net</span>
+          </p>
+
         </div>
       </div>
     </footer>
