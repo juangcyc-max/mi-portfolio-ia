@@ -206,14 +206,24 @@ export const ES_STRINGS = {
   tech_title: "Stack Tecnológico de Vanguardia",
 
   // Portfolio
-  port_badge:    "Portafolio Conceptual",
+  port_badge:    "Clientes y Demos",
   port_title1:   "Esto es lo que puedo construir",
   port_title2:   "para ti",
-  port_subtitle: "Estos son ejemplos de proyectos que puedo desarrollar. Cada uno está diseñado para resolver problemas reales de negocios como el tuyo.",
+  port_subtitle: "Proyectos entregados a clientes reales y demos funcionales. Cada solución diseñada para resolver problemas concretos de negocio.",
   port_cta:      "Hablemos de tu proyecto",
 
+  port_p0_title: "Persianas Santander",
+  port_p0_cat:   "Caso Real · Cliente",
+  port_p0_desc:  "Web multipágina, panel de administración propio y sistema SaaS con facturación integrada para empresa de persianas en Santander.",
+  port_p0_f1:    "Web multipágina",
+  port_p0_f2:    "Panel de administración",
+  port_p0_f3:    "SaaS + Facturación",
+  port_p0_m1:    "Reseñas",
+  port_p0_m2:    "Módulos",
+  port_p0_m3:    "Activo",
+
   port_p1_title:    "E-Commerce Fashion IA",
-  port_p1_cat:      "Comercio electrónico + IA",
+  port_p1_cat:      "Demo · E-commerce IA",
   port_p1_desc:     "Tienda online con recomendaciones personalizadas mediante IA.",
   port_p1_f1:       "Recomendaciones IA",
   port_p1_f2:       "Carrito inteligente",
@@ -223,7 +233,7 @@ export const ES_STRINGS = {
   port_p1_m3:       "Velocidad",
 
   port_p2_title:    "Dashboard SaaS Analytics",
-  port_p2_cat:      "Panel + Data",
+  port_p2_cat:      "Demo · SaaS Analytics",
   port_p2_desc:     "Panel SaaS con métricas en tiempo real y reportes con IA.",
   port_p2_f1:       "Métricas en vivo",
   port_p2_f2:       "Alertas automáticas",
@@ -233,7 +243,7 @@ export const ES_STRINGS = {
   port_p2_m3:       "API",
 
   port_p3_title:    "Landing Conversión",
-  port_p3_cat:      "Landing + Marketing",
+  port_p3_cat:      "Demo · Landing",
   port_p3_desc:     "Landing optimizada con A/B testing y automatización marketing.",
   port_p3_f1:       "A/B Testing",
   port_p3_f2:       "Chatbot leads",
@@ -436,14 +446,24 @@ export const EN_STRINGS: UIStrings = {
 
   tech_title: "Cutting-Edge Technology Stack",
 
-  port_badge:    "Conceptual Portfolio",
+  port_badge:    "Clients & Demos",
   port_title1:   "This is what I can build",
   port_title2:   "for you",
-  port_subtitle: "These are examples of projects I can develop. Each one is designed to solve real business problems like yours.",
+  port_subtitle: "Real projects delivered to clients and functional demos. Each solution designed to solve concrete business problems.",
   port_cta:      "Let's talk about your project",
 
+  port_p0_title: "Persianas Santander",
+  port_p0_cat:   "Real Case · Client",
+  port_p0_desc:  "Multi-page website, custom admin panel and SaaS system with integrated billing for a blind company in Santander.",
+  port_p0_f1:    "Multi-page website",
+  port_p0_f2:    "Admin panel",
+  port_p0_f3:    "SaaS + Billing",
+  port_p0_m1:    "Reviews",
+  port_p0_m2:    "Modules",
+  port_p0_m3:    "Live",
+
   port_p1_title:    "E-Commerce Fashion AI",
-  port_p1_cat:      "E-commerce + AI",
+  port_p1_cat:      "Demo · E-commerce AI",
   port_p1_desc:     "Online store with personalized recommendations powered by AI.",
   port_p1_f1:       "AI Recommendations",
   port_p1_f2:       "Smart Cart",
@@ -453,7 +473,7 @@ export const EN_STRINGS: UIStrings = {
   port_p1_m3:       "Speed",
 
   port_p2_title:    "SaaS Analytics Dashboard",
-  port_p2_cat:      "Dashboard + Data",
+  port_p2_cat:      "Demo · SaaS Analytics",
   port_p2_desc:     "SaaS panel with real-time metrics and AI-powered reports.",
   port_p2_f1:       "Live Metrics",
   port_p2_f2:       "Automatic Alerts",
@@ -463,7 +483,7 @@ export const EN_STRINGS: UIStrings = {
   port_p2_m3:       "API",
 
   port_p3_title:    "Conversion Landing",
-  port_p3_cat:      "Landing + Marketing",
+  port_p3_cat:      "Demo · Landing",
   port_p3_desc:     "Optimized landing page with A/B testing and marketing automation.",
   port_p3_f1:       "A/B Testing",
   port_p3_f2:       "Lead Chatbot",

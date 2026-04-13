@@ -11,6 +11,7 @@ type Metric = { label: string; value: number; suffix: string };
 type Project = {
   title: string; category: string; description: string;
   features: string[]; color: string; logo: string; link: string; metrics: Metric[];
+  badge?: string; external?: boolean;
 };
 
 function CountUp({ value, suffix }: { value: number; suffix: string }) {
@@ -37,6 +38,17 @@ export default function Portfolio() {
   const { t } = useTranslation();
 
   const projects: Project[] = [
+    {
+      title: t("port_p0_title"), category: t("port_p0_cat"), description: t("port_p0_desc"),
+      features: [t("port_p0_f1"), t("port_p0_f2"), t("port_p0_f3")],
+      color: "from-amber-500 to-orange-500", logo: "/persianassantanderlogo.png", link: "https://persianassantander.es",
+      external: true, badge: "CASO REAL",
+      metrics: [
+        { label: t("port_p0_m1"), value: 3, suffix: "★" },
+        { label: t("port_p0_m2"), value: 3, suffix: "" },
+        { label: t("port_p0_m3"), value: 100, suffix: "%" },
+      ],
+    },
     {
       title: t("port_p1_title"), category: t("port_p1_cat"), description: t("port_p1_desc"),
       features: [t("port_p1_f1"), t("port_p1_f2"), t("port_p1_f3")],
@@ -118,11 +130,26 @@ export default function Portfolio() {
               >
                 <div className={`absolute -inset-1 bg-gradient-to-r ${project.color} opacity-20 sm:opacity-30 blur-lg sm:blur-xl rounded-2xl group-hover:opacity-50 sm:group-hover:opacity-60 transition duration-500`} />
                 <div className="relative bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 overflow-hidden shadow-xl">
-                  <Link href={project.link} className={`block w-full h-48 sm:h-56 bg-gradient-to-br ${project.color} flex items-center justify-center relative overflow-hidden`}>
-                    <div className="rounded-xl p-6 sm:p-8 shadow-2xl transition-transform duration-500 group-hover:scale-95 bg-white">
-                      <Image src={project.logo} alt={project.title} width={140} height={70} className="object-contain w-32 sm:w-44 md:w-[180px] h-auto" priority={index === 0} />
-                    </div>
-                  </Link>
+                  {project.external ? (
+                    <a href={project.link} target="_blank" rel="noopener noreferrer" className={`block w-full h-48 sm:h-56 bg-gradient-to-br ${project.color} flex items-center justify-center relative overflow-hidden`}>
+                      <div className="rounded-xl p-6 sm:p-8 shadow-2xl transition-transform duration-500 group-hover:scale-95 bg-white">
+                        <Image src={project.logo} alt={project.title} width={140} height={70} className="object-contain w-32 sm:w-44 md:w-[180px] h-auto" priority={index === 0} />
+                      </div>
+                      {project.badge && (
+                        <div className="absolute top-3 left-3">
+                          <span className="px-2.5 py-1 bg-white text-emerald-600 text-[9px] sm:text-[10px] font-black tracking-wider uppercase rounded-full shadow-lg border border-emerald-200">
+                            ✓ {project.badge}
+                          </span>
+                        </div>
+                      )}
+                    </a>
+                  ) : (
+                    <Link href={project.link} className={`block w-full h-48 sm:h-56 bg-gradient-to-br ${project.color} flex items-center justify-center relative overflow-hidden`}>
+                      <div className="rounded-xl p-6 sm:p-8 shadow-2xl transition-transform duration-500 group-hover:scale-95 bg-white">
+                        <Image src={project.logo} alt={project.title} width={140} height={70} className="object-contain w-32 sm:w-44 md:w-[180px] h-auto" priority={index === 0} />
+                      </div>
+                    </Link>
+                  )}
                   <div className="p-4 sm:p-6">
                     <span className={`inline-block px-2 py-1 sm:px-3 sm:py-1 text-[10px] sm:text-xs font-bold rounded-full bg-gradient-to-r ${project.color} text-white mb-3 sm:mb-4 uppercase tracking-wide`}>
                       {project.category}
