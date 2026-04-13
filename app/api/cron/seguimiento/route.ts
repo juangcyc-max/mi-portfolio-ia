@@ -37,7 +37,7 @@ export async function GET(request: Request) {
     let sent = 0;
     for (const lead of leadsToFollow) {
       const { error } = await resend.emails.send({
-        from: "Juan · Mindbridge IA <hola@mindbride.net>",
+        from: "Juan · Mindbridge IA <juangutierrezdelaconcha@mindbride.net>",
         to: [lead.email],
         subject: `¿Sigues interesado, ${lead.name}?`,
         html: seguimientoLeadHtml({ name: lead.name }),

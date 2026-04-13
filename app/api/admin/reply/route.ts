@@ -54,7 +54,7 @@ export async function POST(request: Request) {
 </html>`
 
     const { error } = await resend.emails.send({
-      from: 'Juan · Mindbridge IA <hola@mindbride.net>',
+      from: 'Juan · Mindbridge IA <juangutierrezdelaconcha@mindbride.net>',
       to: [to],
       subject: subject || `Re: Tu consulta en Mindbridge IA`,
       html,

@@ -84,7 +84,7 @@ Problema: ${description}`,
     const priorityMap: Record<string, string> = { normal: 'Normal', high: 'Alta', urgent: '🚨 URGENTE' }
     const priorityLabel = priorityMap[priority] || priority
     await resend.emails.send({
-      from: 'Soporte Mindbridge IA <hola@mindbride.net>',
+      from: 'Soporte Mindbridge IA <juangutierrezdelaconcha@mindbride.net>',
       to: ['juangutierrezdelaconcha@mindbride.net'],
       subject: `[${priorityLabel}] Incidencia de ${name}${resolvedByAI ? ' — Resuelta por IA' : ' — REQUIERE ATENCIÓN'}`,
       html: `
@@ -128,7 +128,7 @@ Problema: ${description}`,
 </body></html>`
 
     await resend.emails.send({
-      from: 'Soporte · Mindbridge IA <hola@mindbride.net>',
+      from: 'Soporte · Mindbridge IA <juangutierrezdelaconcha@mindbride.net>',
       to: [email],
       subject: resolvedByAI ? 'Hemos resuelto tu incidencia' : 'Incidencia recibida — Estamos en ello',
       html: clientEmailHtml,

@@ -78,7 +78,7 @@ export default function SoportePage() {
         } else {
           setMessages(prev => [...prev, {
             role: 'assistant',
-            content: `He registrado tu incidencia y **Juan te contactará en breve** en ${chatEmail}.\n\nSi es urgente, escríbenos a hola@mindbride.net.`
+            content: `He registrado tu incidencia y **Juan te contactará en breve** en ${chatEmail}.\n\nSi es urgente, escríbenos a juangutierrezdelaconcha@mindbride.net.`
           }])
         }
       } else {
@@ -86,7 +86,7 @@ export default function SoportePage() {
       }
     } catch {
       setTyping(false)
-      setMessages(prev => [...prev, { role: 'assistant', content: 'No he podido procesar tu solicitud. Usa el formulario o escríbenos a hola@mindbride.net.' }])
+      setMessages(prev => [...prev, { role: 'assistant', content: 'No he podido procesar tu solicitud. Usa el formulario o escríbenos a juangutierrezdelaconcha@mindbride.net.' }])
     }
   }
 

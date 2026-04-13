@@ -156,7 +156,7 @@ export async function POST(request: Request) {
         // Email a Juan
         const resend = new Resend(process.env.RESEND_API_KEY);
         resend.emails.send({
-          from: "MI3.0 · Mindbridge IA <hola@mindbride.net>",
+          from: "MI3.0 · Mindbridge IA <juangutierrezdelaconcha@mindbride.net>",
           to: ["juangutierrezdelaconcha@mindbride.net"],
           subject: `⚠️ Incidencia detectada en el chat web`,
           html: `<div style="font-family:system-ui,sans-serif;max-width:600px;margin:0 auto;padding:20px;">

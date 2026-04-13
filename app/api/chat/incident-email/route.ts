@@ -24,7 +24,7 @@ export async function POST(request: Request) {
 
     // Confirmation email to client
     const { error: emailError } = await resend.emails.send({
-      from: 'Soporte · Mindbridge IA <hola@mindbride.net>',
+      from: 'Soporte · Mindbridge IA <juangutierrezdelaconcha@mindbride.net>',
       to: [email],
       subject: 'Incidencia recibida — Estamos en ello',
       html: `<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"></head>
