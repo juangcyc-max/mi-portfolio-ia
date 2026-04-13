@@ -86,9 +86,8 @@ export default function Plans() {
       id: "enterprise",
       name: t('p3_name'),
       tagline: t('p3_tagline'),
-      implementation: "4.990 € +",
+      implementation: "4.990 €",
       monthly: "299 €/mes",
-      monthlyNote: "Ajustable según alcance",
       forWho: t('p3_for_who'),
       includes: [
         t('p3_f1'),
@@ -221,21 +220,26 @@ export default function Plans() {
                   {activeTab === "monthly" ? (
                     <div>
                       <div className="flex items-baseline gap-2">
+                        {plan.id === "enterprise" && <span className="text-xl font-bold text-white/60">Desde</span>}
                         <span className="text-5xl font-black text-white">{plan.monthly.split(" ")[0]}</span>
                         <span className="text-white/60 font-medium">/mes</span>
                       </div>
-                      <p className="text-white/50 text-xs mt-1">+ {plan.implementation} {t('plans_impl_prefix')}</p>
-                      {plan.monthlyNote && (
-                        <p className="text-emerald-300 text-xs mt-0.5">{plan.monthlyNote}</p>
+                      <p className="text-white/50 text-xs mt-1">+ {plan.id === "enterprise" ? "desde " : ""}{plan.implementation} {t('plans_impl_prefix')}</p>
+                      {plan.id === "enterprise" && (
+                        <p className="text-white/40 text-xs mt-0.5 italic">Precio orientativo según alcance</p>
                       )}
                     </div>
                   ) : (
                     <div>
                       <div className="flex items-baseline gap-2">
+                        {plan.id === "enterprise" && <span className="text-xl font-bold text-white/60">Desde</span>}
                         <span className="text-5xl font-black text-white">{plan.implementation}</span>
                       </div>
                       <p className="text-white/50 text-xs mt-1">{t('plans_impl_prefix')}</p>
-                      <p className="text-white/50 text-xs">{t('plans_monthly_then')} {plan.monthly}</p>
+                      <p className="text-white/50 text-xs">{t('plans_monthly_then')} {plan.id === "enterprise" ? "desde " : ""}{plan.monthly}</p>
+                      {plan.id === "enterprise" && (
+                        <p className="text-white/40 text-xs mt-0.5 italic">Precio orientativo según alcance</p>
+                      )}
                     </div>
                   )}
                 </div>
