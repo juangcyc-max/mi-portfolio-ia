@@ -82,6 +82,7 @@ export default function AdminDashboard() {
           <NavCard href="/admin/conversations" title="Conversaciones" description="Chats del asistente IA" />
           <NavCard href="/admin/ai-replies" title="Respuestas IA" description="Emails generados automáticamente por IA" />
           <NavCard href="/admin/incidents" title="Incidencias" description="Soporte técnico de clientes" />
+          <NavCard href="/admin/facturas" title="Facturas" description="Crear y gestionar facturas con fraccionamiento de pago" />
         </div>
       </div>
     </div>
