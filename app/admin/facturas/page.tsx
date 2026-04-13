@@ -7,6 +7,7 @@ import {
   Circle, FileText, Download, TrendingUp, Clock, BadgeCheck,
 } from 'lucide-react'
 import Image from 'next/image'
+import Link from 'next/link'
 
 const supabase = getSupabaseClient()
 
@@ -282,6 +283,9 @@ export default function FacturasPage() {
           {/* Header */}
           <div className="flex items-center justify-between">
             <div>
+              <Link href="/admin" className="text-xs text-slate-400 hover:text-emerald-600 transition-colors flex items-center gap-1 mb-1">
+                <ArrowLeft size={12} /> Panel admin
+              </Link>
               <h1 className="text-xl font-bold text-slate-900">Facturas</h1>
               <p className="text-sm text-slate-400">Mindbridge IA · {EMISOR.nif}</p>
             </div>
@@ -375,7 +379,7 @@ export default function FacturasPage() {
           <ArrowLeft size={16} /> Volver
         </button>
         <div className="flex items-center gap-3 mb-6">
-          <Image src="/logo.svg" alt="Mindbridge IA" width={32} height={32} />
+          <Image src="/logo.png" alt="Mindbridge IA" width={32} height={32} />
           <h1 className="text-xl font-bold text-slate-900">Nueva factura</h1>
         </div>
 
@@ -604,7 +608,7 @@ export default function FacturasPage() {
         <div className="bg-emerald-500 px-10 py-8 flex justify-between items-start">
           <div className="flex items-center gap-3">
             <div className="bg-white rounded-xl p-2 shadow-sm">
-              <Image src="/logo.svg" alt="Mindbridge IA" width={40} height={40} />
+              <Image src="/logo.png" alt="Mindbridge IA" width={40} height={40} />
             </div>
             <div>
               <p className="text-white font-bold text-lg leading-tight">Mindbridge IA</p>
