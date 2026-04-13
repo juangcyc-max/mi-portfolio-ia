@@ -83,17 +83,38 @@ async function descargarPDF(f: Factura) {
   const slate50: [number, number, number] = [248, 250, 252]
   const white: [number, number, number] = [255, 255, 255]
 
+  // ── Cargar logo como base64
+  let logoBase64: string | null = null
+  try {
+    const res = await fetch('/logo.png')
+    const blob = await res.blob()
+    logoBase64 = await new Promise<string>((resolve, reject) => {
+      const reader = new FileReader()
+      reader.onloadend = () => resolve(reader.result as string)
+      reader.onerror = reject
+      reader.readAsDataURL(blob)
+    })
+  } catch { /* si falla, continúa sin logo */ }
+
   // ── Cabecera verde
   doc.setFillColor(...emerald)
   doc.rect(0, 0, W, 38, 'F')
 
-  // Nombre empresa
+  // Logo (fondo blanco redondeado + imagen)
+  if (logoBase64) {
+    doc.setFillColor(...white)
+    doc.roundedRect(12, 8, 22, 22, 2, 2, 'F')
+    doc.addImage(logoBase64, 'PNG', 13, 9, 20, 20)
+  }
+
+  // Nombre empresa (desplazado si hay logo)
+  const textX = logoBase64 ? 38 : 15
   doc.setTextColor(...white)
   doc.setFontSize(18); doc.setFont('helvetica', 'bold')
-  doc.text('Mindbridge IA', 15, 16)
+  doc.text('Mindbridge IA', textX, 16)
   doc.setFontSize(8); doc.setFont('helvetica', 'normal')
-  doc.text(EMISOR.web, 15, 23)
-  doc.text(`NIF: ${EMISOR.nif}`, 15, 29)
+  doc.text(EMISOR.web, textX, 23)
+  doc.text(`NIF: ${EMISOR.nif}`, textX, 29)
 
   // Número y fecha (derecha)
   doc.setFontSize(22); doc.setFont('helvetica', 'bold')
