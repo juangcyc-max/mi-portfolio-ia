@@ -52,14 +52,31 @@ export default function AIRepliesPage() {
                 </div>
               </div>
               {expanded === reply.id && (
-                <div className="px-5 pb-5 border-t border-slate-200 pt-4 grid sm:grid-cols-2 gap-4">
-                  <div>
-                    <p className="text-xs text-slate-400 mb-2">Mensaje del cliente</p>
-                    <p className="text-sm text-slate-600 whitespace-pre-wrap">{reply.original_message}</p>
+                <div className="px-5 pb-5 border-t border-slate-200 pt-4 space-y-4">
+                  <div className="grid sm:grid-cols-2 gap-4">
+                    <div>
+                      <p className="text-xs text-slate-400 mb-2">Mensaje del cliente</p>
+                      <p className="text-sm text-slate-600 whitespace-pre-wrap">{reply.original_message}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-slate-400 mb-2">Respuesta enviada por IA</p>
+                      <p className="text-sm text-slate-700 whitespace-pre-wrap">{reply.ai_response}</p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-xs text-slate-400 mb-2">Respuesta enviada por IA</p>
-                    <p className="text-sm text-slate-700 whitespace-pre-wrap">{reply.ai_response}</p>
+                  <div className="flex justify-end">
+                    <button
+                      onClick={async () => {
+                        const res = await fetch('/api/admin/delete-ai-reply', {
+                          method: 'DELETE',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({ id: reply.id }),
+                        })
+                        if (res.ok) setReplies(prev => prev.filter(r => r.id !== reply.id))
+                      }}
+                      className="text-xs text-red-500 hover:text-red-600 hover:bg-red-50 px-3 py-1.5 rounded-lg transition-colors font-semibold"
+                    >
+                      Eliminar
+                    </button>
                   </div>
                 </div>
               )}

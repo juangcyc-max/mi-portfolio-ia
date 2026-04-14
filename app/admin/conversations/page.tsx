@@ -112,26 +112,44 @@ export default function ConversationsPage() {
               </div>
 
               {expanded === conv.id && (
-                <div className="border-t border-slate-200 px-5 py-4 space-y-3 max-h-96 overflow-y-auto">
-                  {(messages[conv.id] || []).length === 0 ? (
-                    <p className="text-slate-400 text-sm">Sin mensajes registrados.</p>
-                  ) : (
-                    (messages[conv.id] || []).map(msg => (
-                      <div
-                        key={msg.id}
-                        className={`flex ${msg.role === 'user' ? 'justify-start' : 'justify-end'}`}
-                      >
-                        <div className={`max-w-xs px-4 py-2 rounded-2xl text-sm ${
-                          msg.role === 'user'
-                            ? 'bg-slate-100 text-slate-700'
-                            : 'bg-emerald-600/20 text-emerald-200 border border-emerald-500/30'
-                        }`}>
-                          <p className="text-xs opacity-60 mb-1">{msg.role === 'user' ? 'Visitante' : 'IA'}</p>
-                          <p>{msg.content}</p>
+                <div className="border-t border-slate-200">
+                  <div className="px-5 py-4 space-y-3 max-h-96 overflow-y-auto">
+                    {(messages[conv.id] || []).length === 0 ? (
+                      <p className="text-slate-400 text-sm">Sin mensajes registrados.</p>
+                    ) : (
+                      (messages[conv.id] || []).map(msg => (
+                        <div
+                          key={msg.id}
+                          className={`flex ${msg.role === 'user' ? 'justify-start' : 'justify-end'}`}
+                        >
+                          <div className={`max-w-xs px-4 py-2 rounded-2xl text-sm ${
+                            msg.role === 'user'
+                              ? 'bg-slate-100 text-slate-700'
+                              : 'bg-emerald-600/20 text-emerald-200 border border-emerald-500/30'
+                          }`}>
+                            <p className="text-xs opacity-60 mb-1">{msg.role === 'user' ? 'Visitante' : 'IA'}</p>
+                            <p>{msg.content}</p>
+                          </div>
                         </div>
-                      </div>
-                    ))
-                  )}
+                      ))
+                    )}
+                  </div>
+                  <div className="px-5 pb-4 flex justify-end">
+                    <button
+                      onClick={async (e) => {
+                        e.stopPropagation()
+                        const res = await fetch('/api/admin/delete-conversation', {
+                          method: 'DELETE',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({ id: conv.id }),
+                        })
+                        if (res.ok) setConversations(prev => prev.filter(c => c.id !== conv.id))
+                      }}
+                      className="text-xs text-red-500 hover:text-red-600 hover:bg-red-50 px-3 py-1.5 rounded-lg transition-colors font-semibold"
+                    >
+                      Eliminar conversación
+                    </button>
+                  </div>
                 </div>
               )}
             </div>
