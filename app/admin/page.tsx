@@ -280,6 +280,7 @@ export default function AdminDashboard() {
           <NavGroup title="Negocio">
             <NavCard href="/admin/budgets"  title="Presupuestos" description="Solicitudes y propuestas generadas"               badge={stats.pendingBudgets} badgeColor="blue" />
             <NavCard href="/admin/facturas" title="Facturas"     description="Crear y gestionar facturas con fraccionamiento" />
+            <NavCard href="/admin/clientes" title="Clientes"     description="Lista de clientes generada desde facturas" />
           </NavGroup>
           <NavGroup title="Soporte">
             <NavCard href="/admin/incidents"     title="Incidencias"   description="Soporte técnico de clientes"       badge={stats.incidents}     badgeColor="red" />

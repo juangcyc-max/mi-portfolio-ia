@@ -313,6 +313,18 @@ export default function FacturasPage() {
     }).select().single()
     setGuardando(false)
     if (!error && data) {
+      // Guardar/actualizar cliente automáticamente
+      if (form.cliente_nombre) {
+        await supabase.from('clientes').upsert({
+          nombre: form.cliente_nombre,
+          email: form.cliente_email || null,
+          nif: form.cliente_nif || null,
+          tipo_cliente: form.tipo_cliente,
+          contacto: form.cliente_contacto || null,
+          direccion: form.cliente_direccion || null,
+          ultima_factura: form.fecha,
+        }, { onConflict: 'email', ignoreDuplicates: false })
+      }
       await cargarFacturas()
       setSeleccionada(data as Factura)
       setVista('preview')
