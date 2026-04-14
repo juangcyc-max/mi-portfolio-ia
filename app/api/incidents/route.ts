@@ -3,6 +3,7 @@ import { Resend } from 'resend'
 import { createClient } from '@supabase/supabase-js'
 import { generateText } from 'ai'
 import { anthropic } from '@ai-sdk/anthropic'
+import { notifyJuan } from '@/lib/whatsapp'
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
 
@@ -134,6 +135,12 @@ Problema: ${description}`,
       html: clientEmailHtml,
       text: clientEmailBody,
     })
+
+    // Notificación WhatsApp a Juan
+    const priorityEmoji = priority === 'urgent' ? '🚨' : priority === 'high' ? '⚠️' : '📋'
+    notifyJuan(
+      `${priorityEmoji} *Nueva incidencia* de ${name}\nServicio: ${service || '—'}\nUrgencia: ${priorityLabel}\n\n${description.slice(0, 150)}${description.length > 150 ? '...' : ''}\n\nRevisa: mindbride.net/admin/incidents`
+    ).catch(() => {})
 
     // Notificación push si no resuelta por IA
     if (!resolvedByAI) {
