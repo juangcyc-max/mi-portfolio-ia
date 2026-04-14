@@ -91,9 +91,10 @@ export async function POST(req: NextRequest) {
     const ownChatId = process.env.JUAN_WHATSAPP_CHAT_ID || '34613096449@c.us'
     if (chatId === ownChatId) return NextResponse.json({ ok: true })
 
+    // Usar service role key para leer/escribir sin restricciones de RLS
     const supabase = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+      process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
     )
 
     // Buscar o crear conversación en Supabase
@@ -103,6 +104,8 @@ export async function POST(req: NextRequest) {
       .select('id')
       .eq('session_id', chatId)
       .eq('channel', 'whatsapp')
+      .order('created_at', { ascending: false })
+      .limit(1)
       .maybeSingle()
 
     if (existingConv) {
@@ -116,7 +119,7 @@ export async function POST(req: NextRequest) {
       conversationId = newConv?.id ?? null
     }
 
-    // Obtener historial de los últimos 10 mensajes
+    // Obtener historial de los últimos 14 mensajes
     const history: { role: 'user' | 'assistant'; content: string }[] = []
     if (conversationId) {
       const { data: msgs } = await supabase
@@ -124,7 +127,7 @@ export async function POST(req: NextRequest) {
         .select('role, content')
         .eq('conversation_id', conversationId)
         .order('created_at', { ascending: true })
-        .limit(10)
+        .limit(14)
       if (msgs) {
         history.push(...msgs.map((m: any) => ({ role: m.role as 'user' | 'assistant', content: m.content })))
       }
