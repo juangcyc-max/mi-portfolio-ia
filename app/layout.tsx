@@ -6,6 +6,7 @@ import CustomScrollbar from "@/components/CustomScrollbar";
 import { LanguageProvider } from "@/lib/i18n/LanguageContext";
 import PageViewTracker from "@/components/PageViewTracker";
 import CookieBanner from "@/components/CookieBanner";
+import FloatingContact from "@/components/FloatingContact";
 
 /* ============================================ */
 /* FUENTE PRINCIPAL */
@@ -136,6 +137,7 @@ export default function RootLayout({
             <PageViewTracker />
             {children}
             <CookieBanner />
+            <FloatingContact />
           </LanguageProvider>
         </ThemeProvider>
       </body>
