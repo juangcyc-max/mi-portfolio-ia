@@ -124,6 +124,35 @@ function openPDF(budget: CustomBudget) {
     <tr class="total-row"><td>TOTAL CON IVA</td><td>${total.toFixed(2)} €</td></tr>
   </tbody>
 </table>
+<div style="margin-top:30px;border:1px solid #e2e8f0;border-radius:10px;overflow:hidden;">
+  <div style="background:#0f172a;padding:12px 16px;">
+    <span style="color:white;font-size:13px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;">Condiciones de Pago</span>
+  </div>
+  <table style="width:100%;border-collapse:collapse;">
+    <thead>
+      <tr style="background:#f8fafc;">
+        <th style="padding:10px 16px;text-align:left;font-size:12px;color:#64748b;font-weight:600;border-bottom:1px solid #e2e8f0;">Concepto</th>
+        <th style="padding:10px 16px;text-align:right;font-size:12px;color:#64748b;font-weight:600;border-bottom:1px solid #e2e8f0;">Importe (IVA incl.)</th>
+        <th style="padding:10px 16px;text-align:right;font-size:12px;color:#64748b;font-weight:600;border-bottom:1px solid #e2e8f0;">Vencimiento</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td style="padding:12px 16px;font-size:13px;color:#1e293b;border-bottom:1px solid #e2e8f0;">Pago inicial (60%)</td>
+        <td style="padding:12px 16px;font-size:14px;color:#10b981;font-weight:700;text-align:right;border-bottom:1px solid #e2e8f0;">${(total * 0.6).toFixed(2)} €</td>
+        <td style="padding:12px 16px;font-size:13px;color:#475569;text-align:right;border-bottom:1px solid #e2e8f0;">Antes del inicio</td>
+      </tr>
+      <tr>
+        <td style="padding:12px 16px;font-size:13px;color:#1e293b;">Pago final (40%)</td>
+        <td style="padding:12px 16px;font-size:14px;color:#10b981;font-weight:700;text-align:right;">${(total * 0.4).toFixed(2)} €</td>
+        <td style="padding:12px 16px;font-size:13px;color:#475569;text-align:right;">A la entrega del trabajo</td>
+      </tr>
+    </tbody>
+  </table>
+  <div style="padding:14px 16px;background:#f8fafc;border-top:1px solid #e2e8f0;font-size:11px;color:#94a3b8;line-height:1.7;">
+    La aceptación de este presupuesto implica la aceptación de las presentes condiciones de pago. El pago inicial (60%) tiene carácter no reembolsable una vez iniciados los trabajos, constituyendo compensación por el tiempo reservado y los trabajos ya realizados. En caso de cancelación por parte del cliente tras el inicio del proyecto, dicho importe quedará retenido en su totalidad.
+  </div>
+</div>
 ${budget.notes ? `<div class="notes"><strong>Notas:</strong> ${budget.notes}</div>` : ''}
 <div class="footer">Mindbridge IA · NIF: 72173348S · C/ Daoiz y Velarde 23 5ºC, 39003 Santander<br/>Este presupuesto tiene una validez de 30 días desde su emisión.</div>
 </body></html>`
@@ -137,7 +166,9 @@ function budgetEmailBody(budget: CustomBudget) {
   const iva = (base * 0.21).toFixed(2)
   const total = (base * 1.21).toFixed(2)
   const lines = (budget.items || []).map(i => `• ${i.description}: ${parseFloat(i.price).toFixed(2)} €`).join('\n')
-  return `Te adjunto el presupuesto personalizado que hemos preparado para ti:\n\n${lines}\n\nBase imponible: ${base.toFixed(2)} €\nIVA (21%): ${iva} €\nTOTAL: ${total} €\n\n${budget.notes ? `Notas: ${budget.notes}\n\n` : ''}Este presupuesto tiene una validez de 30 días. Si tienes cualquier duda o quieres ajustar algo, escríbeme y lo vemos.\n\nUn saludo,`
+  const pago60 = (base * 1.21 * 0.6).toFixed(2)
+  const pago40 = (base * 1.21 * 0.4).toFixed(2)
+  return `Te adjunto el presupuesto personalizado que hemos preparado para ti:\n\n${lines}\n\nBase imponible: ${base.toFixed(2)} €\nIVA (21%): ${iva} €\nTOTAL: ${total} €\n\n— CONDICIONES DE PAGO —\n• Pago inicial (60%): ${pago60} € — antes del inicio de los trabajos\n• Pago final (40%): ${pago40} € — a la entrega del trabajo\n\nEl pago inicial tiene carácter no reembolsable una vez iniciados los trabajos. En caso de cancelación tras el inicio del proyecto, dicho importe quedará retenido en su totalidad.\n\n${budget.notes ? `Notas: ${budget.notes}\n\n` : ''}Este presupuesto tiene una validez de 30 días. Si tienes cualquier duda o quieres ajustar algo, escríbeme y lo vemos.\n\nUn saludo,`
 }
 
 // ── Componente principal ────────────────────────────────────────────────────
