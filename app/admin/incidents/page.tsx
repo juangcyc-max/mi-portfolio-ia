@@ -53,8 +53,12 @@ export default function IncidentsPage() {
 
   async function deleteIncident(id: string) {
     if (!confirm('¿Eliminar esta incidencia de forma definitiva? Esta acción no se puede deshacer.')) return
-    await supabase.from('incidents').delete().eq('id', id)
-    setIncidents(prev => prev.filter(i => i.id !== id))
+    const res = await fetch('/api/admin/delete-incident', {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id }),
+    })
+    if (res.ok) setIncidents(prev => prev.filter(i => i.id !== id))
   }
 
   return (
