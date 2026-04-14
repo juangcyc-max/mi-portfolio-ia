@@ -104,6 +104,11 @@ export default function BudgetCalculator() {
     aiIntegration: false,
   });
   const [showBudget, setShowBudget] = useState(false);
+  const [clientName, setClientName] = useState("");
+  const [clientEmail, setClientEmail] = useState("");
+  const [comment, setComment] = useState("");
+  const [sending, setSending] = useState(false);
+  const [sent, setSent] = useState(false);
 
   const toggleFeature = (feature: keyof Features) => {
     setFeatures((prev) => ({ ...prev, [feature]: !prev[feature] }));
@@ -126,8 +131,34 @@ export default function BudgetCalculator() {
   const budget = calculateBudget();
   const formatPrice = (price: number) => new Intl.NumberFormat("es-ES").format(price);
 
-  const handleGetQuote = () => {
-    if (!projectType) return;
+  const handleGetQuote = async () => {
+    if (!projectType || !budget) return;
+    if (!clientName.trim() || !clientEmail.trim()) {
+      alert("Por favor introduce tu nombre y email en el paso 3.");
+      return;
+    }
+    setSending(true);
+    const featuresText = Object.entries(features)
+      .filter(([, enabled]) => enabled)
+      .map(([f]) => FEATURE_LABELS[f as keyof Features])
+      .join(", ");
+    const additional_info = [
+      comment.trim(),
+      featuresText ? `Funcionalidades seleccionadas: ${featuresText}` : "",
+    ].filter(Boolean).join("\n\n");
+    await fetch("/api/budget-request", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name: clientName,
+        email: clientEmail,
+        project_type: PROJECT_LABELS[projectType as ProjectType],
+        budget_range: `${formatPrice(budget.min)}€ - ${formatPrice(budget.max)}€`,
+        additional_info,
+      }),
+    });
+    setSending(false);
+    setSent(true);
     document.getElementById("contacto")?.scrollIntoView({ behavior: "smooth" });
   };
 
@@ -323,6 +354,50 @@ export default function BudgetCalculator() {
                 ))}
               </div>
             </motion.div>
+
+            {/* Paso 3 — Datos de contacto y comentario */}
+            <motion.div
+              className="bg-white dark:bg-slate-900/40 backdrop-blur-xl rounded-3xl p-8 border border-slate-200 dark:border-white/10 shadow-2xl shadow-slate-200/50 dark:shadow-none"
+              variants={fadeInUp} initial="hidden" whileInView="visible"
+            >
+              <div className="flex items-center gap-4 mb-8">
+                <div className="w-10 h-10 rounded-2xl bg-emerald-700 flex items-center justify-center text-white shadow-lg shadow-emerald-700/30 font-bold">3</div>
+                <h3 className="text-xl font-bold text-slate-800 dark:text-white">Cuéntanos qué necesitas</h3>
+              </div>
+              <div className="space-y-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-xs text-slate-400 mb-1 block font-medium">Tu nombre</label>
+                    <input
+                      value={clientName}
+                      onChange={e => setClientName(e.target.value)}
+                      className="w-full border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5 rounded-xl px-4 py-3 text-sm text-slate-800 dark:text-white placeholder-slate-400 focus:outline-none focus:border-emerald-500 transition-colors"
+                      placeholder="Juan García"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs text-slate-400 mb-1 block font-medium">Tu email</label>
+                    <input
+                      value={clientEmail}
+                      onChange={e => setClientEmail(e.target.value)}
+                      type="email"
+                      className="w-full border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5 rounded-xl px-4 py-3 text-sm text-slate-800 dark:text-white placeholder-slate-400 focus:outline-none focus:border-emerald-500 transition-colors"
+                      placeholder="tu@email.com"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className="text-xs text-slate-400 mb-1 block font-medium">Descripción del proyecto <span className="text-slate-300">(opcional)</span></label>
+                  <textarea
+                    value={comment}
+                    onChange={e => setComment(e.target.value)}
+                    rows={4}
+                    className="w-full border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5 rounded-xl px-4 py-3 text-sm text-slate-800 dark:text-white placeholder-slate-400 focus:outline-none focus:border-emerald-500 transition-colors resize-none"
+                    placeholder="Cuéntanos sobre tu negocio, qué quieres conseguir, si tienes web actual, plazos, integraciones que necesitas..."
+                  />
+                </div>
+              </div>
+            </motion.div>
           </div>
 
           {/* Columna Derecha: Resumen (Sticky) */}
@@ -362,12 +437,20 @@ export default function BudgetCalculator() {
                     )}
 
                     <div className="space-y-4">
-                      <button
-                        onClick={handleGetQuote}
-                        className="w-full py-4 px-8 bg-emerald-500 hover:bg-emerald-400 text-slate-900 font-black rounded-2xl transition-all duration-300 shadow-lg shadow-emerald-500/20 hover:scale-[1.02] active:scale-95"
-                      >
-                        {t('calc_booking')}
-                      </button>
+                      {sent ? (
+                        <div className="w-full py-4 px-8 bg-emerald-500/20 border border-emerald-500/40 rounded-2xl text-center">
+                          <p className="text-emerald-400 font-black text-sm">✓ ¡Solicitud enviada!</p>
+                          <p className="text-emerald-300/70 text-xs mt-1">Te contactamos en menos de 24h con el presupuesto ajustado.</p>
+                        </div>
+                      ) : (
+                        <button
+                          onClick={handleGetQuote}
+                          disabled={sending}
+                          className="w-full py-4 px-8 bg-emerald-500 hover:bg-emerald-400 disabled:opacity-60 text-slate-900 font-black rounded-2xl transition-all duration-300 shadow-lg shadow-emerald-500/20 hover:scale-[1.02] active:scale-95"
+                        >
+                          {sending ? "Enviando..." : t('calc_booking')}
+                        </button>
+                      )}
                       <button
                         onClick={downloadPDF}
                         className="w-full py-4 px-8 bg-white/5 hover:bg-white/10 text-white font-bold rounded-2xl border border-white/10 transition-all flex items-center justify-center gap-3"
