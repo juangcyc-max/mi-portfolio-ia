@@ -23,8 +23,30 @@ export default function ClientesPage() {
   const [clientes, setClientes] = useState<Cliente[]>([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
+  const [syncing, setSyncing] = useState(false)
 
   useEffect(() => { loadClientes() }, [])
+
+  async function sincronizar() {
+    setSyncing(true)
+    const { data: facturas } = await supabase.from('facturas').select('*')
+    if (facturas) {
+      for (const f of facturas) {
+        if (!f.cliente_nombre) continue
+        await supabase.from('clientes').upsert({
+          nombre: f.cliente_nombre,
+          email: f.cliente_email || null,
+          nif: f.cliente_nif || null,
+          tipo_cliente: f.tipo_cliente || 'particular',
+          contacto: f.cliente_contacto || null,
+          direccion: f.cliente_direccion || null,
+          ultima_factura: f.fecha,
+        }, { onConflict: 'email', ignoreDuplicates: false })
+      }
+    }
+    await loadClientes()
+    setSyncing(false)
+  }
 
   async function loadClientes() {
     const { data } = await supabase
@@ -50,6 +72,15 @@ export default function ClientesPage() {
         <Link href="/admin" className="text-slate-500 hover:text-slate-900 text-sm">← Volver</Link>
         <h1 className="text-lg font-bold">Clientes</h1>
         <span className="text-sm text-slate-500">{clientes.length} total</span>
+        <div className="ml-auto">
+          <button
+            onClick={sincronizar}
+            disabled={syncing}
+            className="text-xs px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg transition-colors disabled:opacity-50"
+          >
+            {syncing ? 'Sincronizando...' : 'Sincronizar desde facturas'}
+          </button>
+        </div>
       </header>
 
       <div className="p-6 max-w-5xl mx-auto space-y-6">
