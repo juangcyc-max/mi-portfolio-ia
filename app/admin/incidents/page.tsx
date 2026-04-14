@@ -51,6 +51,12 @@ export default function IncidentsPage() {
     setIncidents(prev => prev.map(i => i.id === id ? { ...i, status } : i))
   }
 
+  async function deleteIncident(id: string) {
+    if (!confirm('¿Eliminar esta incidencia de forma definitiva? Esta acción no se puede deshacer.')) return
+    await supabase.from('incidents').delete().eq('id', id)
+    setIncidents(prev => prev.filter(i => i.id !== id))
+  }
+
   return (
     <div className="min-h-screen bg-slate-100 text-slate-900">
       <header className="border-b border-slate-200 px-6 py-4 flex items-center gap-4">
@@ -109,6 +115,14 @@ export default function IncidentsPage() {
                       <p className="text-sm text-emerald-800 whitespace-pre-wrap">{inc.ai_response}</p>
                     </div>
                   )}
+                  <div className="flex justify-end pt-1">
+                    <button
+                      onClick={() => deleteIncident(inc.id)}
+                      className="px-3 py-1.5 text-xs font-semibold text-red-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                    >
+                      Eliminar incidencia
+                    </button>
+                  </div>
                   {inc.status !== 'resolved' && (
                     <div>
                       <p className="text-xs text-slate-400 mb-2">Responder manualmente</p>
