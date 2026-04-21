@@ -28,8 +28,14 @@ function AuthConfirm() {
   const [done, setDone] = useState(false)
 
   useEffect(() => {
+    // Check if session already established (event may have fired before mount)
+    ;(async () => {
+      const { data } = await supabase.auth.getSession()
+      if (data.session) setReady(true)
+    })()
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event: string) => {
-      if (event === 'PASSWORD_RECOVERY') setReady(true)
+      if (event === 'PASSWORD_RECOVERY' || event === 'SIGNED_IN') setReady(true)
     })
     return () => subscription.unsubscribe()
   }, [])
