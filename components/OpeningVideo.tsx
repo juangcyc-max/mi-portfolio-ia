@@ -8,20 +8,10 @@ export default function OpeningVideo() {
   const [fadeOut, setFadeOut] = useState(false);
 
   useEffect(() => {
-    if (sessionStorage.getItem("opening_seen")) {
-      setVisible(false);
-      return;
-    }
-
     videoRef.current?.play().catch(() => {});
 
-    // Fade out a los 8 segundos
     const fadeTimer = setTimeout(() => setFadeOut(true), 8000);
-    // Ocultar completamente tras el fade (600ms después)
-    const hideTimer = setTimeout(() => {
-      setVisible(false);
-      sessionStorage.setItem("opening_seen", "1");
-    }, 8600);
+    const hideTimer = setTimeout(() => setVisible(false), 8600);
 
     return () => {
       clearTimeout(fadeTimer);
