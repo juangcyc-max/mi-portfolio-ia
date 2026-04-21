@@ -25,44 +25,54 @@ function AuthConfirm() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [ready, setReady] = useState(false)
+  const [done, setDone] = useState(false)
 
   useEffect(() => {
-    // Supabase incluye el token en el hash (#) de la URL al redirigir
-    // getSession detecta automáticamente el token de recovery del hash
-    supabase.auth.getSession().then(({ data }) => {
-      if (data.session) setReady(true)
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event: string) => {
+      if (event === 'PASSWORD_RECOVERY') setReady(true)
     })
+    return () => subscription.unsubscribe()
   }, [])
 
-  async function handleReset(e: React.SyntheticEvent) {
+  async function handleSubmit(e: React.SyntheticEvent) {
     e.preventDefault()
     if (password !== confirm) { setError('Las contraseñas no coinciden'); return }
     if (password.length < 6) { setError('Mínimo 6 caracteres'); return }
     setLoading(true)
     const { error } = await supabase.auth.updateUser({ password })
-    if (error) {
-      setError(error.message)
-      setLoading(false)
-    } else {
-      router.push('/admin')
-    }
+    setLoading(false)
+    if (error) { setError(error.message); return }
+    setDone(true)
+    setTimeout(() => router.push('/admin'), 2000)
   }
 
-  if (!ready) {
-    return (
-      <div className="min-h-screen bg-slate-950 flex items-center justify-center">
-        <p className="text-slate-400 text-sm">Verificando enlace...</p>
+  if (done) return (
+    <div className="min-h-screen bg-slate-950 flex items-center justify-center">
+      <div className="text-center space-y-3">
+        <p className="text-emerald-400 text-xl font-bold">✓ Contraseña actualizada</p>
+        <p className="text-slate-400 text-sm">Redirigiendo al panel...</p>
       </div>
-    )
-  }
+    </div>
+  )
+
+  if (!ready) return (
+    <div className="min-h-screen bg-slate-950 flex items-center justify-center px-4">
+      <div className="text-center space-y-3">
+        <p className="text-slate-400 text-sm">Verificando enlace de recuperación...</p>
+        <p className="text-slate-600 text-xs">Si esto tarda más de 10 segundos, el enlace ha caducado.</p>
+        <a href="/admin/login" className="text-emerald-400 text-sm hover:underline block">
+          Volver al login
+        </a>
+      </div>
+    </div>
+  )
 
   return (
     <div className="min-h-screen bg-slate-950 flex items-center justify-center px-4">
       <div className="w-full max-w-sm bg-slate-900 border border-slate-800 rounded-2xl p-8">
         <h1 className="text-white text-xl font-bold mb-2">Nueva contraseña</h1>
-        <p className="text-slate-400 text-sm mb-6">Elige una contraseña para tu cuenta de administrador.</p>
-
-        <form onSubmit={handleReset} className="space-y-4">
+        <p className="text-slate-400 text-sm mb-6">Elige una contraseña segura para tu cuenta.</p>
+        <form onSubmit={handleSubmit} className="space-y-4">
           <input
             type="password"
             placeholder="Nueva contraseña"
@@ -70,6 +80,7 @@ function AuthConfirm() {
             onChange={e => setPassword(e.target.value)}
             className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white text-sm placeholder-slate-500 outline-none focus:border-emerald-500"
             required
+            autoFocus
           />
           <input
             type="password"
