@@ -319,7 +319,12 @@ export default function FacturasPage() {
 
     if (editandoId) {
       // ── EDITAR factura existente ──
-      const pagos = editandoPagos ?? calcPagos(total, form.fraccionamiento, form.fecha)
+      // Recalcula importes y fechas, pero conserva el estado pagado de cada plazo
+      const newPagos = calcPagos(total, form.fraccionamiento, form.fecha)
+      const pagos = newPagos.map((p, i) => ({
+        ...p,
+        pagado: editandoPagos?.[i]?.pagado ?? false,
+      }))
       const { error } = await supabase.from('facturas').update({
         fecha: form.fecha, tipo_cliente: form.tipo_cliente,
         cliente_nombre: form.cliente_nombre, cliente_nif: form.cliente_nif,
