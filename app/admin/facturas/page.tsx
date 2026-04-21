@@ -285,6 +285,9 @@ export default function FacturasPage() {
   const [guardando, setGuardando] = useState(false)
   const [editandoId, setEditandoId] = useState<string | null>(null)
   const [editandoPagos, setEditandoPagos] = useState<Pago[] | null>(null)
+  const [analizando, setAnalizando] = useState<number | null>(null)
+  const [analisis, setAnalisis] = useState<Record<number, { signedUrl: string | null; extracted: any; coincide: boolean }>>({})
+
   const [filtroEstado, setFiltroEstado] = useState<'todas' | 'pagada' | 'parcial' | 'pendiente'>('todas')
   const [filtroDesde, setFiltroDesde] = useState('')
   const [filtroHasta, setFiltroHasta] = useState('')
@@ -380,6 +383,30 @@ export default function FacturasPage() {
     const updated = { ...factura, pagos }
     setFacturas(prev => prev.map(f => f.id === factura.id ? updated : f))
     if (seleccionada?.id === factura.id) setSeleccionada(updated)
+  }
+
+  async function subirJustificante(factura: Factura, idx: number, file: File) {
+    setAnalizando(idx)
+    const fd = new FormData()
+    fd.append('file', file)
+    fd.append('factura_id', factura.id)
+    fd.append('plazo_idx', String(idx))
+    fd.append('plazo_importe', String(factura.pagos[idx].importe))
+    const res = await fetch('/api/admin/analizar-justificante', { method: 'POST', body: fd })
+    const data = await res.json()
+    setAnalizando(null)
+    if (data.ok) {
+      setAnalisis(prev => ({ ...prev, [idx]: { signedUrl: data.signedUrl, extracted: data.extracted, coincide: data.coincide } }))
+      // Actualizar seleccionada con el justificante_path guardado
+      await cargarFacturas()
+      const updated = facturas.find(f => f.id === factura.id)
+      if (updated) setSeleccionada(updated)
+    }
+  }
+
+  async function confirmarPago(factura: Factura, idx: number) {
+    await togglePago(factura, idx)
+    setAnalisis(prev => { const n = { ...prev }; delete n[idx]; return n })
   }
 
   async function eliminar(id: string) {
@@ -881,26 +908,78 @@ export default function FacturasPage() {
             </div>
             <div className="divide-y divide-slate-100">
               {f.pagos.map((p, i) => (
-                <div key={i} className="flex items-center justify-between px-5 py-4">
-                  <div className="flex items-center gap-3">
-                    <button onClick={() => togglePago(f, i)} className="print:hidden transition-colors">
-                      {p.pagado
-                        ? <CheckCircle size={20} className="text-emerald-500" />
-                        : <Circle size={20} className="text-slate-300 hover:text-slate-400" />}
-                    </button>
-                    <div>
-                      <p className="font-semibold text-slate-800 text-sm">
-                        {f.fraccionamiento === 1 ? 'Pago único' : `Plazo ${i + 1}`}
-                      </p>
-                      <p className="text-xs text-slate-400">{p.fecha}</p>
+                <div key={i} className="px-5 py-4 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <button onClick={() => togglePago(f, i)} className="print:hidden transition-colors">
+                        {p.pagado
+                          ? <CheckCircle size={20} className="text-emerald-500" />
+                          : <Circle size={20} className="text-slate-300 hover:text-slate-400" />}
+                      </button>
+                      <div>
+                        <p className="font-semibold text-slate-800 text-sm">
+                          {f.fraccionamiento === 1 ? 'Pago único' : `Plazo ${i + 1}`}
+                        </p>
+                        <p className="text-xs text-slate-400">{p.fecha}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <div className="text-right">
+                        <p className="font-bold text-slate-800">{eur(p.importe)}</p>
+                        <p className={`text-xs font-medium ${p.pagado ? 'text-emerald-500' : 'text-slate-400'}`}>
+                          {p.pagado ? 'Pagado ✓' : 'Pendiente'}
+                        </p>
+                      </div>
+                      {!p.pagado && (
+                        <label className="print:hidden cursor-pointer">
+                          <input
+                            type="file"
+                            accept="image/*,application/pdf"
+                            className="hidden"
+                            onChange={e => { const file = e.target.files?.[0]; if (file) subirJustificante(f, i, file); e.target.value = '' }}
+                          />
+                          <span className={`text-xs px-2.5 py-1.5 rounded-lg border transition-colors font-medium
+                            ${analizando === i
+                              ? 'border-slate-200 text-slate-400 cursor-wait'
+                              : 'border-slate-200 text-slate-500 hover:border-emerald-400 hover:text-emerald-600'}`}>
+                            {analizando === i ? 'Analizando...' : '↑ Justificante'}
+                          </span>
+                        </label>
+                      )}
                     </div>
                   </div>
-                  <div className="text-right">
-                    <p className="font-bold text-slate-800">{eur(p.importe)}</p>
-                    <p className={`text-xs font-medium ${p.pagado ? 'text-emerald-500' : 'text-slate-400'}`}>
-                      {p.pagado ? 'Pagado ✓' : 'Pendiente'}
-                    </p>
-                  </div>
+
+                  {/* Resultado del análisis */}
+                  {analisis[i] && (
+                    <div className={`rounded-lg p-3 text-xs border ${analisis[i].coincide ? 'bg-emerald-50 border-emerald-200' : 'bg-yellow-50 border-yellow-200'}`}>
+                      <p className={`font-semibold mb-1 ${analisis[i].coincide ? 'text-emerald-700' : 'text-yellow-700'}`}>
+                        {analisis[i].coincide ? '✓ Importe coincide' : '⚠ Importe no coincide — revisa'}
+                      </p>
+                      {analisis[i].extracted && (
+                        <p className="text-slate-600">
+                          {analisis[i].extracted.importe != null && `${eur(analisis[i].extracted.importe)}`}
+                          {analisis[i].extracted.fecha && ` · ${analisis[i].extracted.fecha}`}
+                          {analisis[i].extracted.remitente && ` · ${analisis[i].extracted.remitente}`}
+                        </p>
+                      )}
+                      {analisis[i].signedUrl && (
+                        <a href={analisis[i].signedUrl!} target="_blank" rel="noopener noreferrer"
+                          className="text-blue-600 underline mt-1 inline-block">
+                          Ver documento
+                        </a>
+                      )}
+                      <div className="flex gap-2 mt-2">
+                        <button onClick={() => confirmarPago(f, i)}
+                          className="px-3 py-1 bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg font-semibold transition-colors">
+                          Confirmar pago
+                        </button>
+                        <button onClick={() => setAnalisis(prev => { const n = { ...prev }; delete n[i]; return n })}
+                          className="px-3 py-1 border border-slate-200 text-slate-500 hover:text-slate-700 rounded-lg transition-colors">
+                          Cancelar
+                        </button>
+                      </div>
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
