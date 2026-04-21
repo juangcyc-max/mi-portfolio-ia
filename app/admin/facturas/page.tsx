@@ -283,6 +283,8 @@ export default function FacturasPage() {
   const [seleccionada, setSeleccionada] = useState<Factura | null>(null)
   const [form, setForm] = useState({ ...emptyForm })
   const [guardando, setGuardando] = useState(false)
+  const [editandoId, setEditandoId] = useState<string | null>(null)
+  const [editandoPagos, setEditandoPagos] = useState<Pago[] | null>(null)
   const [filtroEstado, setFiltroEstado] = useState<'todas' | 'pagada' | 'parcial' | 'pendiente'>('todas')
   const [filtroDesde, setFiltroDesde] = useState('')
   const [filtroHasta, setFiltroHasta] = useState('')
@@ -298,37 +300,72 @@ export default function FacturasPage() {
   const ivaImporte = +(base * form.iva_porcentaje / 100).toFixed(2)
   const total = +(base + ivaImporte).toFixed(2)
 
+  function editar(f: Factura) {
+    setForm({
+      fecha: f.fecha, tipo_cliente: f.tipo_cliente,
+      cliente_nombre: f.cliente_nombre, cliente_nif: f.cliente_nif,
+      cliente_contacto: f.cliente_contacto, cliente_direccion: f.cliente_direccion,
+      cliente_email: f.cliente_email, conceptos: f.conceptos,
+      iva_porcentaje: f.iva_porcentaje, fraccionamiento: f.fraccionamiento, notas: f.notas,
+    })
+    setEditandoId(f.id)
+    setEditandoPagos(f.pagos)
+    setVista('form')
+  }
+
   async function guardar() {
     if (!form.cliente_nombre || base === 0) return
     setGuardando(true)
-    const numero = `MB-${new Date().getFullYear()}-${String(facturas.length + 1).padStart(3, '0')}`
-    const pagos = calcPagos(total, form.fraccionamiento, form.fecha)
-    const { data, error } = await supabase.from('facturas').insert({
-      numero, fecha: form.fecha, tipo_cliente: form.tipo_cliente,
-      cliente_nombre: form.cliente_nombre, cliente_nif: form.cliente_nif,
-      cliente_contacto: form.cliente_contacto, cliente_direccion: form.cliente_direccion,
-      cliente_email: form.cliente_email, conceptos: form.conceptos,
-      base_imponible: base, iva_porcentaje: form.iva_porcentaje, iva_importe: ivaImporte,
-      total, fraccionamiento: form.fraccionamiento, pagos, notas: form.notas,
-    }).select().single()
-    setGuardando(false)
-    if (!error && data) {
-      // Guardar/actualizar cliente automáticamente
-      if (form.cliente_nombre) {
-        await supabase.from('clientes').upsert({
-          nombre: form.cliente_nombre,
-          email: form.cliente_email || null,
-          nif: form.cliente_nif || null,
-          tipo_cliente: form.tipo_cliente,
-          contacto: form.cliente_contacto || null,
-          direccion: form.cliente_direccion || null,
-          ultima_factura: form.fecha,
-        }, { onConflict: 'email', ignoreDuplicates: false })
+
+    if (editandoId) {
+      // ── EDITAR factura existente ──
+      const pagos = editandoPagos ?? calcPagos(total, form.fraccionamiento, form.fecha)
+      const { error } = await supabase.from('facturas').update({
+        fecha: form.fecha, tipo_cliente: form.tipo_cliente,
+        cliente_nombre: form.cliente_nombre, cliente_nif: form.cliente_nif,
+        cliente_contacto: form.cliente_contacto, cliente_direccion: form.cliente_direccion,
+        cliente_email: form.cliente_email, conceptos: form.conceptos,
+        base_imponible: base, iva_porcentaje: form.iva_porcentaje, iva_importe: ivaImporte,
+        total, fraccionamiento: form.fraccionamiento, pagos, notas: form.notas,
+      }).eq('id', editandoId)
+      setGuardando(false)
+      if (!error) {
+        await cargarFacturas()
+        setEditandoId(null)
+        setEditandoPagos(null)
+        setVista('lista')
+        setForm({ ...emptyForm, fecha: today() })
       }
-      await cargarFacturas()
-      setSeleccionada(data as Factura)
-      setVista('preview')
-      setForm({ ...emptyForm, fecha: today() })
+    } else {
+      // ── CREAR factura nueva ──
+      const numero = `MB-${new Date().getFullYear()}-${String(facturas.length + 1).padStart(3, '0')}`
+      const pagos = calcPagos(total, form.fraccionamiento, form.fecha)
+      const { data, error } = await supabase.from('facturas').insert({
+        numero, fecha: form.fecha, tipo_cliente: form.tipo_cliente,
+        cliente_nombre: form.cliente_nombre, cliente_nif: form.cliente_nif,
+        cliente_contacto: form.cliente_contacto, cliente_direccion: form.cliente_direccion,
+        cliente_email: form.cliente_email, conceptos: form.conceptos,
+        base_imponible: base, iva_porcentaje: form.iva_porcentaje, iva_importe: ivaImporte,
+        total, fraccionamiento: form.fraccionamiento, pagos, notas: form.notas,
+      }).select().single()
+      setGuardando(false)
+      if (!error && data) {
+        if (form.cliente_nombre) {
+          await supabase.from('clientes').upsert({
+            nombre: form.cliente_nombre,
+            email: form.cliente_email || null,
+            nif: form.cliente_nif || null,
+            tipo_cliente: form.tipo_cliente,
+            contacto: form.cliente_contacto || null,
+            direccion: form.cliente_direccion || null,
+            ultima_factura: form.fecha,
+          }, { onConflict: 'email', ignoreDuplicates: false })
+        }
+        await cargarFacturas()
+        setSeleccionada(data as Factura)
+        setVista('preview')
+        setForm({ ...emptyForm, fecha: today() })
+      }
     }
   }
 
@@ -341,10 +378,15 @@ export default function FacturasPage() {
   }
 
   async function eliminar(id: string) {
-    if (!confirm('¿Eliminar esta factura? Esta acción no se puede deshacer.')) return
-    await supabase.from('facturas').delete().eq('id', id)
-    await cargarFacturas()
-    if (seleccionada?.id === id) { setSeleccionada(null); setVista('lista') }
+    const res = await fetch('/api/admin/delete-factura', {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id }),
+    })
+    if (res.ok) {
+      setFacturas(prev => prev.filter(f => f.id !== id))
+      if (seleccionada?.id === id) { setSeleccionada(null); setVista('lista') }
+    }
   }
 
   /* ══ VISTA: LISTA / REGISTRO ══ */
@@ -483,6 +525,10 @@ export default function FacturasPage() {
                               className="text-xs text-slate-500 hover:text-emerald-600 transition-colors px-2 py-1 rounded hover:bg-emerald-50">
                               Ver
                             </button>
+                            <button onClick={() => editar(f)}
+                              className="text-xs text-slate-500 hover:text-blue-600 transition-colors px-2 py-1 rounded hover:bg-blue-50">
+                              Editar
+                            </button>
                             <button onClick={() => descargarPDF(f)}
                               className="text-xs text-slate-500 hover:text-blue-600 transition-colors px-2 py-1 rounded hover:bg-blue-50">
                               <Download size={13} />
@@ -509,12 +555,12 @@ export default function FacturasPage() {
   if (vista === 'form') return (
     <div className="min-h-screen bg-slate-100 p-6">
       <div className="max-w-3xl mx-auto">
-        <button onClick={() => setVista('lista')} className="flex items-center gap-2 text-sm text-slate-500 hover:text-slate-800 mb-6 transition-colors">
+        <button onClick={() => { setVista('lista'); setEditandoId(null); setEditandoPagos(null) }} className="flex items-center gap-2 text-sm text-slate-500 hover:text-slate-800 mb-6 transition-colors">
           <ArrowLeft size={16} /> Volver
         </button>
         <div className="flex items-center gap-3 mb-6">
           <Image src="/logo.png" alt="Mindbridge IA" width={32} height={32} />
-          <h1 className="text-xl font-bold text-slate-900">Nueva factura</h1>
+          <h1 className="text-xl font-bold text-slate-900">{editandoId ? 'Editar factura' : 'Nueva factura'}</h1>
         </div>
 
         <div className="space-y-5">
@@ -699,13 +745,13 @@ export default function FacturasPage() {
           </Section>
 
           <div className="flex gap-3 pb-10">
-            <button onClick={() => setVista('lista')}
+            <button onClick={() => { setVista('lista'); setEditandoId(null); setEditandoPagos(null) }}
               className="flex-1 py-2.5 border border-slate-200 rounded-lg text-sm text-slate-600 hover:bg-slate-50 transition-colors">
               Cancelar
             </button>
             <button onClick={guardar} disabled={guardando || !form.cliente_nombre || base === 0}
               className="flex-1 py-2.5 bg-emerald-500 hover:bg-emerald-600 disabled:opacity-40 disabled:cursor-not-allowed text-white text-sm font-bold rounded-lg transition-colors shadow-sm">
-              {guardando ? 'Guardando...' : 'Crear factura'}
+              {guardando ? 'Guardando...' : editandoId ? 'Guardar cambios' : 'Crear factura'}
             </button>
           </div>
         </div>
@@ -724,6 +770,10 @@ export default function FacturasPage() {
           <ArrowLeft size={16} /> Volver al registro
         </button>
         <div className="flex items-center gap-2">
+          <button onClick={() => editar(f)}
+            className="flex items-center gap-2 border border-slate-200 hover:border-blue-300 text-slate-600 hover:text-blue-600 text-sm font-medium px-4 py-2 rounded-lg transition-colors">
+            Editar
+          </button>
           <button onClick={() => descargarPDF(f)}
             className="flex items-center gap-2 border border-slate-200 hover:border-slate-300 text-slate-600 hover:text-slate-800 text-sm font-medium px-4 py-2 rounded-lg transition-colors">
             <Download size={15} /> Descargar PDF
