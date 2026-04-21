@@ -8,6 +8,7 @@ import Technologies from "@/components/Technologies";
 import AIDemo from "@/components/AIDemo";
 import BudgetCalculator from "@/components/BudgetCalculator";
 import Plans from "@/components/Plans";
+import Testimonials from "@/components/Testimonials";
 import ContactForm from "@/components/ContactForm";
 import Footer from "@/components/Footer";
 import Image from "next/image";
@@ -35,6 +36,7 @@ export default function Home() {
         <Portfolio />
         <Services />
         <Plans />
+        <Testimonials />
         <Technologies />
         <AIDemo />
         <BudgetCalculator />  {/* ✅ Agregar aquí, antes del contacto */}
