@@ -1,13 +1,18 @@
 import { createBrowserClient } from '@supabase/ssr'
 
-let client: ReturnType<typeof createBrowserClient> | null = null
+type SupabaseClient = ReturnType<typeof createBrowserClient>
 
-export function getSupabaseClient() {
-  if (!client) {
-    client = createBrowserClient(
+declare global {
+  // eslint-disable-next-line no-var
+  var __supabaseBrowserClient: SupabaseClient | undefined
+}
+
+export function getSupabaseClient(): SupabaseClient {
+  if (!globalThis.__supabaseBrowserClient) {
+    globalThis.__supabaseBrowserClient = createBrowserClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
     )
   }
-  return client
+  return globalThis.__supabaseBrowserClient
 }
