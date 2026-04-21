@@ -1,5 +1,6 @@
 "use client";
 
+import OpeningVideo from "@/components/OpeningVideo";
 import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
 import Portfolio from "@/components/Portfolio";
@@ -90,6 +91,7 @@ export default function Home() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
+      <OpeningVideo />
       
       {/* Fondo global */}
       <div className="fixed inset-0 -z-10">
