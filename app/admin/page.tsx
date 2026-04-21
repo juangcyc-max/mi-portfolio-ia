@@ -9,7 +9,7 @@ const supabase = getSupabaseClient()
 
 type Stats = {
   leads: number; unreadMessages: number; pendingBudgets: number
-  conversations: number; pageViews: number; aiReplies: number; incidents: number
+  conversations: number; pageViews: number; aiReplies: number; incidents: number; cobrosPendientes: number
 }
 type Trend = { value: number; positive: boolean }
 type ActivityItem = {
@@ -125,7 +125,7 @@ export default function AdminDashboard() {
   const router = useRouter()
   const [stats, setStats] = useState<Stats>({
     leads: 0, unreadMessages: 0, pendingBudgets: 0,
-    conversations: 0, pageViews: 0, aiReplies: 0, incidents: 0,
+    conversations: 0, pageViews: 0, aiReplies: 0, incidents: 0, cobrosPendientes: 0,
   })
   const [trends, setTrends] = useState<{ leads: Trend; messages: Trend }>({
     leads: { value: 0, positive: true },
@@ -148,6 +148,7 @@ export default function AdminDashboard() {
       { count: msgsThisWeek }, { count: msgsLastWeek },
       { data: recentLeads }, { data: recentMessages }, { data: recentIncidents },
       { data: chartLeads },
+      { data: facturasData },
     ] = await Promise.all([
       supabase.from('leads').select('*', { count: 'exact', head: true }),
       supabase.from('messages').select('*', { count: 'exact', head: true }).eq('status', 'unread'),
@@ -164,11 +165,16 @@ export default function AdminDashboard() {
       supabase.from('messages').select('id, name, message, created_at').order('created_at', { ascending: false }).limit(4),
       supabase.from('incidents').select('id, client_name, description, created_at').order('created_at', { ascending: false }).limit(3),
       supabase.from('leads').select('created_at').gte('created_at', twoWeeksAgo),
+      supabase.from('facturas').select('pagos'),
     ])
+
+    const cobrosPendientes = (facturasData || []).reduce((s: number, f: any) =>
+      s + (f.pagos || []).filter((p: any) => !p.pagado).length, 0)
 
     setStats({
       leads: leads || 0, unreadMessages: unreadMessages || 0, pendingBudgets: pendingBudgets || 0,
-      conversations: conversations || 0, pageViews: pageViews || 0, aiReplies: aiReplies || 0, incidents: incidents || 0,
+      conversations: conversations || 0, pageViews: pageViews || 0, aiReplies: aiReplies || 0,
+      incidents: incidents || 0, cobrosPendientes,
     })
 
     const lThis = leadsThisWeek || 0, lLast = leadsLastWeek || 0
@@ -280,6 +286,7 @@ export default function AdminDashboard() {
           <NavGroup title="Negocio">
             <NavCard href="/admin/budgets"  title="Presupuestos" description="Solicitudes y propuestas generadas"               badge={stats.pendingBudgets} badgeColor="blue" />
             <NavCard href="/admin/facturas" title="Facturas"     description="Crear y gestionar facturas con fraccionamiento" />
+            <NavCard href="/admin/cobros"   title="Cobros"       description="Plazos pendientes y registro de pagos"        badge={stats.cobrosPendientes} badgeColor="red" />
             <NavCard href="/admin/clientes" title="Clientes"     description="Lista de clientes generada desde facturas" />
           </NavGroup>
           <NavGroup title="Soporte">
