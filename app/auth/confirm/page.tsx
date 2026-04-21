@@ -1,14 +1,25 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useEffect, useState, Suspense } from 'react'
+import { useRouter } from 'next/navigation'
 import { getSupabaseClient } from '@/lib/supabaseAdmin'
 
 const supabase = getSupabaseClient()
 
-export default function AuthConfirm() {
+export default function AuthConfirmPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-slate-950 flex items-center justify-center">
+        <p className="text-slate-400 text-sm">Cargando...</p>
+      </div>
+    }>
+      <AuthConfirm />
+    </Suspense>
+  )
+}
+
+function AuthConfirm() {
   const router = useRouter()
-  const params = useSearchParams()
   const [password, setPassword] = useState('')
   const [confirm, setConfirm] = useState('')
   const [loading, setLoading] = useState(false)
@@ -23,7 +34,7 @@ export default function AuthConfirm() {
     })
   }, [])
 
-  async function handleReset(e: React.FormEvent) {
+  async function handleReset(e: React.SyntheticEvent) {
     e.preventDefault()
     if (password !== confirm) { setError('Las contraseñas no coinciden'); return }
     if (password.length < 6) { setError('Mínimo 6 caracteres'); return }
