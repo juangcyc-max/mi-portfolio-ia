@@ -202,7 +202,7 @@ export default function Services() {
 
         {/* CTA */}
         <motion.div
-          className="mt-14 flex flex-col sm:flex-row items-center justify-center gap-4"
+          className="mt-14 flex items-center justify-center"
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
@@ -212,12 +212,6 @@ export default function Services() {
             className="px-8 py-4 bg-gradient-to-r from-emerald-400 to-emerald-500 hover:from-emerald-500 hover:to-emerald-600 text-white font-black rounded-2xl transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-lg shadow-emerald-500/25 hover:shadow-emerald-500/40"
           >
             {t('services_cta1').toUpperCase()}
-          </button>
-          <button
-            onClick={() => scrollToSection("contacto")}
-            className="px-8 py-4 bg-white/60 dark:bg-white/5 hover:bg-white dark:hover:bg-white/10 text-slate-700 dark:text-slate-200 font-bold rounded-2xl border border-slate-200 dark:border-white/10 transition-all duration-300 backdrop-blur-md"
-          >
-            {t('services_cta2')}
           </button>
         </motion.div>
 

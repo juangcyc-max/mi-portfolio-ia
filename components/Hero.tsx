@@ -140,7 +140,7 @@ export default function Hero() {
               </Link>
 
               <Link
-                href="#servicios"
+                href="#planes"
                 className="w-full sm:w-auto bg-emerald-500/10 dark:bg-white/[0.03] backdrop-blur-2xl px-6 sm:px-8 py-3 sm:py-4 rounded-xl font-bold text-emerald-700 dark:text-white border border-emerald-500/20 dark:border-white/10 hover:bg-emerald-500/20 dark:hover:bg-white/[0.1] hover:border-emerald-500/40 dark:hover:border-white/20 transition-all duration-300 text-sm sm:text-base text-center min-h-[48px] flex items-center justify-center shadow-sm dark:shadow-[0_8px_32px_0_rgba(0,0,0,0.2)]"
               >
                 {t('hero_cta_secondary')}

@@ -22,8 +22,8 @@ export const ES_STRINGS = {
   hero_available: "Disponible para Proyectos",
   hero_bio:       "Impulsando la innovación tecnológica mediante arquitecturas modernas y modelos de lenguaje avanzados.",
   hero_role:      "Especialista en Web + IA",
-  hero_cta_primary:   "Empezar Proyecto",
-  hero_cta_secondary: "Ver Servicios",
+  hero_cta_primary:   "Hablar con MI3.0",
+  hero_cta_secondary: "Ver precios",
 
   // Services section
   services_badge:   "Soluciones para negocios reales",
@@ -164,8 +164,8 @@ export const ES_STRINGS = {
   feat_ai_advanced: "Integración IA Avanzada",
 
   // Contact
-  contact_badge:    "Hablemos",
-  contact_title:    "¿Listo para empezar?",
+  contact_badge:    "Contacto",
+  contact_title:    "¿Prefieres escribirnos?",
   contact_name:     "Nombre",
   contact_email:    "Email",
   contact_message:  "Mensaje",
@@ -273,8 +273,8 @@ export const EN_STRINGS: UIStrings = {
   hero_available: "Available for Projects",
   hero_bio:       "Driving technological innovation through modern architectures and advanced language models.",
   hero_role:      "Web + AI Specialist",
-  hero_cta_primary:   "Start Project",
-  hero_cta_secondary: "View Services",
+  hero_cta_primary:   "Talk to MI3.0",
+  hero_cta_secondary: "See pricing",
 
   services_badge:   "Solutions for real businesses",
   services_title1:  "Web · Cloud · AI",
@@ -410,7 +410,7 @@ export const EN_STRINGS: UIStrings = {
   feat_ai_advanced: "Advanced AI Integration",
 
   contact_badge:    "Let's talk",
-  contact_title:    "Ready to get started?",
+  contact_title:    "Prefer to write us?",
   contact_name:     "Name",
   contact_email:    "Email",
   contact_message:  "Message",

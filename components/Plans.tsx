@@ -329,10 +329,7 @@ export default function Plans() {
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
         >
-          {t('plans_faq')}{" "}
-          <button onClick={scrollToContact} className="text-emerald-600 dark:text-emerald-400 font-bold hover:underline">
-            {t('plans_faq_link')}
-          </button>
+          {t('plans_faq')}
         </motion.p>
       </div>
     </section>
