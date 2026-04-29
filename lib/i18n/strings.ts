@@ -252,6 +252,16 @@ export const ES_STRINGS = {
   port_p3_m2:       "Rebote",
   port_p3_m3:       "Leads",
 
+  port_p4_title: "Blockself",
+  port_p4_cat:   "Web · Diseño",
+  port_p4_desc:  "Web moderna con identidad de marca, diseño a medida y optimización para conversión.",
+  port_p4_f1:    "Diseño a medida",
+  port_p4_f2:    "Responsive",
+  port_p4_f3:    "SEO incluido",
+  port_p4_m1:    "Valoración",
+  port_p4_m2:    "Entrega",
+  port_p4_m3:    "Online",
+
   // Hero audio
   hero_audio_play:  "Toca el logo para escuchar",
   hero_audio_playing: "Reproduciendo...",
@@ -491,6 +501,16 @@ export const EN_STRINGS: UIStrings = {
   port_p3_m1:       "Conversion",
   port_p3_m2:       "Bounce",
   port_p3_m3:       "Leads",
+
+  port_p4_title: "Blockself",
+  port_p4_cat:   "Web · Design",
+  port_p4_desc:  "Modern website with brand identity, custom design and conversion optimization.",
+  port_p4_f1:    "Custom design",
+  port_p4_f2:    "Responsive",
+  port_p4_f3:    "SEO included",
+  port_p4_m1:    "Rating",
+  port_p4_m2:    "Delivery",
+  port_p4_m3:    "Online",
 
   hero_audio_play:    "Tap the logo to listen",
   hero_audio_playing: "Playing...",

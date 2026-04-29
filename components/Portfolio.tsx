@@ -154,6 +154,17 @@ export default function Portfolio() {
         { label: t("port_p3_m3"), value: 200, suffix: "%" },
       ],
     },
+    {
+      title: t("port_p4_title"), category: t("port_p4_cat"), description: t("port_p4_desc"),
+      features: [t("port_p4_f1"), t("port_p4_f2"), t("port_p4_f3")],
+      color: "from-cyan-500 to-blue-500", logo: "/logos/blockself.png", link: "https://blockself.net",
+      external: true, badge: "CASO REAL",
+      metrics: [
+        { label: t("port_p4_m1"), value: 5, suffix: "★" },
+        { label: t("port_p4_m2"), value: 15, suffix: "d" },
+        { label: t("port_p4_m3"), value: 100, suffix: "%" },
+      ],
+    },
   ];
 
   const scrollToContact = () => {
