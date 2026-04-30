@@ -8,20 +8,24 @@ export default function CustomScrollbar() {
   const lastScrollY = useRef(0);
 
   useEffect(() => {
-    const handleScroll = () => {
-      const scrollTop = window.scrollY;
-      
-      // Determinar dirección para rotar la hormiga
-      setIsScrollingUp(scrollTop < lastScrollY.current);
-      lastScrollY.current = scrollTop;
+    let rafId: number;
 
-      const docHeight = document.documentElement.scrollHeight - window.innerHeight;
-      const percent = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
-      setScrollPercent(percent);
+    const handleScroll = () => {
+      cancelAnimationFrame(rafId);
+      rafId = requestAnimationFrame(() => {
+        const scrollTop = window.scrollY;
+        setIsScrollingUp(scrollTop < lastScrollY.current);
+        lastScrollY.current = scrollTop;
+        const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+        setScrollPercent(docHeight > 0 ? (scrollTop / docHeight) * 100 : 0);
+      });
     };
 
     window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      cancelAnimationFrame(rafId);
+    };
   }, []);
 
   return (

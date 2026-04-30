@@ -15,12 +15,14 @@ export default function CookieBanner() {
   useEffect(() => {
     const stored = localStorage.getItem(COOKIE_CONSENT_KEY) as ConsentValue;
     if (!stored) {
-      // Pequeño delay para que no aparezca mientras la página carga
-      const timer = setTimeout(() => {
-        setVisible(true);
-        setAnimating(true);
-      }, 800);
-      return () => clearTimeout(timer);
+      const show = () => { setVisible(true); setAnimating(true); };
+      if ("requestIdleCallback" in window) {
+        const id = requestIdleCallback(show);
+        return () => cancelIdleCallback(id);
+      } else {
+        const timer = setTimeout(show, 500);
+        return () => clearTimeout(timer);
+      }
     }
   }, []);
 
