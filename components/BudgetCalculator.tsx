@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { fadeInUp } from "@/lib/animations";
-import jsPDF from "jspdf";
 import { useTranslation } from "@/lib/i18n/LanguageContext";
 
 // Iconos SVG para darle el toque profesional
@@ -165,6 +164,7 @@ export default function BudgetCalculator() {
   // Lógica de descarga de PDF mantenida intacta
   const downloadPDF = async () => {
     if (!budget || !projectType) return;
+    const { default: jsPDF } = await import("jspdf");
     const doc = new jsPDF();
     const pageWidth = doc.internal.pageSize.getWidth();
     try {

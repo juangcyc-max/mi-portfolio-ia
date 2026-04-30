@@ -1,18 +1,20 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import OpeningVideo from "@/components/OpeningVideo";
 import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
 import Portfolio from "@/components/Portfolio";
-import Services from "@/components/Services";
-import Technologies from "@/components/Technologies";
-import AIDemo from "@/components/AIDemo";
-import BudgetCalculator from "@/components/BudgetCalculator";
-import Plans from "@/components/Plans";
-import Testimonials from "@/components/Testimonials";
-import ContactForm from "@/components/ContactForm";
-import Footer from "@/components/Footer";
 import Image from "next/image";
+
+const Services = dynamic(() => import("@/components/Services"));
+const Plans = dynamic(() => import("@/components/Plans"));
+const Testimonials = dynamic(() => import("@/components/Testimonials"));
+const Technologies = dynamic(() => import("@/components/Technologies"));
+const AIDemo = dynamic(() => import("@/components/AIDemo"));
+const BudgetCalculator = dynamic(() => import("@/components/BudgetCalculator"));
+const ContactForm = dynamic(() => import("@/components/ContactForm"));
+const Footer = dynamic(() => import("@/components/Footer"));
 
 const jsonLd = {
   "@context": "https://schema.org",
@@ -101,7 +103,7 @@ export default function Home() {
           fill
           className="object-cover opacity-30 dark:opacity-20"
           priority
-          quality={100}
+          quality={75}
         />
       </div>
       
