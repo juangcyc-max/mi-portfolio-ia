@@ -34,16 +34,22 @@ const BUD_STATUS_COLORS: Record<string, string> = {
 }
 
 const SERVICE_PRESETS = [
+  // Planes web
   { description: 'Plan Lanzamiento — Setup', price: 990 },
   { description: 'Plan Lanzamiento — Cuota mensual', price: 79 },
   { description: 'Plan Negocio — Setup', price: 2490 },
   { description: 'Plan Negocio — Cuota mensual', price: 149 },
   { description: 'Plan Empresa — Setup', price: 4990 },
   { description: 'Plan Empresa — Cuota mensual', price: 299 },
-  { description: 'Landing page', price: 990 },
-  { description: 'Web multipágina', price: 2490 },
-  { description: 'Chatbot con IA', price: 600 },
+  // Servicios a medida
+  { description: 'Agente IA de Voz — Desarrollo', price: 2000 },
+  { description: 'Agente IA de Voz — Mantenimiento mensual', price: 150 },
+  { description: 'App Móvil (iOS + Android) — Desarrollo', price: 2500 },
+  { description: 'App Móvil — Mantenimiento mensual', price: 100 },
+  { description: 'Panel Unificado de Gestión', price: 1500 },
+  // Extras
   { description: 'SEO avanzado', price: 400 },
+  { description: 'Chatbot con IA', price: 600 },
   { description: 'Analytics avanzado', price: 300 },
   { description: 'CMS personalizado', price: 500 },
   { description: 'Soporte multiidioma', price: 450 },
