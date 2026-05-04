@@ -66,14 +66,73 @@ type CustomBudget = {
   id: string; client_name: string; client_email: string; status: string;
   total: number; items: LineItem[]; notes: string; created_at: string;
 }
+type PaymentMode = '60_40' | '50_50' | '70_30' | '100' | 'custom'
 
-const EMPTY_FORM = { clientName: '', clientEmail: '', notes: '', items: [{ description: '', price: '' }] as LineItem[] }
+const PAYMENT_OPTIONS: { value: PaymentMode; label: string }[] = [
+  { value: '60_40', label: '60% inicial / 40% a la entrega' },
+  { value: '50_50', label: '50% inicial / 50% a la entrega' },
+  { value: '70_30', label: '70% inicial / 30% a la entrega' },
+  { value: '100',   label: '100% por adelantado' },
+  { value: 'custom', label: 'Personalizado…' },
+]
+
+function packNotes(notes: string, paymentMode: PaymentMode, customPaymentText: string): string {
+  if (paymentMode === '60_40' && !customPaymentText) return notes
+  return JSON.stringify({ _pt: paymentMode, _cpt: customPaymentText || '' }) + '\n' + notes
+}
+
+function unpackNotes(raw: string | null): { paymentMode: PaymentMode; customPaymentText: string; visibleNotes: string } {
+  if (!raw) return { paymentMode: '60_40', customPaymentText: '', visibleNotes: '' }
+  if (raw.startsWith('{')) {
+    const nl = raw.indexOf('\n')
+    if (nl !== -1) {
+      try {
+        const m = JSON.parse(raw.slice(0, nl))
+        if (m._pt) return { paymentMode: m._pt as PaymentMode, customPaymentText: m._cpt || '', visibleNotes: raw.slice(nl + 1) }
+      } catch {}
+    }
+  }
+  return { paymentMode: '60_40', customPaymentText: '', visibleNotes: raw }
+}
+
+const EMPTY_FORM = {
+  clientName: '', clientEmail: '', notes: '',
+  paymentMode: '60_40' as PaymentMode, customPaymentText: '',
+  items: [{ description: '', price: '' }] as LineItem[],
+}
 
 function getTotal(items: LineItem[]) {
   return items.reduce((s, i) => s + (parseFloat(i.price) || 0), 0)
 }
 
-function openPDF(budget: CustomBudget) {
+function buildPaymentRows(total: number, mode: PaymentMode, customText: string): string {
+  const tdL = (s: string, last = false) => `<td style="padding:12px 16px;font-size:13px;color:#1e293b;${last ? '' : 'border-bottom:1px solid #e2e8f0;'}">${s}</td>`
+  const tdM = (s: string, last = false) => `<td style="padding:12px 16px;font-size:14px;color:#10b981;font-weight:700;text-align:right;${last ? '' : 'border-bottom:1px solid #e2e8f0;'}">${s}</td>`
+  const tdR = (s: string, last = false) => `<td style="padding:12px 16px;font-size:13px;color:#475569;text-align:right;${last ? '' : 'border-bottom:1px solid #e2e8f0;'}">${s}</td>`
+  if (mode === '100') {
+    return `<tr>${tdL('Pago único (100%)', true)}${tdM(`${total.toFixed(2)} €`, true)}${tdR('Antes del inicio', true)}</tr>`
+  }
+  if (mode === 'custom') {
+    return `<tr><td colspan="3" style="padding:12px 16px;font-size:13px;color:#1e293b;white-space:pre-wrap;">${customText}</td></tr>`
+  }
+  const [p1, p2] = mode === '50_50' ? [0.5, 0.5] : mode === '70_30' ? [0.7, 0.3] : [0.6, 0.4]
+  const pct1 = Math.round(p1 * 100), pct2 = Math.round(p2 * 100)
+  return `<tr>${tdL(`Pago inicial (${pct1}%)`)}${tdM(`${(total * p1).toFixed(2)} €`)}${tdR('Antes del inicio')}</tr>
+    <tr>${tdL(`Pago final (${pct2}%)`, true)}${tdM(`${(total * p2).toFixed(2)} €`, true)}${tdR('A la entrega del trabajo', true)}</tr>`
+}
+
+function buildPaymentDisclaimer(mode: PaymentMode): string {
+  if (mode === '100') return 'El pago total es requerido antes del inicio de los trabajos.'
+  if (mode === 'custom') return ''
+  const pct = mode === '70_30' ? 70 : mode === '50_50' ? 50 : 60
+  return `La aceptación de este presupuesto implica la aceptación de las presentes condiciones de pago. El pago inicial (${pct}%) tiene carácter no reembolsable una vez iniciados los trabajos, constituyendo compensación por el tiempo reservado y los trabajos ya realizados. En caso de cancelación por parte del cliente tras el inicio del proyecto, dicho importe quedará retenido en su totalidad.`
+}
+
+function openPDF(budget: CustomBudget, overrideMode?: PaymentMode, overrideCustom?: string) {
+  const { paymentMode: storedMode, customPaymentText: storedCustom, visibleNotes } = unpackNotes(budget.notes)
+  const mode = overrideMode ?? storedMode
+  const customText = overrideCustom ?? storedCustom
+
   const rows = (budget.items || []).map(i => `
     <tr>
       <td style="padding:12px;border-bottom:1px solid #e2e8f0;font-size:14px;">${i.description}</td>
@@ -83,6 +142,8 @@ function openPDF(budget: CustomBudget) {
   const iva = base * 0.21
   const total = base * 1.21
   const date = new Date(budget.created_at).toLocaleDateString('es-ES', { day: '2-digit', month: 'long', year: 'numeric' })
+  const paymentRows = buildPaymentRows(total, mode, customText)
+  const disclaimer = buildPaymentDisclaimer(mode)
 
   const html = `<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8">
 <title>Presupuesto — ${budget.client_name}</title>
@@ -142,24 +203,11 @@ function openPDF(budget: CustomBudget) {
         <th style="padding:10px 16px;text-align:right;font-size:12px;color:#64748b;font-weight:600;border-bottom:1px solid #e2e8f0;">Vencimiento</th>
       </tr>
     </thead>
-    <tbody>
-      <tr>
-        <td style="padding:12px 16px;font-size:13px;color:#1e293b;border-bottom:1px solid #e2e8f0;">Pago inicial (60%)</td>
-        <td style="padding:12px 16px;font-size:14px;color:#10b981;font-weight:700;text-align:right;border-bottom:1px solid #e2e8f0;">${(total * 0.6).toFixed(2)} €</td>
-        <td style="padding:12px 16px;font-size:13px;color:#475569;text-align:right;border-bottom:1px solid #e2e8f0;">Antes del inicio</td>
-      </tr>
-      <tr>
-        <td style="padding:12px 16px;font-size:13px;color:#1e293b;">Pago final (40%)</td>
-        <td style="padding:12px 16px;font-size:14px;color:#10b981;font-weight:700;text-align:right;">${(total * 0.4).toFixed(2)} €</td>
-        <td style="padding:12px 16px;font-size:13px;color:#475569;text-align:right;">A la entrega del trabajo</td>
-      </tr>
-    </tbody>
+    <tbody>${paymentRows}</tbody>
   </table>
-  <div style="padding:14px 16px;background:#f8fafc;border-top:1px solid #e2e8f0;font-size:11px;color:#94a3b8;line-height:1.7;">
-    La aceptación de este presupuesto implica la aceptación de las presentes condiciones de pago. El pago inicial (60%) tiene carácter no reembolsable una vez iniciados los trabajos, constituyendo compensación por el tiempo reservado y los trabajos ya realizados. En caso de cancelación por parte del cliente tras el inicio del proyecto, dicho importe quedará retenido en su totalidad.
-  </div>
+  ${disclaimer ? `<div style="padding:14px 16px;background:#f8fafc;border-top:1px solid #e2e8f0;font-size:11px;color:#94a3b8;line-height:1.7;">${disclaimer}</div>` : ''}
 </div>
-${budget.notes ? `<div class="notes"><strong>Notas:</strong> ${budget.notes}</div>` : ''}
+${visibleNotes ? `<div class="notes"><strong>Notas:</strong> ${visibleNotes}</div>` : ''}
 <div class="footer">Mindbridge IA · NIF: 72173348S · C/ Daoiz y Velarde 23 5ºC, 39003 Santander<br/>Este presupuesto tiene una validez de 30 días desde su emisión.</div>
 </body></html>`
 
@@ -167,14 +215,28 @@ ${budget.notes ? `<div class="notes"><strong>Notas:</strong> ${budget.notes}</di
   if (win) { win.document.write(html); win.document.close() }
 }
 
-function budgetEmailBody(budget: CustomBudget) {
+function buildPaymentEmailLines(total: number, mode: PaymentMode, customText: string): string {
+  if (mode === '100') return `• Pago único (100%): ${total.toFixed(2)} € — antes del inicio de los trabajos`
+  if (mode === 'custom') return customText
+  const [p1, p2] = mode === '50_50' ? [0.5, 0.5] : mode === '70_30' ? [0.7, 0.3] : [0.6, 0.4]
+  const pct1 = Math.round(p1 * 100), pct2 = Math.round(p2 * 100)
+  return `• Pago inicial (${pct1}%): ${(total * p1).toFixed(2)} € — antes del inicio de los trabajos\n• Pago final (${pct2}%): ${(total * p2).toFixed(2)} € — a la entrega del trabajo`
+}
+
+function budgetEmailBody(budget: CustomBudget, overrideMode?: PaymentMode, overrideCustom?: string) {
+  const { paymentMode: storedMode, customPaymentText: storedCustom, visibleNotes } = unpackNotes(budget.notes)
+  const mode = overrideMode ?? storedMode
+  const customText = overrideCustom ?? storedCustom
+
   const base = budget.total
   const iva = (base * 0.21).toFixed(2)
-  const total = (base * 1.21).toFixed(2)
+  const total = (base * 1.21)
   const lines = (budget.items || []).map(i => `• ${i.description}: ${parseFloat(i.price).toFixed(2)} €`).join('\n')
-  const pago60 = (base * 1.21 * 0.6).toFixed(2)
-  const pago40 = (base * 1.21 * 0.4).toFixed(2)
-  return `Te adjunto el presupuesto personalizado que hemos preparado para ti:\n\n${lines}\n\nBase imponible: ${base.toFixed(2)} €\nIVA (21%): ${iva} €\nTOTAL: ${total} €\n\n— CONDICIONES DE PAGO —\n• Pago inicial (60%): ${pago60} € — antes del inicio de los trabajos\n• Pago final (40%): ${pago40} € — a la entrega del trabajo\n\nEl pago inicial tiene carácter no reembolsable una vez iniciados los trabajos. En caso de cancelación tras el inicio del proyecto, dicho importe quedará retenido en su totalidad.\n\n${budget.notes ? `Notas: ${budget.notes}\n\n` : ''}Este presupuesto tiene una validez de 30 días. Si tienes cualquier duda o quieres ajustar algo, escríbeme y lo vemos.\n\nUn saludo,`
+  const paymentLines = buildPaymentEmailLines(total, mode, customText)
+  const disclaimer = mode !== '100' && mode !== 'custom'
+    ? `\nEl pago inicial tiene carácter no reembolsable una vez iniciados los trabajos. En caso de cancelación tras el inicio del proyecto, dicho importe quedará retenido en su totalidad.`
+    : ''
+  return `Te adjunto el presupuesto personalizado que hemos preparado para ti:\n\n${lines}\n\nBase imponible: ${base.toFixed(2)} €\nIVA (21%): ${iva} €\nTOTAL: ${total.toFixed(2)} €\n\n— CONDICIONES DE PAGO —\n${paymentLines}${disclaimer}\n\n${visibleNotes ? `Notas: ${visibleNotes}\n\n` : ''}Este presupuesto tiene una validez de 30 días. Si tienes cualquier duda o quieres ajustar algo, escríbeme y lo vemos.\n\nUn saludo,`
 }
 
 // ── Componente principal ────────────────────────────────────────────────────
@@ -194,6 +256,7 @@ export default function BudgetsPage() {
   const [showForm, setShowForm] = useState(false)
   const [form, setForm] = useState(EMPTY_FORM)
   const [saving, setSaving] = useState(false)
+  const [budPaymentOverrides, setBudPaymentOverrides] = useState<Record<string, { mode: PaymentMode; custom: string }>>({})
 
   useEffect(() => { loadRequests(); loadBudgets() }, [])
 
@@ -247,7 +310,7 @@ export default function BudgetsPage() {
   }
 
   function prefillFromRequest(req: any) {
-    setForm({ clientName: req.name || '', clientEmail: req.email || '', notes: req.additional_info || '', items: [{ description: '', price: '' }] })
+    setForm({ clientName: req.name || '', clientEmail: req.email || '', notes: req.additional_info || '', paymentMode: '60_40', customPaymentText: '', items: [{ description: '', price: '' }] })
     setTab('budgets')
     setShowForm(true)
   }
@@ -260,7 +323,7 @@ export default function BudgetsPage() {
     const { error } = await supabase.from('custom_budgets').insert({
       client_name: form.clientName,
       client_email: form.clientEmail,
-      notes: form.notes,
+      notes: packNotes(form.notes, form.paymentMode, form.customPaymentText),
       items: validItems,
       total: getTotal(validItems),
       status: 'draft',
@@ -477,6 +540,27 @@ export default function BudgetsPage() {
                   </div>
                 </div>
 
+                {/* Condiciones de pago */}
+                <div>
+                  <label className="text-xs text-slate-400 mb-1 block">Condiciones de pago</label>
+                  <select
+                    value={form.paymentMode}
+                    onChange={e => setForm(f => ({ ...f, paymentMode: e.target.value as PaymentMode }))}
+                    className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-emerald-500"
+                  >
+                    {PAYMENT_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+                  </select>
+                  {form.paymentMode === 'custom' && (
+                    <textarea
+                      value={form.customPaymentText}
+                      onChange={e => setForm(f => ({ ...f, customPaymentText: e.target.value }))}
+                      className="mt-2 w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-emerald-500 resize-none"
+                      rows={3}
+                      placeholder="Describe las condiciones de pago personalizadas..."
+                    />
+                  )}
+                </div>
+
                 {/* Notas */}
                 <div>
                   <label className="text-xs text-slate-400 mb-1 block">Notas (opcional)</label>
@@ -485,7 +569,7 @@ export default function BudgetsPage() {
                     onChange={e => setForm(f => ({ ...f, notes: e.target.value }))}
                     className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-emerald-500 resize-none"
                     rows={3}
-                    placeholder="Condiciones, plazos, observaciones..."
+                    placeholder="Observaciones adicionales..."
                   />
                 </div>
 
@@ -539,7 +623,14 @@ export default function BudgetsPage() {
                   </div>
                 </div>
 
-                {budExpanded === bud.id && (
+                {budExpanded === bud.id && (() => {
+                  const { paymentMode: savedMode, customPaymentText: savedCustom, visibleNotes } = unpackNotes(bud.notes)
+                  const override = budPaymentOverrides[bud.id]
+                  const activeMode = override?.mode ?? savedMode
+                  const activeCustom = override?.custom ?? savedCustom
+                  const setOverride = (mode: PaymentMode, custom = '') =>
+                    setBudPaymentOverrides(prev => ({ ...prev, [bud.id]: { mode, custom } }))
+                  return (
                   <div className="px-5 pb-5 border-t border-slate-200 pt-4 space-y-4">
                     {/* Líneas */}
                     <div className="space-y-1">
@@ -561,13 +652,33 @@ export default function BudgetsPage() {
                         </div>
                       </div>
                     </div>
-                    {bud.notes && (
-                      <p className="text-sm text-slate-500 bg-slate-50 rounded-lg p-3 border-l-4 border-emerald-400">{bud.notes}</p>
+                    {visibleNotes && (
+                      <p className="text-sm text-slate-500 bg-slate-50 rounded-lg p-3 border-l-4 border-emerald-400">{visibleNotes}</p>
                     )}
+                    {/* Condiciones de pago */}
+                    <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 space-y-2">
+                      <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Condiciones de pago para PDF / email</p>
+                      <select
+                        value={activeMode}
+                        onChange={e => setOverride(e.target.value as PaymentMode, activeMode === 'custom' ? activeCustom : '')}
+                        className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-emerald-500"
+                      >
+                        {PAYMENT_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+                      </select>
+                      {activeMode === 'custom' && (
+                        <textarea
+                          value={activeCustom}
+                          onChange={e => setOverride('custom', e.target.value)}
+                          className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-emerald-500 resize-none"
+                          rows={3}
+                          placeholder="Describe las condiciones de pago personalizadas..."
+                        />
+                      )}
+                    </div>
                     {/* Acciones */}
                     <div className="flex flex-wrap gap-3 pt-1">
                       <button
-                        onClick={() => openPDF(bud)}
+                        onClick={() => openPDF(bud, activeMode, activeCustom)}
                         className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white text-sm font-semibold rounded-xl transition-colors"
                       >
                         Ver / Imprimir PDF
@@ -585,11 +696,12 @@ export default function BudgetsPage() {
                         to={bud.client_email}
                         name={bud.client_name}
                         defaultSubject={`Presupuesto Mindbridge IA — ${(bud.total * 1.21).toFixed(0)} € con IVA`}
-                        defaultBody={budgetEmailBody(bud)}
+                        defaultBody={budgetEmailBody(bud, activeMode, activeCustom)}
                       />
                     </div>
                   </div>
-                )}
+                  )
+                })()}
               </div>
             ))}
           </>
