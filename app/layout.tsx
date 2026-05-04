@@ -121,6 +121,12 @@ export default function RootLayout({
 }) {
   return (
     <html lang="es" className={publicSans.variable} suppressHydrationWarning>
+      <head>
+        <link rel="preconnect" href="https://api.anthropic.com" />
+        <link rel="dns-prefetch" href="https://api.anthropic.com" />
+        <link rel="dns-prefetch" href="https://api.resend.com" />
+        <link rel="dns-prefetch" href="https://exp.host" />
+      </head>
       <body className="bg-office antialiased min-h-screen">
         {/* ✅ Theme Provider para modo claro/oscuro */}
         <ThemeProvider

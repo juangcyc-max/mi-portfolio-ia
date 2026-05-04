@@ -109,7 +109,7 @@ export default function Home() {
           fill
           className="object-cover opacity-30 dark:opacity-20"
           priority
-          quality={75}
+          quality={60}
         />
       </div>
       
