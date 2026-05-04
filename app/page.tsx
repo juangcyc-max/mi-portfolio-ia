@@ -9,6 +9,7 @@ import Image from "next/image";
 
 const Services = dynamic(() => import("@/components/Services"));
 const Plans = dynamic(() => import("@/components/Plans"));
+const CustomServices = dynamic(() => import("@/components/CustomServices"));
 const Testimonials = dynamic(() => import("@/components/Testimonials"));
 const Technologies = dynamic(() => import("@/components/Technologies"));
 const AIDemo = dynamic(() => import("@/components/AIDemo"));
@@ -114,6 +115,7 @@ export default function Home() {
         <Portfolio />
         <Services />
         <Plans />
+        <CustomServices />
         <Testimonials />
         <Technologies />
         <AIDemo />

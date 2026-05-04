@@ -27,9 +27,19 @@ const Icons = {
       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
     </svg>
   ),
+  app_movil: (props: any) => (
+    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" {...props}>
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
+    </svg>
+  ),
+  agente_voz: (props: any) => (
+    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" {...props}>
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+    </svg>
+  ),
 };
 
-type ProjectType = "landing" | "corporate" | "ecommerce" | "ia";
+type ProjectType = "landing" | "corporate" | "ecommerce" | "ia" | "app_movil" | "agente_voz";
 
 type Features = {
   seo: boolean;
@@ -52,6 +62,8 @@ const PROJECT_PRICES: Record<ProjectType, BudgetRange> = {
   corporate: { min: 2490, max: 4490 },
   ecommerce: { min: 3500, max: 7990 },
   ia: { min: 4990, max: 12000 },
+  app_movil: { min: 2500, max: 6000 },
+  agente_voz: { min: 2000, max: 4000 },
 };
 
 const FEATURE_PRICES: Record<keyof Features, number> = {
@@ -70,6 +82,8 @@ const MONTHLY_FEE: Record<ProjectType, number> = {
   corporate: 149,
   ecommerce: 149,
   ia: 299,
+  app_movil: 100,
+  agente_voz: 150,
 };
 
 const IVA_RATE = 0.21;
@@ -82,6 +96,8 @@ export default function BudgetCalculator() {
     corporate: t('proj_corporate'),
     ecommerce: t('proj_ecommerce'),
     ia: t('proj_ia'),
+    app_movil: 'App Móvil',
+    agente_voz: 'Agente IA de Voz',
   };
 
   const FEATURE_LABELS: Record<keyof Features, string> = {
