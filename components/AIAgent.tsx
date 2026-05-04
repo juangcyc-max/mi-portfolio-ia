@@ -94,6 +94,22 @@ function renderMsg(text: string) {
     .replace(/\n/g, "<br/>");
 }
 
+/* ─── Limpiar texto para síntesis de voz ─── */
+function cleanForSpeech(text: string): string {
+  return text
+    .replace(/\*\*(.+?)\*\*/g, "$1")       // **negrita** → texto
+    .replace(/\*(.+?)\*/g, "$1")            // *cursiva* → texto
+    .replace(/#{1,6}\s*/g, "")              // # títulos
+    .replace(/•/g, ",")                     // bullets → pausa natural
+    .replace(/→/g, ".")                     // flechas → pausa
+    .replace(/[\u{1F300}-\u{1FFFF}]/gu, "") // emojis
+    .replace(/[☀-➿]/gu, "")       // símbolos extra
+    .replace(/\n{2,}/g, ". ")              // párrafos → pausa
+    .replace(/\n/g, ", ")                   // saltos → pausa corta
+    .replace(/\s{2,}/g, " ")               // espacios múltiples
+    .trim();
+}
+
 /* ═══════════════════════════════════════════════
    COMPONENTE
 ═══════════════════════════════════════════════ */
@@ -154,7 +170,7 @@ export default function AIAgent() {
       scrollToSection(step.sectionId);
       setAgentState("speaking");
       if (voiceEnabled) {
-        await speakPromise(step.text, voicesRef.current);
+        await speakPromise(cleanForSpeech(step.text), voicesRef.current);
       } else {
         await new Promise((r) => setTimeout(r, 2000));
       }
@@ -169,7 +185,7 @@ export default function AIAgent() {
   const speakReply = useCallback((text: string) => {
     if (!voiceEnabled) return;
     setAgentState("speaking");
-    speakPromise(text, voicesRef.current).then(() => setAgentState("idle"));
+    speakPromise(cleanForSpeech(text), voicesRef.current).then(() => setAgentState("idle"));
   }, [voiceEnabled]);
 
   /* ─── Enviar mensaje ─── */
