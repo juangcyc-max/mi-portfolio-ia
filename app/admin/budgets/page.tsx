@@ -456,9 +456,32 @@ export default function BudgetsPage() {
             </button>
 
             {/* Formulario de creación */}
-            {showForm && (
+            {showForm && (() => {
+              const savedClients = Array.from(
+                new Map(budgets.map(b => [b.client_email, { name: b.client_name, email: b.client_email }])).values()
+              )
+              return (
               <div className="bg-white border border-slate-200 rounded-xl p-6 space-y-5">
                 <h2 className="font-bold text-slate-900">Nuevo presupuesto definitivo</h2>
+
+                {/* Clientes guardados */}
+                {savedClients.length > 0 && (
+                  <div>
+                    <p className="text-xs text-slate-400 mb-2">Cargar cliente existente</p>
+                    <div className="flex flex-wrap gap-2">
+                      {savedClients.map(c => (
+                        <button
+                          key={c.email}
+                          onClick={() => setForm(f => ({ ...f, clientName: c.name, clientEmail: c.email }))}
+                          className="px-3 py-1.5 bg-slate-100 hover:bg-emerald-50 hover:text-emerald-700 border border-slate-200 hover:border-emerald-300 rounded-lg text-xs font-medium transition-colors text-left"
+                        >
+                          <span className="font-semibold">{c.name}</span>
+                          <span className="text-slate-400 ml-1">· {c.email}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
 
                 {/* Cliente */}
                 <div className="grid grid-cols-2 gap-3">
@@ -589,7 +612,8 @@ export default function BudgetsPage() {
                   </button>
                 </div>
               </div>
-            )}
+              )
+            })()}
 
             {/* Lista de presupuestos definitivos */}
             {budLoading ? <p className="text-slate-500">Cargando...</p>
