@@ -89,21 +89,30 @@ export default function IncidentsPage() {
                     {new Date(inc.created_at).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
                   </p>
                 </div>
-                <div className="flex items-center gap-2 flex-shrink-0">
-                  <span className={`text-xs px-2 py-1 rounded-full font-medium ${PRIORITY_COLORS[inc.priority]}`}>
-                    {PRIORITY_LABELS[inc.priority]}
-                  </span>
-                  <span className={`text-xs px-3 py-1 rounded-full font-medium ${STATUS_COLORS[inc.status]}`}>
-                    {STATUS_LABELS[inc.status]}
-                  </span>
-                  <select
-                    value={inc.status}
-                    onChange={e => { e.stopPropagation(); updateStatus(inc.id, e.target.value) }}
-                    onClick={e => e.stopPropagation()}
-                    className="text-xs bg-slate-100 border border-slate-300 text-slate-600 rounded-lg px-2 py-1 focus:outline-none"
-                  >
-                    {Object.entries(STATUS_LABELS).map(([v, l]) => <option key={v} value={v}>{l}</option>)}
-                  </select>
+                <div className="flex flex-col items-end gap-2 flex-shrink-0">
+                  <div className="flex items-center gap-2">
+                    <span className={`text-xs px-2 py-1 rounded-full font-medium ${PRIORITY_COLORS[inc.priority]}`}>
+                      {PRIORITY_LABELS[inc.priority]}
+                    </span>
+                    <span className={`text-xs px-3 py-1 rounded-full font-medium ${STATUS_COLORS[inc.status]}`}>
+                      {STATUS_LABELS[inc.status]}
+                    </span>
+                  </div>
+                  <div className="flex gap-1 flex-wrap justify-end" onClick={e => e.stopPropagation()}>
+                    {Object.entries(STATUS_LABELS).map(([v, l]) => (
+                      <button
+                        key={v}
+                        onClick={() => updateStatus(inc.id, v)}
+                        className={`text-[10px] px-2 py-1 rounded-lg font-semibold border transition-colors ${
+                          inc.status === v
+                            ? 'bg-slate-900 text-white border-slate-900'
+                            : 'bg-white text-slate-500 border-slate-200 hover:border-slate-400'
+                        }`}
+                      >
+                        {l}
+                      </button>
+                    ))}
+                  </div>
                 </div>
               </div>
 

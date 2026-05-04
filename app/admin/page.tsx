@@ -9,7 +9,7 @@ const supabase = getSupabaseClient()
 
 type Stats = {
   leads: number; unreadMessages: number; pendingBudgets: number
-  conversations: number; pageViews: number; aiReplies: number; incidents: number; cobrosPendientes: number
+  conversations: number; pageViews: number; aiReplies: number; incidents: number; cobrosPendientes: number; cobrosVencidos: number
 }
 type Trend = { value: number; positive: boolean }
 type ActivityItem = {
@@ -125,7 +125,7 @@ export default function AdminDashboard() {
   const router = useRouter()
   const [stats, setStats] = useState<Stats>({
     leads: 0, unreadMessages: 0, pendingBudgets: 0,
-    conversations: 0, pageViews: 0, aiReplies: 0, incidents: 0, cobrosPendientes: 0,
+    conversations: 0, pageViews: 0, aiReplies: 0, incidents: 0, cobrosPendientes: 0, cobrosVencidos: 0,
   })
   const [trends, setTrends] = useState<{ leads: Trend; messages: Trend }>({
     leads: { value: 0, positive: true },
@@ -168,13 +168,16 @@ export default function AdminDashboard() {
       supabase.from('facturas').select('pagos'),
     ])
 
+    const hoy = new Date().toISOString().split('T')[0]
     const cobrosPendientes = (facturasData || []).reduce((s: number, f: any) =>
       s + (f.pagos || []).filter((p: any) => !p.pagado).length, 0)
+    const cobrosVencidos = (facturasData || []).reduce((s: number, f: any) =>
+      s + (f.pagos || []).filter((p: any) => !p.pagado && p.fecha < hoy).length, 0)
 
     setStats({
       leads: leads || 0, unreadMessages: unreadMessages || 0, pendingBudgets: pendingBudgets || 0,
       conversations: conversations || 0, pageViews: pageViews || 0, aiReplies: aiReplies || 0,
-      incidents: incidents || 0, cobrosPendientes,
+      incidents: incidents || 0, cobrosPendientes, cobrosVencidos,
     })
 
     const lThis = leadsThisWeek || 0, lLast = leadsLastWeek || 0
@@ -246,6 +249,7 @@ export default function AdminDashboard() {
             <StatCard label="Visitas web"          value={stats.pageViews}      color="pink" />
             <StatCard label="Respuestas IA"        value={stats.aiReplies}      color="indigo" />
             <StatCard label="Incidencias abiertas" value={stats.incidents}      color="red" />
+            <StatCard label="Cobros vencidos"       value={stats.cobrosVencidos} color="red" />
           </div>
         </div>
 
@@ -286,7 +290,7 @@ export default function AdminDashboard() {
           <NavGroup title="Negocio">
             <NavCard href="/admin/budgets"  title="Presupuestos" description="Solicitudes y propuestas generadas"               badge={stats.pendingBudgets} badgeColor="blue" />
             <NavCard href="/admin/facturas" title="Facturas"     description="Crear y gestionar facturas con fraccionamiento" />
-            <NavCard href="/admin/cobros"   title="Cobros"       description="Plazos pendientes y registro de pagos"        badge={stats.cobrosPendientes} badgeColor="red" />
+            <NavCard href="/admin/cobros"   title="Cobros"       description={stats.cobrosVencidos > 0 ? `⚠ ${stats.cobrosVencidos} vencido${stats.cobrosVencidos > 1 ? 's' : ''} · ${stats.cobrosPendientes} pendientes` : "Plazos pendientes y registro de pagos"} badge={stats.cobrosPendientes} badgeColor="red" />
             <NavCard href="/admin/clientes" title="Clientes"     description="Lista de clientes generada desde facturas" />
           </NavGroup>
           <NavGroup title="Soporte">

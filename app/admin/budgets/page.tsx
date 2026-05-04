@@ -484,7 +484,7 @@ export default function BudgetsPage() {
                 )}
 
                 {/* Cliente */}
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
                     <label className="text-xs text-slate-400 mb-1 block">Nombre del cliente</label>
                     <input

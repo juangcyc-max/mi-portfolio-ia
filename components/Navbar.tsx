@@ -9,11 +9,27 @@ import Link from "next/link";
 import { useState, useEffect, useRef } from "react";
 import { useTranslation } from "@/lib/i18n/LanguageContext";
 
+const SPARKS = Array.from({ length: 28 }, (_, i) => {
+  const angle = (i / 28) * 360;
+  const rad = (angle * Math.PI) / 180;
+  const dist = 180 + (i % 3) * 70;
+  return { id: i, x: Math.cos(rad) * dist, y: Math.sin(rad) * dist, color: ['#ff4500','#ff8c00','#ffd700','#ff6347','#fff'][i % 5], width: 2 + (i % 3), len: 24 + (i % 4) * 10 };
+});
+const SHARDS = Array.from({ length: 14 }, (_, i) => {
+  const angle = (i / 14) * 360 + 13;
+  const rad = (angle * Math.PI) / 180;
+  const dist = 100 + (i % 4) * 55;
+  return { id: i, x: Math.cos(rad) * dist, y: Math.sin(rad) * dist, rotate: angle, color: ['#ff6347','#ff8c00','#ffd700','#ff4500'][i % 4] };
+});
+
 export default function Navbar() {
   const { t } = useTranslation();
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+  const [adminClicks, setAdminClicks] = useState(0);
+  const [exploding, setExploding] = useState(false);
+  const clickTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Detectar scroll
   useEffect(() => {
@@ -58,6 +74,22 @@ export default function Navbar() {
     document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, [menuOpen]);
+
+  function handleLogoClick(e: React.MouseEvent) {
+    if (exploding) { e.preventDefault(); return; }
+    const next = adminClicks + 1;
+    if (clickTimer.current) clearTimeout(clickTimer.current);
+    if (next >= 5) {
+      e.preventDefault();
+      setAdminClicks(0);
+      setExploding(true);
+      setTimeout(() => { window.location.href = '/admin/login'; }, 1600);
+    } else {
+      setAdminClicks(next);
+      clickTimer.current = setTimeout(() => setAdminClicks(0), 2500);
+    }
+    setMenuOpen(false);
+  }
 
   const handleAnchorClick = (
     e: React.MouseEvent<HTMLAnchorElement>,
@@ -105,7 +137,7 @@ export default function Navbar() {
             <Link
               href="/"
               className="flex items-center gap-3"
-              onClick={() => setMenuOpen(false)}
+              onClick={handleLogoClick}
             >
               <div className="w-10 h-10 flex items-center justify-center rounded-xl bg-white/50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
                 <Image
@@ -209,6 +241,91 @@ export default function Navbar() {
           </div>
         </div>
       </motion.header>
+
+      {/* Admin Easter Egg Explosion */}
+      <AnimatePresence>
+        {exploding && (
+          <motion.div
+            className="fixed inset-0 z-[999] flex items-center justify-center pointer-events-none overflow-hidden"
+            initial={{ opacity: 1 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0, transition: { duration: 0.3, delay: 1.2 } }}
+          >
+            {/* White flash */}
+            <motion.div
+              className="absolute inset-0 bg-white"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: [0, 1, 0] }}
+              transition={{ duration: 0.35, times: [0, 0.15, 1] }}
+            />
+            {/* Dark bg */}
+            <motion.div
+              className="absolute inset-0 bg-slate-950"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: [0, 0, 0.75, 0.5] }}
+              transition={{ duration: 1.4, times: [0, 0.2, 0.4, 1] }}
+            />
+
+            {/* Shockwave ring */}
+            <motion.div
+              className="absolute rounded-full border-4 border-orange-400"
+              initial={{ width: 0, height: 0, opacity: 0.9 }}
+              animate={{ width: 900, height: 900, opacity: 0 }}
+              transition={{ duration: 1, ease: 'easeOut' }}
+            />
+            <motion.div
+              className="absolute rounded-full border-2 border-yellow-300"
+              initial={{ width: 0, height: 0, opacity: 0.7 }}
+              animate={{ width: 650, height: 650, opacity: 0 }}
+              transition={{ duration: 0.8, ease: 'easeOut', delay: 0.1 }}
+            />
+
+            {/* SVG sparks */}
+            <svg className="absolute w-full h-full" viewBox="-500 -500 1000 1000" preserveAspectRatio="xMidYMid meet">
+              {SPARKS.map(s => (
+                <motion.line
+                  key={s.id}
+                  x1={0} y1={0}
+                  initial={{ x2: 0, y2: 0, opacity: 1 }}
+                  animate={{ x2: s.x * 1.6, y2: s.y * 1.6, opacity: 0 }}
+                  transition={{ duration: 1, ease: 'easeOut' }}
+                  stroke={s.color}
+                  strokeWidth={s.width}
+                  strokeLinecap="round"
+                />
+              ))}
+            </svg>
+
+            {/* Debris shards */}
+            {SHARDS.map(sh => (
+              <motion.div
+                key={sh.id}
+                className="absolute"
+                style={{ width: 10 + (sh.id % 3) * 6, height: 4, backgroundColor: sh.color, borderRadius: 1 }}
+                initial={{ x: 0, y: 0, rotate: sh.rotate, opacity: 1, scale: 1 }}
+                animate={{ x: sh.x, y: sh.y, rotate: sh.rotate + 360, opacity: 0, scale: 0.3 }}
+                transition={{ duration: 1.1, ease: 'easeOut' }}
+              />
+            ))}
+
+            {/* Core glow */}
+            <motion.div
+              className="absolute rounded-full"
+              style={{ background: 'radial-gradient(circle, #fff 0%, #ffd700 30%, #ff4500 65%, transparent 100%)' }}
+              initial={{ width: 0, height: 0, opacity: 1 }}
+              animate={{ width: 280, height: 280, opacity: [1, 0.8, 0] }}
+              transition={{ duration: 0.9, ease: 'easeOut' }}
+            />
+            {/* Inner bright core */}
+            <motion.div
+              className="absolute rounded-full bg-white"
+              initial={{ width: 0, height: 0, opacity: 1 }}
+              animate={{ width: 80, height: 80, opacity: [1, 0] }}
+              transition={{ duration: 0.5, ease: 'easeOut' }}
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Mobile Menu */}
       <AnimatePresence>

@@ -89,26 +89,33 @@ export default function LeadsPage() {
                         {lead.source ? ` · ${lead.source}` : ''}
                       </p>
                     </div>
-                    <div className="flex items-center gap-3">
-                      <span className={`text-xs px-3 py-1 rounded-full font-medium ${STATUS_COLORS[lead.status] || 'bg-gray-200 text-slate-600'}`}>
-                        {STATUS_LABELS[lead.status] || lead.status}
-                      </span>
-                      <select
-                        value={lead.status}
-                        onChange={e => { e.stopPropagation(); updateStatus(lead.id, e.target.value) }}
-                        onClick={e => e.stopPropagation()}
-                        className="text-xs bg-slate-100 border border-slate-300 text-slate-600 rounded-lg px-2 py-1 focus:outline-none focus:border-emerald-500"
-                      >
+                    <div className="flex flex-col items-end gap-2">
+                      <div className="flex items-center gap-2">
+                        <span className={`text-xs px-3 py-1 rounded-full font-medium ${STATUS_COLORS[lead.status] || 'bg-gray-200 text-slate-600'}`}>
+                          {STATUS_LABELS[lead.status] || lead.status}
+                        </span>
+                        <button
+                          onClick={e => { e.stopPropagation(); if (confirm('¿Borrar este lead?')) deleteLead(lead.id) }}
+                          className="text-slate-300 hover:text-red-500 transition-colors text-sm"
+                        >
+                          ✕
+                        </button>
+                      </div>
+                      <div className="flex gap-1 flex-wrap justify-end" onClick={e => e.stopPropagation()}>
                         {Object.entries(STATUS_LABELS).map(([value, label]) => (
-                          <option key={value} value={value}>{label}</option>
+                          <button
+                            key={value}
+                            onClick={() => updateStatus(lead.id, value)}
+                            className={`text-[10px] px-2 py-1 rounded-lg font-semibold border transition-colors ${
+                              lead.status === value
+                                ? 'bg-slate-900 text-white border-slate-900'
+                                : 'bg-white text-slate-500 border-slate-200 hover:border-slate-400'
+                            }`}
+                          >
+                            {label}
+                          </button>
                         ))}
-                      </select>
-                      <button
-                        onClick={e => { e.stopPropagation(); if (confirm('¿Borrar este lead?')) deleteLead(lead.id) }}
-                        className="text-slate-400 hover:text-red-500 transition-colors text-sm"
-                      >
-                        ✕
-                      </button>
+                      </div>
                     </div>
                   </div>
 

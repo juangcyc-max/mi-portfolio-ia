@@ -145,7 +145,11 @@ Problema: ${description}`,
     // Notificación push si no resuelta por IA
     if (!resolvedByAI) {
       try {
-        const { data: tokens } = await supabase.from('push_tokens').select('token')
+        const supabasePush = createClient(
+          process.env.NEXT_PUBLIC_SUPABASE_URL!,
+          process.env.SUPABASE_SERVICE_ROLE_KEY!
+        )
+        const { data: tokens } = await supabasePush.from('push_tokens').select('token')
         if (tokens && tokens.length > 0) {
           await fetch('https://exp.host/--/api/v2/push/send', {
             method: 'POST',
