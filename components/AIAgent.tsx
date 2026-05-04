@@ -97,21 +97,32 @@ function renderMsg(text: string) {
 /* ═══════════════════════════════════════════════
    COMPONENTE
 ═══════════════════════════════════════════════ */
+const QUICK_ACTIONS = [
+  { label: "🗺️ Tour de la web", msg: "Haz un tour completo de la web" },
+  { label: "💰 Ver precios", msg: "Muéstrame los planes y precios" },
+  { label: "🧮 Calcular presupuesto", msg: "Quiero calcular un presupuesto personalizado" },
+  { label: "📱 App móvil", msg: "¿Cómo funciona el servicio de app móvil?" },
+  { label: "🤖 Agente de voz", msg: "Cuéntame sobre el agente de voz IA" },
+  { label: "⚠️ Reportar problema", msg: "Quiero reportar un problema o incidencia" },
+];
+
 export default function AIAgent() {
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<Msg[]>([
     {
       role: "assistant",
       content:
-        "Hola 👋 Soy **MI3**, el asistente de Mindbridge IA. Puedes escribirme o usar el micrófono. También puedo hacer un **tour completo de la web** si me lo pides.",
+        "Hola 👋 Soy **MI3**, el asistente de Mindbridge IA.\n\nPuedo ayudarte con precios, hacer un **tour de la web**, calcular presupuestos o gestionar incidencias. Escribe, usa el micrófono, o elige una opción:",
     },
   ]);
   const [input, setInput] = useState("");
   const [agentState, setAgentState] = useState<AgentState>("idle");
   const [voiceEnabled, setVoiceEnabled] = useState(true);
   const [touring, setTouring] = useState(false);
+  const [showChips, setShowChips] = useState(true);
 
   const sessionId = useRef(`agent-${Date.now()}`);
+  const conversationIdRef = useRef<string | null>(null);
   const historyRef = useRef<Msg[]>(messages);
   const voicesRef = useRef<SpeechSynthesisVoice[]>([]);
   const recognitionRef = useRef<any>(null);
@@ -165,6 +176,7 @@ export default function AIAgent() {
   const sendMessage = useCallback(async (userText: string) => {
     const trimmed = userText.trim();
     if (!trimmed) return;
+    setShowChips(false);
     const userMsg: Msg = { role: "user", content: trimmed };
     const newHistory = [...historyRef.current, userMsg];
     setMessages(newHistory);
@@ -175,9 +187,14 @@ export default function AIAgent() {
       const res = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages: newHistory, sessionId: sessionId.current }),
+        body: JSON.stringify({
+          messages: newHistory,
+          sessionId: sessionId.current,
+          conversationId: conversationIdRef.current,
+        }),
       });
       const data = await res.json();
+      if (data.conversationId) conversationIdRef.current = data.conversationId;
       const raw: string = data.text ?? "Lo siento, algo ha fallado. Inténtalo de nuevo.";
 
       /* Detectar tour */
@@ -188,9 +205,15 @@ export default function AIAgent() {
       const displayText = cleanText(raw);
 
       const assistantMsg: Msg = { role: "assistant", content: displayText };
-      const updated = [...historyRef.current, assistantMsg];
-      setMessages(updated);
-      historyRef.current = updated;
+      const msgs: Msg[] = [...historyRef.current, assistantMsg];
+      if (data.incidentDetected) {
+        msgs.push({
+          role: "assistant",
+          content: "✅ **Incidencia registrada.** Juan recibirá una notificación ahora mismo y te contactará lo antes posible.",
+        });
+      }
+      setMessages(msgs);
+      historyRef.current = msgs;
 
       if (tourSteps.length > 0) {
         setAgentState("idle");
@@ -392,6 +415,21 @@ export default function AIAgent() {
               )}
               <div ref={bottomRef} />
             </div>
+
+            {/* Quick action chips */}
+            {showChips && (
+              <div className="px-3 pb-2 flex flex-wrap gap-1.5 shrink-0">
+                {QUICK_ACTIONS.map((a) => (
+                  <button
+                    key={a.label}
+                    onClick={() => sendMessage(a.msg)}
+                    className="text-[11px] px-2.5 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-emerald-50 hover:text-emerald-700 dark:hover:bg-emerald-900/30 dark:hover:text-emerald-400 border border-slate-200 dark:border-white/10 transition-colors"
+                  >
+                    {a.label}
+                  </button>
+                ))}
+              </div>
+            )}
 
             {/* Input */}
             <div className="px-3 py-3 border-t border-slate-100 dark:border-white/10 shrink-0">
