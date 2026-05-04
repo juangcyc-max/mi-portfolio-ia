@@ -11,35 +11,59 @@ import { useTranslation } from "@/lib/i18n/LanguageContext";
 
 const randomRange = (min: number, max: number) => Math.random() * (max - min) + min;
 
-const SPARKS = Array.from({ length: 40 }, (_, i) => {
-  const baseAngle = (i / 40) * 360;
-  const angle = baseAngle + randomRange(-15, 15);
+const COLORS = {
+  CORE: ['#ffffff', '#ffffe0', '#ffff99'],
+  FIRE: ['#ff8c00', '#ff4500', '#ff0000', '#b22222'],
+  SMOKE: ['#2a2a2a', '#111111', '#4d4d4d', '#331100'],
+};
+
+const SHOCKWAVE = Array.from({ length: 60 }, (_, i) => {
+  const angle = (i / 60) * 360 + randomRange(-3, 3);
   const rad = (angle * Math.PI) / 180;
-  const dist = randomRange(80, 320);
+  const dist = randomRange(300, 500);
   return {
-    id: i,
+    id: `shock-${i}`,
     x: Math.cos(rad) * dist,
-    y: Math.sin(rad) * dist,
-    color: ['#ff4500', '#ff8c00', '#ffd700', '#ff6347', '#ffffff', '#cc4400'][Math.floor(Math.random() * 6)],
-    width: randomRange(1, 4.5),
-    len: randomRange(10, 60),
-    opacity: randomRange(0.4, 1),
-    delay: randomRange(0, 0.15),
+    y: Math.sin(rad) * dist * 0.15,
+    color: COLORS.CORE[Math.floor(Math.random() * COLORS.CORE.length)],
+    width: randomRange(2, 8),
+    len: randomRange(60, 150),
+    opacity: randomRange(0.2, 0.7),
+    delay: 0,
   };
 });
 
-const SHARDS = Array.from({ length: 20 }, (_, i) => {
+const NUCLEAR_FIRE = Array.from({ length: 120 }, (_, i) => {
+  const distanceFactor = Math.pow(Math.random(), 2);
+  const dist = 30 + distanceFactor * 350;
   const angle = randomRange(0, 360);
   const rad = (angle * Math.PI) / 180;
-  const dist = randomRange(50, 220);
+  const upwardPull = randomRange(50, 200) * distanceFactor;
   return {
-    id: i,
+    id: `fire-${i}`,
     x: Math.cos(rad) * dist,
-    y: Math.sin(rad) * dist,
-    rotate: angle + randomRange(-45, 45),
-    color: ['#ff6347', '#ff8c00', '#ffd700', '#8b0000'][Math.floor(Math.random() * 4)],
-    scale: randomRange(0.4, 1.6),
-    opacity: randomRange(0.5, 1),
+    y: (Math.sin(rad) * dist) - upwardPull,
+    color: COLORS.FIRE[Math.floor(Math.random() * COLORS.FIRE.length)],
+    size: randomRange(4, 18),
+    rotate: randomRange(0, 360),
+    opacity: randomRange(0.7, 1),
+    delay: randomRange(0.02, 0.2),
+  };
+});
+
+const SMOKE_CLOUDS = Array.from({ length: 50 }, (_, i) => {
+  const angle = randomRange(0, 360);
+  const rad = (angle * Math.PI) / 180;
+  const dist = randomRange(50, 250);
+  const upwardPull = randomRange(100, 350);
+  return {
+    id: `smoke-${i}`,
+    x: Math.cos(rad) * dist * 0.6,
+    y: (Math.sin(rad) * dist) - upwardPull,
+    color: COLORS.SMOKE[Math.floor(Math.random() * COLORS.SMOKE.length)],
+    scale: randomRange(3, 8),
+    opacity: randomRange(0.5, 0.9),
+    delay: randomRange(0.15, 0.5),
   };
 });
 
@@ -287,29 +311,15 @@ export default function Navbar() {
               transition={{ duration: 1.4, times: [0, 0.2, 0.4, 1] }}
             />
 
-            {/* Shockwave ring */}
-            <motion.div
-              className="absolute rounded-full border-4 border-orange-400"
-              initial={{ width: 0, height: 0, opacity: 0.9 }}
-              animate={{ width: 900, height: 900, opacity: 0 }}
-              transition={{ duration: 1, ease: 'easeOut' }}
-            />
-            <motion.div
-              className="absolute rounded-full border-2 border-yellow-300"
-              initial={{ width: 0, height: 0, opacity: 0.7 }}
-              animate={{ width: 650, height: 650, opacity: 0 }}
-              transition={{ duration: 0.8, ease: 'easeOut', delay: 0.1 }}
-            />
-
-            {/* SVG sparks */}
+            {/* Shockwave SVG */}
             <svg className="absolute w-full h-full" viewBox="-500 -500 1000 1000" preserveAspectRatio="xMidYMid meet">
-              {SPARKS.map(s => (
+              {SHOCKWAVE.map(s => (
                 <motion.line
                   key={s.id}
                   x1={0} y1={0}
                   initial={{ x2: 0, y2: 0, opacity: s.opacity }}
-                  animate={{ x2: s.x * 1.6, y2: s.y * 1.6, opacity: 0 }}
-                  transition={{ duration: 0.9 + s.delay, ease: 'easeOut', delay: s.delay }}
+                  animate={{ x2: s.x, y2: s.y, opacity: 0 }}
+                  transition={{ duration: 0.6, ease: 'easeOut', delay: s.delay }}
                   stroke={s.color}
                   strokeWidth={s.width}
                   strokeLinecap="round"
@@ -317,15 +327,27 @@ export default function Navbar() {
               ))}
             </svg>
 
-            {/* Debris shards */}
-            {SHARDS.map(sh => (
+            {/* Nuclear fire */}
+            {NUCLEAR_FIRE.map(f => (
               <motion.div
-                key={sh.id}
-                className="absolute"
-                style={{ width: 10 + (sh.id % 3) * 6, height: 4, backgroundColor: sh.color, borderRadius: 1 }}
-                initial={{ x: 0, y: 0, rotate: sh.rotate, opacity: 1, scale: 1 }}
-                animate={{ x: sh.x, y: sh.y, rotate: sh.rotate + 360, opacity: 0, scale: 0.3 }}
-                transition={{ duration: 1.1, ease: 'easeOut' }}
+                key={f.id}
+                className="absolute rounded-full"
+                style={{ width: f.size, height: f.size, backgroundColor: f.color }}
+                initial={{ x: 0, y: 0, opacity: f.opacity, scale: 0, rotate: f.rotate }}
+                animate={{ x: f.x, y: f.y, opacity: 0, scale: 1.5, rotate: f.rotate + 180 }}
+                transition={{ duration: 1.2, ease: 'easeOut', delay: f.delay }}
+              />
+            ))}
+
+            {/* Smoke clouds */}
+            {SMOKE_CLOUDS.map(sm => (
+              <motion.div
+                key={sm.id}
+                className="absolute rounded-full blur-md"
+                style={{ width: 40, height: 40, backgroundColor: sm.color }}
+                initial={{ x: 0, y: 0, scale: 0, opacity: sm.opacity }}
+                animate={{ x: sm.x, y: sm.y, scale: sm.scale, opacity: 0 }}
+                transition={{ duration: 1.8, ease: 'easeOut', delay: sm.delay }}
               />
             ))}
 
@@ -334,15 +356,15 @@ export default function Navbar() {
               className="absolute rounded-full"
               style={{ background: 'radial-gradient(circle, #fff 0%, #ffd700 30%, #ff4500 65%, transparent 100%)' }}
               initial={{ width: 0, height: 0, opacity: 1 }}
-              animate={{ width: 280, height: 280, opacity: [1, 0.8, 0] }}
+              animate={{ width: 320, height: 320, opacity: [1, 0.8, 0] }}
               transition={{ duration: 0.9, ease: 'easeOut' }}
             />
             {/* Inner bright core */}
             <motion.div
               className="absolute rounded-full bg-white"
               initial={{ width: 0, height: 0, opacity: 1 }}
-              animate={{ width: 80, height: 80, opacity: [1, 0] }}
-              transition={{ duration: 0.5, ease: 'easeOut' }}
+              animate={{ width: 100, height: 100, opacity: [1, 0] }}
+              transition={{ duration: 0.4, ease: 'easeOut' }}
             />
           </motion.div>
         )}
