@@ -9,64 +9,6 @@ import Link from "next/link";
 import { useState, useEffect, useRef } from "react";
 import { useTranslation } from "@/lib/i18n/LanguageContext";
 
-const randomRange = (min: number, max: number) => Math.random() * (max - min) + min;
-
-const COLORS = {
-  CORE: ['#ffffff', '#ffffe0', '#ffff99'],
-  FIRE: ['#ff8c00', '#ff4500', '#ff0000', '#b22222'],
-  SMOKE: ['#2a2a2a', '#111111', '#4d4d4d', '#331100'],
-};
-
-const SHOCKWAVE = Array.from({ length: 60 }, (_, i) => {
-  const angle = (i / 60) * 360 + randomRange(-3, 3);
-  const rad = (angle * Math.PI) / 180;
-  const dist = randomRange(300, 500);
-  return {
-    id: `shock-${i}`,
-    x: Math.cos(rad) * dist,
-    y: Math.sin(rad) * dist * 0.15,
-    color: COLORS.CORE[Math.floor(Math.random() * COLORS.CORE.length)],
-    width: randomRange(2, 8),
-    len: randomRange(60, 150),
-    opacity: randomRange(0.2, 0.7),
-    delay: 0,
-  };
-});
-
-const NUCLEAR_FIRE = Array.from({ length: 120 }, (_, i) => {
-  const distanceFactor = Math.pow(Math.random(), 2);
-  const dist = 30 + distanceFactor * 350;
-  const angle = randomRange(0, 360);
-  const rad = (angle * Math.PI) / 180;
-  const upwardPull = randomRange(50, 200) * distanceFactor;
-  return {
-    id: `fire-${i}`,
-    x: Math.cos(rad) * dist,
-    y: (Math.sin(rad) * dist) - upwardPull,
-    color: COLORS.FIRE[Math.floor(Math.random() * COLORS.FIRE.length)],
-    size: randomRange(4, 18),
-    rotate: randomRange(0, 360),
-    opacity: randomRange(0.7, 1),
-    delay: randomRange(0.02, 0.2),
-  };
-});
-
-const SMOKE_CLOUDS = Array.from({ length: 50 }, (_, i) => {
-  const angle = randomRange(0, 360);
-  const rad = (angle * Math.PI) / 180;
-  const dist = randomRange(50, 250);
-  const upwardPull = randomRange(100, 350);
-  return {
-    id: `smoke-${i}`,
-    x: Math.cos(rad) * dist * 0.6,
-    y: (Math.sin(rad) * dist) - upwardPull,
-    color: COLORS.SMOKE[Math.floor(Math.random() * COLORS.SMOKE.length)],
-    scale: randomRange(3, 8),
-    opacity: randomRange(0.5, 0.9),
-    delay: randomRange(0.15, 0.5),
-  };
-});
-
 export default function Navbar() {
   const { t } = useTranslation();
   const [scrolled, setScrolled] = useState(false);
@@ -75,6 +17,96 @@ export default function Navbar() {
   const [adminClicks, setAdminClicks] = useState(0);
   const [exploding, setExploding] = useState(false);
   const clickTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const rafRef = useRef<number>(0);
+
+  useEffect(() => {
+    if (!exploding) return;
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    const rr = (min: number, max: number) => Math.random() * (max - min) + min;
+    const CORE = ['#ffffff', '#ffffe0', '#ffff99'];
+    const FIRE = ['#ff8c00', '#ff4500', '#ff0000', '#b22222'];
+    const SMOKE = ['#1a1a1a', '#2a2a2a', '#111111'];
+
+    type P = {
+      x: number; y: number; vx: number; vy: number;
+      color: string; size: number; alpha: number;
+      friction: number; decay: number;
+      upwardDraft?: number; growth?: number;
+      type: string;
+    };
+
+    const cx = canvas.width / 2;
+    const cy = canvas.height / 2 + 80;
+    let particles: P[] = [];
+
+    function spawn() {
+      // Smoke
+      for (let i = 0; i < 80; i++) {
+        const a = rr(0, Math.PI * 2);
+        const s = rr(2, 8);
+        particles.push({ x: cx, y: cy, vx: Math.cos(a) * s * 0.5, vy: Math.sin(a) * s, color: SMOKE[Math.floor(Math.random() * 3)], size: rr(10, 30), alpha: 1, friction: 0.94, decay: rr(0.002, 0.008), upwardDraft: rr(0.05, 0.2), growth: rr(0.1, 0.5), type: 'SMOKE' });
+      }
+      // Fire
+      for (let i = 0; i < 150; i++) {
+        const a = rr(0, Math.PI * 2);
+        const s = Math.pow(Math.random(), 2) * 15 + 2;
+        particles.push({ x: cx, y: cy, vx: Math.cos(a) * s, vy: Math.sin(a) * s, color: FIRE[Math.floor(Math.random() * 4)], size: rr(4, 15), alpha: 1, friction: 0.92, decay: rr(0.005, 0.015), upwardDraft: rr(0.1, 0.4), type: 'FIRE' });
+      }
+      // Shockwave
+      for (let i = 0; i < 80; i++) {
+        const a = rr(0, Math.PI * 2);
+        const s = rr(10, 25);
+        particles.push({ x: cx, y: cy, vx: Math.cos(a) * s, vy: Math.sin(a) * s * 0.15, color: CORE[Math.floor(Math.random() * 3)], size: rr(2, 5), alpha: 1, friction: 0.96, decay: rr(0.01, 0.03), type: 'SHOCKWAVE' });
+      }
+    }
+
+    const c = ctx;
+    const cv = canvas;
+
+    // Flash
+    c.fillStyle = 'white';
+    c.fillRect(0, 0, cv.width, cv.height);
+    spawn();
+
+    function loop() {
+      c.fillStyle = 'rgba(5,5,5,0.3)';
+      c.fillRect(0, 0, cv.width, cv.height);
+
+      particles = particles.filter(p => p.alpha > 0);
+
+      for (const p of particles) {
+        p.vx *= p.friction;
+        p.vy *= p.friction;
+        if (p.upwardDraft) p.vy -= p.upwardDraft;
+        p.x += p.vx;
+        p.y += p.vy;
+        if (p.growth) p.size += p.growth;
+        p.alpha -= p.decay;
+
+        c.save();
+        c.globalAlpha = Math.max(0, p.alpha);
+        c.globalCompositeOperation = p.type === 'SMOKE' ? 'source-over' : 'lighter';
+        c.fillStyle = p.color;
+        c.beginPath();
+        c.arc(p.x, p.y, Math.max(0, p.size), 0, Math.PI * 2);
+        c.fill();
+        c.restore();
+      }
+
+      rafRef.current = requestAnimationFrame(loop);
+    }
+
+    rafRef.current = requestAnimationFrame(loop);
+    return () => cancelAnimationFrame(rafRef.current);
+  }, [exploding]);
 
   // Detectar scroll
   useEffect(() => {
@@ -288,87 +320,13 @@ export default function Navbar() {
       </motion.header>
 
       {/* Admin Easter Egg Explosion */}
-      <AnimatePresence>
-        {exploding && (
-          <motion.div
-            className="fixed inset-0 z-[999] flex items-center justify-center pointer-events-none overflow-hidden"
-            initial={{ opacity: 1 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0, transition: { duration: 0.3, delay: 1.2 } }}
-          >
-            {/* White flash */}
-            <motion.div
-              className="absolute inset-0 bg-white"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: [0, 1, 0] }}
-              transition={{ duration: 0.35, times: [0, 0.15, 1] }}
-            />
-            {/* Dark bg */}
-            <motion.div
-              className="absolute inset-0 bg-slate-950"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: [0, 0, 0.75, 0.5] }}
-              transition={{ duration: 1.4, times: [0, 0.2, 0.4, 1] }}
-            />
-
-            {/* Shockwave SVG */}
-            <svg className="absolute w-full h-full" viewBox="-500 -500 1000 1000" preserveAspectRatio="xMidYMid meet">
-              {SHOCKWAVE.map(s => (
-                <motion.line
-                  key={s.id}
-                  x1={0} y1={0}
-                  initial={{ x2: 0, y2: 0, opacity: s.opacity }}
-                  animate={{ x2: s.x, y2: s.y, opacity: 0 }}
-                  transition={{ duration: 0.6, ease: 'easeOut', delay: s.delay }}
-                  stroke={s.color}
-                  strokeWidth={s.width}
-                  strokeLinecap="round"
-                />
-              ))}
-            </svg>
-
-            {/* Nuclear fire */}
-            {NUCLEAR_FIRE.map(f => (
-              <motion.div
-                key={f.id}
-                className="absolute rounded-full"
-                style={{ width: f.size, height: f.size, backgroundColor: f.color }}
-                initial={{ x: 0, y: 0, opacity: f.opacity, scale: 0, rotate: f.rotate }}
-                animate={{ x: f.x, y: f.y, opacity: 0, scale: 1.5, rotate: f.rotate + 180 }}
-                transition={{ duration: 1.2, ease: 'easeOut', delay: f.delay }}
-              />
-            ))}
-
-            {/* Smoke clouds */}
-            {SMOKE_CLOUDS.map(sm => (
-              <motion.div
-                key={sm.id}
-                className="absolute rounded-full blur-md"
-                style={{ width: 40, height: 40, backgroundColor: sm.color }}
-                initial={{ x: 0, y: 0, scale: 0, opacity: sm.opacity }}
-                animate={{ x: sm.x, y: sm.y, scale: sm.scale, opacity: 0 }}
-                transition={{ duration: 1.8, ease: 'easeOut', delay: sm.delay }}
-              />
-            ))}
-
-            {/* Core glow */}
-            <motion.div
-              className="absolute rounded-full"
-              style={{ background: 'radial-gradient(circle, #fff 0%, #ffd700 30%, #ff4500 65%, transparent 100%)' }}
-              initial={{ width: 0, height: 0, opacity: 1 }}
-              animate={{ width: 320, height: 320, opacity: [1, 0.8, 0] }}
-              transition={{ duration: 0.9, ease: 'easeOut' }}
-            />
-            {/* Inner bright core */}
-            <motion.div
-              className="absolute rounded-full bg-white"
-              initial={{ width: 0, height: 0, opacity: 1 }}
-              animate={{ width: 100, height: 100, opacity: [1, 0] }}
-              transition={{ duration: 0.4, ease: 'easeOut' }}
-            />
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {exploding && (
+        <canvas
+          ref={canvasRef}
+          className="fixed inset-0 z-[999] pointer-events-none"
+          style={{ width: '100vw', height: '100vh' }}
+        />
+      )}
 
       {/* Mobile Menu */}
       <AnimatePresence>
