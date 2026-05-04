@@ -62,19 +62,19 @@ export default function AIDemo() {
 
           <div>
             <h4 className="text-xl font-black text-slate-900 dark:text-white mb-2">
-              MI3 — Asistente IA en vivo
+              {t("demo_agent_title")}
             </h4>
             <p className="text-sm text-slate-500 dark:text-slate-400 max-w-md">
-              Habla con nuestro agente de inteligencia artificial. Responde tus dudas, te asesora sobre precios y puede hacer un tour completo de esta web mientras te lo explica en voz.
+              {t("demo_agent_desc")}
             </p>
           </div>
 
           {/* Capacidades */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 w-full max-w-lg">
             {[
-              { icon: <Bot size={18} />, label: "Chat de texto", desc: "Escribe tu pregunta" },
-              { icon: <Mic size={18} />, label: "Voz en español", desc: "Habla directamente" },
-              { icon: <Map size={18} />, label: "Tour de la web", desc: "\"Muéstrame todo\"" },
+              { icon: <Bot size={18} />, label: t("demo_cap1_label"), desc: t("demo_cap1_desc") },
+              { icon: <Mic size={18} />, label: t("demo_cap2_label"), desc: t("demo_cap2_desc") },
+              { icon: <Map size={18} />, label: t("demo_cap3_label"), desc: t("demo_cap3_desc") },
             ].map((item) => (
               <div key={item.label} className="flex flex-col items-center gap-1.5 bg-slate-50 dark:bg-white/5 rounded-xl p-4 border border-slate-200/60 dark:border-white/10">
                 <span className="text-emerald-500">{item.icon}</span>
@@ -93,7 +93,7 @@ export default function AIDemo() {
             >
               ↙
             </motion.span>
-            Pulsa el botón verde inferior izquierdo para abrir el chat
+            {t("demo_open_hint")}
           </div>
         </motion.div>
 

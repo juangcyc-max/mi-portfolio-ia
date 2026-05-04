@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Mic, MicOff, Volume2, VolumeX, Send, X, Loader2, Bot } from "lucide-react";
+import { useTranslation } from "@/lib/i18n/LanguageContext";
 
 /* ─── Secciones disponibles para navegación ─── */
 const SECTIONS: Record<string, string> = {
@@ -113,24 +114,20 @@ function cleanForSpeech(text: string): string {
 /* ═══════════════════════════════════════════════
    COMPONENTE
 ═══════════════════════════════════════════════ */
-const QUICK_ACTIONS = [
-  { label: "🗺️ Tour de la web", msg: "Haz un tour completo de la web" },
-  { label: "💰 Ver precios", msg: "Muéstrame los planes y precios" },
-  { label: "🧮 Calcular presupuesto", msg: "Quiero calcular un presupuesto personalizado" },
-  { label: "📱 App móvil", msg: "¿Cómo funciona el servicio de app móvil?" },
-  { label: "🤖 Agente de voz", msg: "Cuéntame sobre el agente de voz IA" },
-  { label: "⚠️ Reportar problema", msg: "Quiero reportar un problema o incidencia" },
-];
-
 export default function AIAgent() {
+  const { t } = useTranslation();
+
+  const QUICK_ACTIONS = [
+    { label: t("agent_chip_tour"),     msg: t("agent_chip_tour_msg") },
+    { label: t("agent_chip_prices"),   msg: t("agent_chip_prices_msg") },
+    { label: t("agent_chip_budget"),   msg: t("agent_chip_budget_msg") },
+    { label: t("agent_chip_app"),      msg: t("agent_chip_app_msg") },
+    { label: t("agent_chip_voice"),    msg: t("agent_chip_voice_msg") },
+    { label: t("agent_chip_incident"), msg: t("agent_chip_incident_msg") },
+  ];
+
   const [open, setOpen] = useState(false);
-  const [messages, setMessages] = useState<Msg[]>([
-    {
-      role: "assistant",
-      content:
-        "Hola 👋 Soy **MI3**, el asistente de Mindbridge IA.\n\nPuedo ayudarte con precios, hacer un **tour de la web**, calcular presupuestos o gestionar incidencias. Escribe, usa el micrófono, o elige una opción:",
-    },
-  ]);
+  const [messages, setMessages] = useState<Msg[]>([]);
   const [input, setInput] = useState("");
   const [agentState, setAgentState] = useState<AgentState>("idle");
   const [voiceEnabled, setVoiceEnabled] = useState(true);
@@ -144,6 +141,12 @@ export default function AIAgent() {
   const recognitionRef = useRef<any>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
   const tourAbortRef = useRef(false);
+
+  /* Mensaje de bienvenida traducido */
+  useEffect(() => {
+    setMessages([{ role: "assistant", content: t("agent_greeting") }]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [t]);
 
   /* Cargar voces */
   useEffect(() => {
@@ -225,7 +228,7 @@ export default function AIAgent() {
       if (data.incidentDetected) {
         msgs.push({
           role: "assistant",
-          content: "✅ **Incidencia registrada.** Juan recibirá una notificación ahora mismo y te contactará lo antes posible.",
+          content: t("agent_incident_confirmed"),
         });
       }
       setMessages(msgs);
@@ -242,7 +245,7 @@ export default function AIAgent() {
       }
     } catch {
       setAgentState("idle");
-      const err: Msg = { role: "assistant", content: "Error de conexión. Por favor, inténtalo de nuevo." };
+      const err: Msg = { role: "assistant", content: t("agent_error_connection") };
       setMessages((prev) => [...prev, err]);
     }
   }, [executeTour, speakReply]);
@@ -253,7 +256,7 @@ export default function AIAgent() {
     if (!SR) {
       setMessages((prev) => [...prev, {
         role: "assistant",
-        content: "Tu navegador no soporta reconocimiento de voz. Usa Chrome o Edge.",
+        content: t("agent_error_browser"),
       }]);
       return;
     }
@@ -359,9 +362,9 @@ export default function AIAgent() {
                     ? { duration: 0.8, repeat: Infinity }
                     : {}}
                 />
-                <span className="text-white text-sm font-bold">MI3 · Asistente IA</span>
+                <span className="text-white text-sm font-bold">{t("agent_title")}</span>
                 {touring && (
-                  <span className="text-emerald-100 text-xs ml-1">· Tour activo</span>
+                  <span className="text-emerald-100 text-xs ml-1">{t("agent_touring")}</span>
                 )}
               </div>
               <div className="flex items-center gap-2">
@@ -371,7 +374,7 @@ export default function AIAgent() {
                     if (voiceEnabled) { window.speechSynthesis?.cancel(); setAgentState("idle"); }
                   }}
                   className="text-white/70 hover:text-white transition-colors"
-                  title={voiceEnabled ? "Silenciar voz" : "Activar voz"}
+                  title={voiceEnabled ? t("agent_mute") : t("agent_unmute")}
                 >
                   {voiceEnabled ? <Volume2 size={16} /> : <VolumeX size={16} />}
                 </button>
@@ -421,7 +424,7 @@ export default function AIAgent() {
                       />
                     ))}
                     <span className="text-xs text-emerald-600 dark:text-emerald-400 ml-1">
-                      {touring ? "Tour…" : "Hablando…"}
+                      {touring ? t("agent_tour_label") : t("agent_speaking")}
                     </span>
                     <button onClick={stopSpeaking} className="ml-1 text-emerald-500 hover:text-emerald-700">
                       <X size={12} />
@@ -456,7 +459,7 @@ export default function AIAgent() {
                   onKeyDown={handleKey}
                   disabled={isThinking || isListening}
                   rows={1}
-                  placeholder={isListening ? "Escuchando…" : "Escribe o usa el micrófono…"}
+                  placeholder={isListening ? t("agent_listening") : t("agent_placeholder")}
                   className="flex-1 resize-none bg-slate-100 dark:bg-slate-800 rounded-xl px-3 py-2 text-sm text-slate-800 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-400 disabled:opacity-50 max-h-28 overflow-y-auto"
                   style={{ scrollbarWidth: "none" }}
                 />
@@ -489,7 +492,7 @@ export default function AIAgent() {
                 </button>
               </div>
               <p className="text-[10px] text-slate-400 mt-1.5 text-center">
-                Prueba: "haz un tour de la web" o "muéstrame los precios"
+                {t("agent_hint")}
               </p>
             </div>
           </motion.div>

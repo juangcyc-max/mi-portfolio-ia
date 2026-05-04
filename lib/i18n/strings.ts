@@ -265,6 +265,52 @@ export const ES_STRINGS = {
   // Hero audio
   hero_audio_play:  "Toca el logo para escuchar",
   hero_audio_playing: "Reproduciendo...",
+
+  // Hero right panel
+  hero_agent_label:    "MI3 · Asistente IA",
+  hero_agent_subtitle: "Tu consultor digital en tiempo real",
+  hero_stat_satisfaction: "Satisfacción",
+  hero_stat_response:     "Respuesta",
+  hero_stat_projects:     "Proyectos",
+  hero_trust_clients:     "3 clientes satisfechos",
+
+  // AIAgent
+  agent_title:       "MI3 · Asistente IA",
+  agent_greeting:    "Hola 👋 Soy **MI3**, el asistente de Mindbridge IA.\n\nPuedo ayudarte con precios, hacer un **tour de la web**, calcular presupuestos o gestionar incidencias. Escribe, usa el micrófono, o elige una opción:",
+  agent_hint:        "Prueba: \"haz un tour de la web\" o \"muéstrame los precios\"",
+  agent_touring:     "· Tour activo",
+  agent_speaking:    "Hablando…",
+  agent_tour_label:  "Tour…",
+  agent_listening:   "Escuchando…",
+  agent_placeholder: "Escribe o usa el micrófono…",
+  agent_mute:        "Silenciar voz",
+  agent_unmute:      "Activar voz",
+  agent_chip_tour:    "🗺️ Tour de la web",
+  agent_chip_prices:  "💰 Ver precios",
+  agent_chip_budget:  "🧮 Calcular presupuesto",
+  agent_chip_app:     "📱 App móvil",
+  agent_chip_voice:   "🤖 Agente de voz",
+  agent_chip_incident:"⚠️ Reportar problema",
+  agent_chip_tour_msg:    "Haz un tour completo de la web",
+  agent_chip_prices_msg:  "Muéstrame los planes y precios",
+  agent_chip_budget_msg:  "Quiero calcular un presupuesto personalizado",
+  agent_chip_app_msg:     "¿Cómo funciona el servicio de app móvil?",
+  agent_chip_voice_msg:   "Cuéntame sobre el agente de voz IA",
+  agent_chip_incident_msg:"Quiero reportar un problema o incidencia",
+  agent_incident_confirmed: "✅ **Incidencia registrada.** Juan recibirá una notificación ahora mismo y te contactará lo antes posible.",
+  agent_error_connection: "Error de conexión. Por favor, inténtalo de nuevo.",
+  agent_error_browser:    "Tu navegador no soporta reconocimiento de voz. Usa Chrome o Edge.",
+
+  // AIDemo section
+  demo_agent_title:   "MI3 — Asistente IA en vivo",
+  demo_agent_desc:    "Habla con nuestro agente de inteligencia artificial. Responde tus dudas, te asesora sobre precios y puede hacer un tour completo de esta web mientras te lo explica en voz.",
+  demo_cap1_label:    "Chat de texto",
+  demo_cap1_desc:     "Escribe tu pregunta",
+  demo_cap2_label:    "Voz en español",
+  demo_cap2_desc:     "Habla directamente",
+  demo_cap3_label:    "Tour de la web",
+  demo_cap3_desc:     "\"Muéstrame todo\"",
+  demo_open_hint:     "Pulsa el botón verde inferior izquierdo para abrir el chat",
 };
 
 export const EN_STRINGS: UIStrings = {
@@ -514,6 +560,52 @@ export const EN_STRINGS: UIStrings = {
 
   hero_audio_play:    "Tap the logo to listen",
   hero_audio_playing: "Playing...",
+
+  // Hero right panel
+  hero_agent_label:    "MI3 · AI Assistant",
+  hero_agent_subtitle: "Your digital consultant in real time",
+  hero_stat_satisfaction: "Satisfaction",
+  hero_stat_response:     "Response",
+  hero_stat_projects:     "Projects",
+  hero_trust_clients:     "3 satisfied clients",
+
+  // AIAgent
+  agent_title:       "MI3 · AI Assistant",
+  agent_greeting:    "Hi 👋 I'm **MI3**, Mindbridge IA's assistant.\n\nI can help with pricing, give you a **web tour**, calculate budgets or manage support tickets. Write, use the mic, or pick an option:",
+  agent_hint:        "Try: \"give me a web tour\" or \"show me pricing\"",
+  agent_touring:     "· Tour active",
+  agent_speaking:    "Speaking…",
+  agent_tour_label:  "Tour…",
+  agent_listening:   "Listening…",
+  agent_placeholder: "Type or use the microphone…",
+  agent_mute:        "Mute voice",
+  agent_unmute:      "Enable voice",
+  agent_chip_tour:    "🗺️ Web tour",
+  agent_chip_prices:  "💰 See pricing",
+  agent_chip_budget:  "🧮 Calculate budget",
+  agent_chip_app:     "📱 Mobile app",
+  agent_chip_voice:   "🤖 Voice agent",
+  agent_chip_incident:"⚠️ Report issue",
+  agent_chip_tour_msg:    "Give me a full web tour",
+  agent_chip_prices_msg:  "Show me the plans and pricing",
+  agent_chip_budget_msg:  "I want to calculate a custom budget",
+  agent_chip_app_msg:     "How does the mobile app service work?",
+  agent_chip_voice_msg:   "Tell me about the AI voice agent",
+  agent_chip_incident_msg:"I want to report a problem or issue",
+  agent_incident_confirmed: "✅ **Issue registered.** Juan will receive a notification right now and will contact you as soon as possible.",
+  agent_error_connection: "Connection error. Please try again.",
+  agent_error_browser:    "Your browser doesn't support voice recognition. Use Chrome or Edge.",
+
+  // AIDemo section
+  demo_agent_title:   "MI3 — Live AI Assistant",
+  demo_agent_desc:    "Talk to our artificial intelligence agent. It answers your questions, advises on pricing and can give a full tour of this website while explaining it by voice.",
+  demo_cap1_label:    "Text chat",
+  demo_cap1_desc:     "Type your question",
+  demo_cap2_label:    "Voice in English",
+  demo_cap2_desc:     "Speak directly",
+  demo_cap3_label:    "Web tour",
+  demo_cap3_desc:     "\"Show me everything\"",
+  demo_open_hint:     "Press the green button at the bottom left to open the chat",
 };
 
 export const STATIC_TRANSLATIONS: Partial<Record<string, UIStrings>> = {

@@ -126,7 +126,7 @@ export default function Hero() {
                   ))}
                 </div>
                 <span className="text-xs text-slate-500 dark:text-slate-400">
-                  <span className="font-bold text-slate-700 dark:text-slate-200">5.0</span> · 3 clientes satisfechos
+                  <span className="font-bold text-slate-700 dark:text-slate-200">5.0</span> · {t("hero_trust_clients")}
                 </span>
               </div>
             </motion.div>
@@ -165,19 +165,19 @@ export default function Hero() {
               {/* Identificación */}
               <div className="text-center space-y-1">
                 <p className="text-xs font-bold uppercase tracking-widest text-emerald-500">
-                  MI3 · Asistente IA
+                  {t("hero_agent_label")}
                 </p>
                 <p className="text-sm text-slate-600 dark:text-slate-300">
-                  Tu consultor digital en tiempo real
+                  {t("hero_agent_subtitle")}
                 </p>
               </div>
 
               {/* Stats */}
               <div className="grid grid-cols-3 gap-3 w-full max-w-xs">
                 {[
-                  { value: "100%", label: "Satisfacción" },
-                  { value: "24h", label: "Respuesta" },
-                  { value: "3+", label: "Proyectos" },
+                  { value: "100%", label: t("hero_stat_satisfaction") },
+                  { value: "24h",  label: t("hero_stat_response") },
+                  { value: "3+",   label: t("hero_stat_projects") },
                 ].map((stat, i) => (
                   <motion.div
                     key={i}
