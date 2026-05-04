@@ -9,17 +9,38 @@ import Link from "next/link";
 import { useState, useEffect, useRef } from "react";
 import { useTranslation } from "@/lib/i18n/LanguageContext";
 
-const SPARKS = Array.from({ length: 28 }, (_, i) => {
-  const angle = (i / 28) * 360;
+const randomRange = (min: number, max: number) => Math.random() * (max - min) + min;
+
+const SPARKS = Array.from({ length: 40 }, (_, i) => {
+  const baseAngle = (i / 40) * 360;
+  const angle = baseAngle + randomRange(-15, 15);
   const rad = (angle * Math.PI) / 180;
-  const dist = 180 + (i % 3) * 70;
-  return { id: i, x: Math.cos(rad) * dist, y: Math.sin(rad) * dist, color: ['#ff4500','#ff8c00','#ffd700','#ff6347','#fff'][i % 5], width: 2 + (i % 3), len: 24 + (i % 4) * 10 };
+  const dist = randomRange(80, 320);
+  return {
+    id: i,
+    x: Math.cos(rad) * dist,
+    y: Math.sin(rad) * dist,
+    color: ['#ff4500', '#ff8c00', '#ffd700', '#ff6347', '#ffffff', '#cc4400'][Math.floor(Math.random() * 6)],
+    width: randomRange(1, 4.5),
+    len: randomRange(10, 60),
+    opacity: randomRange(0.4, 1),
+    delay: randomRange(0, 0.15),
+  };
 });
-const SHARDS = Array.from({ length: 14 }, (_, i) => {
-  const angle = (i / 14) * 360 + 13;
+
+const SHARDS = Array.from({ length: 20 }, (_, i) => {
+  const angle = randomRange(0, 360);
   const rad = (angle * Math.PI) / 180;
-  const dist = 100 + (i % 4) * 55;
-  return { id: i, x: Math.cos(rad) * dist, y: Math.sin(rad) * dist, rotate: angle, color: ['#ff6347','#ff8c00','#ffd700','#ff4500'][i % 4] };
+  const dist = randomRange(50, 220);
+  return {
+    id: i,
+    x: Math.cos(rad) * dist,
+    y: Math.sin(rad) * dist,
+    rotate: angle + randomRange(-45, 45),
+    color: ['#ff6347', '#ff8c00', '#ffd700', '#8b0000'][Math.floor(Math.random() * 4)],
+    scale: randomRange(0.4, 1.6),
+    opacity: randomRange(0.5, 1),
+  };
 });
 
 export default function Navbar() {
@@ -286,9 +307,9 @@ export default function Navbar() {
                 <motion.line
                   key={s.id}
                   x1={0} y1={0}
-                  initial={{ x2: 0, y2: 0, opacity: 1 }}
+                  initial={{ x2: 0, y2: 0, opacity: s.opacity }}
                   animate={{ x2: s.x * 1.6, y2: s.y * 1.6, opacity: 0 }}
-                  transition={{ duration: 1, ease: 'easeOut' }}
+                  transition={{ duration: 0.9 + s.delay, ease: 'easeOut', delay: s.delay }}
                   stroke={s.color}
                   strokeWidth={s.width}
                   strokeLinecap="round"
