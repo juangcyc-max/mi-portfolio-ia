@@ -26,6 +26,7 @@ const LANG_NAMES: Record<LangCode, string> = {
 interface LanguageContextValue {
   lang: LangCode;
   setLang: (lang: LangCode) => void;
+  prefetchLang: (lang: LangCode) => void;
   t: (key: keyof UIStrings) => string;
   isTranslating: boolean;
   isRTL: boolean;
@@ -34,6 +35,7 @@ interface LanguageContextValue {
 const LanguageContext = createContext<LanguageContextValue>({
   lang: "es",
   setLang: () => {},
+  prefetchLang: () => {},
   t: (key) => ES_STRINGS[key] as string,
   isTranslating: false,
   isRTL: false,
@@ -99,6 +101,24 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
       .finally(() => setIsTranslating(false));
   }, [lang]);
 
+  const prefetchLang = useCallback((targetLang: LangCode) => {
+    if (STATIC_LANGS.includes(targetLang)) return;
+    const cacheKey = `mindbridge_trans_${targetLang}_v${CACHE_V}`;
+    try { if (localStorage.getItem(cacheKey)) return; } catch {}
+    fetch("/api/translate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ targetLang: LANG_NAMES[targetLang], strings: ES_STRINGS }),
+    })
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.translations) {
+          try { localStorage.setItem(cacheKey, JSON.stringify(data.translations)); } catch {}
+        }
+      })
+      .catch(() => {});
+  }, []);
+
   const setLang = useCallback((newLang: LangCode) => {
     setLangState(newLang);
     try {
@@ -113,14 +133,18 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
       if (dynamicStrings) {
         return (dynamicStrings[key as string] || (ES_STRINGS[key] as string)) ?? String(key);
       }
+      // While fetching a dynamic language, show EN (already translated) instead of ES
+      if (isTranslating) {
+        return (EN_STRINGS[key] as string) ?? (ES_STRINGS[key] as string) ?? String(key);
+      }
       const strings = STATIC_STRINGS[lang] ?? ES_STRINGS;
       return ((strings[key] as string) || (ES_STRINGS[key] as string)) ?? String(key);
     },
-    [lang, dynamicStrings]
+    [lang, dynamicStrings, isTranslating]
   );
 
   return (
-    <LanguageContext.Provider value={{ lang, setLang, t, isTranslating, isRTL: false }}>
+    <LanguageContext.Provider value={{ lang, setLang, prefetchLang, t, isTranslating, isRTL: false }}>
       {children}
     </LanguageContext.Provider>
   );
