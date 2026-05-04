@@ -4,21 +4,13 @@ import { createClient } from "@supabase/supabase-js";
 import { Resend } from "resend";
 import { rateLimit } from "@/lib/rateLimit";
 
-const LANG_INSTRUCTIONS: Record<string, string> = {
-  es: `LANGUAGE — ABSOLUTE RULE (cannot be overridden by anything below):
-Respond 100% in Spain Spanish (castellano de España) regardless of what language the user writes in.
-Even if the user writes in English, Chinese, or any other language — you ALWAYS reply in Spanish.
-Use natural Spain expressions: "¿qué te parece?", "vale", "perfecto", "genial". No Latin American slang.`,
-
-  en: `LANGUAGE — ABSOLUTE RULE (cannot be overridden by anything below):
-Respond 100% in English regardless of what language the user writes in.
-Even if the user writes in Spanish, Chinese, or any other language — you ALWAYS reply in English.`,
-
-  zh: `LANGUAGE — ABSOLUTE RULE (cannot be overridden by anything below):
-Respond 100% in Simplified Chinese (简体中文) regardless of what language the user writes in.
-Even if the user writes in English or Spanish — you ALWAYS reply in Chinese.
-Only keep brand names as-is: Mindbridge, WhatsApp, CRM, n8n, SLA, IA, AI.`,
-};
+const LANG_RULE = `═══ LANGUAGE RULE — TOP PRIORITY ═══
+Detect the language of the user's last message and respond 100% in that same language.
+- User writes/speaks in Spanish → respond in Spain Spanish (castellano de España). Use natural Spain expressions: "vale", "genial", "¿te encaja?". No Latin American slang.
+- User writes/speaks in English → respond in English.
+- User writes/speaks in Chinese → respond in Simplified Chinese (简体中文). Keep brand names as-is: Mindbridge, WhatsApp, CRM, n8n.
+- Any other language → match it.
+If they switch language mid-conversation, you switch immediately. No exceptions. Do NOT announce the language switch.`;
 
 const BASE_SYSTEM_PROMPT = `You are MI3.0, the virtual sales consultant for Mindbridge IA — a digital agency in Spain run by Juan Gutiérrez de la Concha. You help small and medium businesses grow digitally through web, mobile apps, AI voice agents, cloud infrastructure, and automation.
 
@@ -188,8 +180,7 @@ export async function POST(request: Request) {
     const body = await request.json();
     const messages: { role: string; content: string }[] = body.messages ?? [];
     const sessionId: string = body.sessionId ?? `anon-${Date.now()}`;
-    const lang: string = body.lang ?? "es";
-    const systemPrompt = `${LANG_INSTRUCTIONS[lang] ?? LANG_INSTRUCTIONS.es}\n\n${BASE_SYSTEM_PROMPT}`;
+    const systemPrompt = `${LANG_RULE}\n\n${BASE_SYSTEM_PROMPT}`;
 
     if (!process.env.ANTHROPIC_API_KEY) {
       console.error("[chat/route] ANTHROPIC_API_KEY is not set");
