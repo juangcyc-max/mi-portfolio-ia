@@ -248,6 +248,23 @@ export async function POST(request: Request) {
 </div>`,
         }).catch(() => {});
 
+        // Email de confirmación al cliente (solo si tiene email válido)
+        if (incidentClientEmail && incidentClientEmail !== "pendiente" && incidentClientEmail !== "sin email" && incidentClientEmail.includes("@")) {
+          resend.emails.send({
+            from: "MI3.0 · Mindbridge IA <juangutierrezdelaconcha@mindbride.net>",
+            to: [incidentClientEmail],
+            subject: `✅ Hemos recibido tu incidencia — Mindbridge IA`,
+            html: `<div style="font-family:system-ui,sans-serif;max-width:600px;margin:0 auto;padding:20px;">
+  <h2 style="color:#10b981">✅ Tu incidencia ha sido registrada</h2>
+  <p>Hola <strong>${incidentClientName}</strong>,</p>
+  <p>Hemos recibido tu consulta y Juan la revisará lo antes posible. Aquí tienes el resumen:</p>
+  <blockquote style="border-left:4px solid #10b981;padding-left:16px;color:#475569;margin:16px 0;">${lastUserMsg.content}</blockquote>
+  <p style="color:#64748b;font-size:13px;">Si necesitas añadir más información, responde a este email o escríbenos a <a href="mailto:juangutierrezdelaconcha@mindbride.net">juangutierrezdelaconcha@mindbride.net</a>.</p>
+  <p style="margin-top:24px">Un saludo,<br/><strong>Mindbridge IA</strong></p>
+</div>`,
+          }).catch(() => {});
+        }
+
         // Push notification
         supabase.from("push_tokens").select("token").then(({ data: tokens }) => {
           if (tokens?.length) {
