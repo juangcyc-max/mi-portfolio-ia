@@ -38,14 +38,12 @@ export default function Navbar() {
     const startTime = performance.now();
     const maxDim = Math.max(canvas.width, canvas.height);
 
-    // 4 shockwave rings + 1 ground dust ring
     const rings = [
-      { r: 0, maxR: maxDim * 1.1, speed: 28, alpha: 1.0,  lineW: 5,  color: '#ffffff', scaleY: 0.4,  delay: 0   },
-      { r: 0, maxR: maxDim * 0.9, speed: 18, alpha: 0.7,  lineW: 3,  color: '#ffeeaa', scaleY: 0.38, delay: 40  },
-      { r: 0, maxR: maxDim * 0.7, speed: 11, alpha: 0.5,  lineW: 2,  color: '#ff8800', scaleY: 0.35, delay: 100 },
-      { r: 0, maxR: maxDim * 0.5, speed: 7,  alpha: 0.35, lineW: 1.5,color: '#ff4400', scaleY: 0.32, delay: 180 },
-      // Ground dust
-      { r: 0, maxR: maxDim * 0.7, speed: 20, alpha: 0.55, lineW: 8,  color: '#8b6914', scaleY: 0.08, delay: 20  },
+      { r: 0, maxR: maxDim * 1.1, speed: 38, alpha: 1.0,  lineW: 5,  color: '#ffffff', scaleY: 0.4,  delay: 0   },
+      { r: 0, maxR: maxDim * 0.9, speed: 26, alpha: 0.7,  lineW: 3,  color: '#ffeeaa', scaleY: 0.38, delay: 30  },
+      { r: 0, maxR: maxDim * 0.7, speed: 16, alpha: 0.5,  lineW: 2,  color: '#ff8800', scaleY: 0.35, delay: 70  },
+      { r: 0, maxR: maxDim * 0.5, speed: 10, alpha: 0.35, lineW: 1.5, color: '#ff4400', scaleY: 0.32, delay: 130 },
+      { r: 0, maxR: maxDim * 0.7, speed: 28, alpha: 0.55, lineW: 8,  color: '#8b6914', scaleY: 0.08, delay: 15  },
     ];
 
     type P = {
@@ -53,7 +51,7 @@ export default function Navbar() {
       color: string; color2: string;
       size: number; alpha: number; initAlpha: number;
       friction: number; decay: number; gravity: number;
-      upwardDraft: number; growth: number; glow: number;
+      upwardDraft: number; growth: number;
       rot: number; rotSpeed: number; w: number; h: number;
       type: string; spawnAt: number;
     };
@@ -62,165 +60,132 @@ export default function Navbar() {
       x: cx, y: cy, vx: 0, vy: 0,
       color: '#fff', color2: '',
       size: 6, alpha: 1, initAlpha: 1,
-      friction: 0.93, decay: 0.01, gravity: 0,
-      upwardDraft: 0, growth: 0, glow: 0,
+      friction: 0.88, decay: 0.025, gravity: 0,
+      upwardDraft: 0, growth: 0,
       rot: 0, rotSpeed: 0, w: 0, h: 0,
       ...o,
     });
 
     const particles: P[] = [];
 
-    // Fase 0 — fuego + shock inmediato (250 partículas)
-    for (let i = 0; i < 250; i++) {
+    // Fase 0 — fuego + shock (175 partículas, velocidades 3x)
+    for (let i = 0; i < 175; i++) {
       const a = rr(0, Math.PI * 2);
-      const s = Math.pow(Math.random(), 1.4) * 20 + 1;
-      const isFire = i < 200;
+      const s = Math.pow(Math.random(), 1.2) * 62 + 4;
+      const isFire = i < 140;
       particles.push(mk({
-        vx: Math.cos(a) * s, vy: Math.sin(a) * s - rr(0.5, 5),
+        vx: Math.cos(a) * s, vy: Math.sin(a) * s - rr(1, 12),
         color: isFire ? pick(['#ff8c00','#ff4500','#ff2200','#ff6000','#ffbb00','#fff']) : pick(['#fff','#ffffe0']),
         color2: isFire ? pick(['#ff2200','#ff0000','#b22222']) : '',
-        size: isFire ? rr(4, 20) : rr(1.5, 5),
+        size: isFire ? rr(4, 18) : rr(1.5, 5),
         alpha: 1, initAlpha: 1,
-        friction: isFire ? 0.90 : 0.94,
-        decay: isFire ? rr(0.005, 0.016) : rr(0.012, 0.028),
-        gravity: isFire ? rr(0.02, 0.07) : 0,
-        upwardDraft: isFire ? rr(0.12, 0.55) : 0,
-        glow: isFire ? rr(15, 40) : rr(5, 12),
+        friction: isFire ? 0.86 : 0.88,
+        decay: isFire ? rr(0.020, 0.050) : rr(0.030, 0.070),
+        gravity: isFire ? rr(0.05, 0.18) : 0,
+        upwardDraft: isFire ? rr(0.3, 1.2) : 0,
         type: isFire ? 'FIRE' : 'SHOCK', spawnAt: 0,
       }));
     }
 
-    // Fase 1 — brasas con arco balístico (spawnAt 120ms)
-    for (let i = 0; i < 120; i++) {
+    // Fase 1 — brasas balísticas (70 partículas, spawnAt 80ms)
+    for (let i = 0; i < 70; i++) {
       const a = rr(-Math.PI * 0.95, -Math.PI * 0.05);
-      const s = rr(5, 22);
+      const s = rr(18, 58);
       particles.push(mk({
-        vx: Math.cos(a) * s + rr(-4, 4), vy: Math.sin(a) * s - rr(0, 3),
+        vx: Math.cos(a) * s + rr(-8, 8), vy: Math.sin(a) * s - rr(0, 6),
         color: pick(['#ff4500','#ff8c00','#ffd700','#fff','#ffaa00']),
         color2: pick(['#ff2200','#ff6600','']),
         size: rr(1.5, 4.5), alpha: 1, initAlpha: 1,
-        friction: 0.975, decay: rr(0.003, 0.009),
-        gravity: rr(0.07, 0.2), upwardDraft: 0,
-        glow: rr(8, 20), type: 'EMBER', spawnAt: 120,
+        friction: 0.955, decay: rr(0.012, 0.028),
+        gravity: rr(0.15, 0.45), upwardDraft: 0,
+        type: 'EMBER', spawnAt: 80,
       }));
     }
 
-    // Fase 2 — escombros rotativos (spawnAt 80ms)
-    for (let i = 0; i < 30; i++) {
+    // Fase 2 — escombros rotativos (20 partículas, spawnAt 50ms)
+    for (let i = 0; i < 20; i++) {
       const a = rr(-Math.PI, 0);
-      const s = rr(4, 14);
+      const s = rr(12, 38);
       particles.push(mk({
-        vx: Math.cos(a) * s + rr(-3, 3), vy: Math.sin(a) * s - rr(1, 4),
+        vx: Math.cos(a) * s + rr(-5, 5), vy: Math.sin(a) * s - rr(2, 8),
         color: pick(['#4a3000','#2a1a00','#6b4500','#333']),
         color2: '',
         size: 0, alpha: 1, initAlpha: 1,
         w: rr(6, 22), h: rr(3, 8),
-        friction: 0.97, decay: rr(0.004, 0.01),
-        gravity: rr(0.1, 0.25), upwardDraft: 0,
-        rot: rr(0, Math.PI * 2), rotSpeed: rr(-0.15, 0.15),
-        glow: 0, type: 'DEBRIS', spawnAt: 80,
+        friction: 0.96, decay: rr(0.015, 0.035),
+        gravity: rr(0.25, 0.55), upwardDraft: 0,
+        rot: rr(0, Math.PI * 2), rotSpeed: rr(-0.22, 0.22),
+        type: 'DEBRIS', spawnAt: 50,
       }));
     }
 
-    // Fase 3 — humo columna (spawnAt 250ms, más denso)
-    for (let i = 0; i < 140; i++) {
+    // Fase 3 — humo (55 partículas, spawnAt 200ms+)
+    for (let i = 0; i < 55; i++) {
       const spread = rr(-50, 50);
-      const upStr = rr(1.2, 4.5);
+      const upStr = rr(2.5, 8.0);
       particles.push(mk({
         x: cx + spread, y: cy + rr(-10, 20),
-        vx: rr(-0.8, 0.8), vy: -upStr,
+        vx: rr(-1.0, 1.0), vy: -upStr,
         color: pick(['#111','#1c1c1c','#222','#2a2a2a','#0a0a0a','#181818']),
         color2: '',
         size: rr(20, 55), alpha: rr(0.4, 0.8), initAlpha: rr(0.4, 0.8),
-        friction: 0.985, decay: rr(0.0015, 0.005),
-        gravity: 0, upwardDraft: rr(0.04, 0.18),
-        growth: rr(0.3, 1.2), glow: 0,
-        type: 'SMOKE', spawnAt: rr(250, 600),
+        friction: 0.985, decay: rr(0.006, 0.018),
+        gravity: 0, upwardDraft: rr(0.08, 0.35),
+        growth: rr(0.5, 1.8),
+        type: 'SMOKE', spawnAt: rr(200, 500),
       }));
     }
 
-    // Explosiones secundarias (spawnAt 350ms y 600ms)
+    // Explosiones secundarias (25 partículas cada una)
     const secondaryData = [
-      { dx: rr(-80, 80), dy: rr(-60, 20), t: 350 },
-      { dx: rr(-100, 100), dy: rr(-80, 10), t: 580 },
-      { dx: rr(-60, 60), dy: rr(-40, 30), t: 750 },
+      { dx: rr(-80, 80), dy: rr(-60, 20), t: 220 },
+      { dx: rr(-100, 100), dy: rr(-80, 10), t: 400 },
+      { dx: rr(-60, 60), dy: rr(-40, 30), t: 560 },
     ];
     for (const sd of secondaryData) {
-      for (let i = 0; i < 40; i++) {
+      for (let i = 0; i < 25; i++) {
         const a = rr(0, Math.PI * 2);
-        const s = rr(2, 10);
+        const s = rr(10, 35);
         particles.push(mk({
           x: cx + sd.dx, y: cy + sd.dy,
-          vx: Math.cos(a) * s, vy: Math.sin(a) * s - rr(0.5, 3),
+          vx: Math.cos(a) * s, vy: Math.sin(a) * s - rr(1, 6),
           color: pick(['#ff8c00','#ff4500','#ffd700','#fff']),
           color2: '',
           size: rr(3, 12), alpha: 1, initAlpha: 1,
-          friction: 0.91, decay: rr(0.01, 0.025),
-          gravity: 0.05, upwardDraft: rr(0.1, 0.4),
-          glow: rr(8, 20), type: 'FIRE', spawnAt: sd.t,
+          friction: 0.87, decay: rr(0.025, 0.060),
+          gravity: 0.12, upwardDraft: rr(0.2, 0.8),
+          type: 'FIRE', spawnAt: sd.t,
         }));
       }
     }
 
-    let shakeFrames = 25;
-
-    function drawParticle(c: CanvasRenderingContext2D, p: P) {
-      c.save();
-      c.globalAlpha = Math.max(0, p.alpha);
-
-      if (p.type === 'SMOKE') {
-        c.globalCompositeOperation = 'source-over';
-        c.fillStyle = p.color;
-        c.beginPath();
-        c.arc(p.x, p.y, Math.max(0.5, p.size), 0, Math.PI * 2);
-        c.fill();
-      } else if (p.type === 'DEBRIS') {
-        c.globalCompositeOperation = 'source-over';
-        c.translate(p.x, p.y);
-        c.rotate(p.rot);
-        c.fillStyle = p.color;
-        c.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
-      } else {
-        c.globalCompositeOperation = 'lighter';
-        // Color aging: interpolar a rojo al final de vida
-        const lifeRatio = p.alpha / p.initAlpha;
-        c.fillStyle = lifeRatio > 0.4 ? p.color : (p.color2 || p.color);
-        if (p.glow > 0) {
-          c.shadowColor = p.color;
-          c.shadowBlur = p.glow * lifeRatio;
-        }
-        c.beginPath();
-        c.arc(p.x, p.y, Math.max(0.5, p.size), 0, Math.PI * 2);
-        c.fill();
-      }
-      c.restore();
-    }
+    let shakeFrames = 22;
 
     function loop() {
       const elapsed = performance.now() - startTime;
       const c = ctx!;
       const cv = canvas!;
 
-      // Screen shake decreciente
       if (shakeFrames > 0) {
-        const mag = Math.pow(shakeFrames / 25, 2) * 18;
+        const mag = Math.pow(shakeFrames / 22, 2) * 20;
         c.setTransform(1, 0, 0, 1, rr(-mag, mag), rr(-mag, mag));
         shakeFrames--;
       } else {
         c.setTransform(1, 0, 0, 1, 0, 0);
       }
 
+      // Fast background fade — higher alpha = trails vanish quicker
       c.globalCompositeOperation = 'source-over';
       c.globalAlpha = 1;
-      c.fillStyle = 'rgba(4,4,4,0.22)';
+      c.fillStyle = 'rgba(4,4,4,0.40)';
       c.fillRect(-50, -50, cv.width + 100, cv.height + 100);
 
-      // Shockwave rings
+      // Rings (shadowBlur ok — only 5 of them)
       for (const ring of rings) {
         if (elapsed < ring.delay) continue;
         ring.r += ring.speed;
-        ring.speed *= 0.92;
-        ring.alpha *= 0.87;
+        ring.speed *= 0.90;
+        ring.alpha *= 0.85;
         if (ring.r < ring.maxR && ring.alpha > 0.008) {
           c.save();
           c.globalCompositeOperation = 'lighter';
@@ -236,35 +201,65 @@ export default function Navbar() {
         }
       }
 
-      // Smoke first (back layer)
+      // ── Physics update (single pass) ────────────────────────
       for (const p of particles) {
-        if (p.type !== 'SMOKE' || elapsed < p.spawnAt) continue;
-        p.vx += rr(-0.1, 0.1);
-        p.vy += rr(-0.05, 0.05) - p.upwardDraft;
-        p.x += p.vx; p.y += p.vy;
-        if (p.growth) p.size += p.growth;
+        if (elapsed < p.spawnAt) continue;
+        if (p.type === 'SMOKE') {
+          p.vx += rr(-0.1, 0.1);
+          p.vy += rr(-0.05, 0.05) - p.upwardDraft;
+          p.x += p.vx; p.y += p.vy;
+          if (p.growth) p.size += p.growth;
+        } else {
+          p.vx *= p.friction;
+          p.vy *= p.friction;
+          p.vy += p.gravity - p.upwardDraft;
+          p.vx += rr(-0.15, 0.15);
+          p.x += p.vx; p.y += p.vy;
+          if (p.type === 'DEBRIS') p.rot += p.rotSpeed;
+        }
         p.alpha -= p.decay;
-        if (p.alpha > 0) drawParticle(c, p);
       }
 
-      // Fire, shock, ember, debris (front layers)
+      // ── Render SMOKE (back, source-over, no shadowBlur) ─────
+      c.globalCompositeOperation = 'source-over';
       for (const p of particles) {
-        if (p.type === 'SMOKE' || elapsed < p.spawnAt) continue;
-        p.vx *= p.friction;
-        p.vy *= p.friction;
-        p.vy += p.gravity - p.upwardDraft;
-        p.vx += rr(-0.12, 0.12);
-        p.x += p.vx; p.y += p.vy;
-        if (p.rot !== undefined) p.rot += p.rotSpeed;
-        p.alpha -= p.decay;
-        if (p.alpha > 0) drawParticle(c, p);
+        if (p.type !== 'SMOKE' || elapsed < p.spawnAt || p.alpha <= 0) continue;
+        c.globalAlpha = Math.max(0, p.alpha);
+        c.fillStyle = p.color;
+        c.beginPath();
+        c.arc(p.x, p.y, Math.max(0.5, p.size), 0, Math.PI * 2);
+        c.fill();
+      }
+
+      // ── Render DEBRIS (source-over, rotated) ────────────────
+      for (const p of particles) {
+        if (p.type !== 'DEBRIS' || elapsed < p.spawnAt || p.alpha <= 0) continue;
+        c.globalAlpha = Math.max(0, p.alpha);
+        c.save();
+        c.translate(p.x, p.y);
+        c.rotate(p.rot);
+        c.fillStyle = p.color;
+        c.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+        c.restore();
+      }
+
+      // ── Render FIRE/SHOCK/EMBER (lighter, NO shadowBlur) ────
+      c.globalCompositeOperation = 'lighter';
+      for (const p of particles) {
+        if (p.type === 'SMOKE' || p.type === 'DEBRIS' || elapsed < p.spawnAt || p.alpha <= 0) continue;
+        c.globalAlpha = Math.max(0, p.alpha);
+        const lifeRatio = p.alpha / p.initAlpha;
+        c.fillStyle = lifeRatio > 0.4 ? p.color : (p.color2 || p.color);
+        c.beginPath();
+        c.arc(p.x, p.y, Math.max(0.5, p.size), 0, Math.PI * 2);
+        c.fill();
       }
 
       // Fireball core radial gradient
       const t = elapsed / 1000;
-      if (t < 1.0) {
-        const coreR = Math.max(0, 150 * Math.pow(1 - t * 1.0, 1.2));
-        const ca = Math.max(0, 1 - t * 1.1);
+      if (t < 0.8) {
+        const coreR = Math.max(0, 150 * Math.pow(1 - t * 1.25, 1.1));
+        const ca = Math.max(0, 1 - t * 1.4);
         c.save();
         c.globalCompositeOperation = 'lighter';
         c.globalAlpha = 1;
@@ -278,8 +273,7 @@ export default function Navbar() {
         c.beginPath();
         c.arc(cx, cy, coreR, 0, Math.PI * 2);
         c.fill();
-        // segundo halo exterior
-        if (t < 0.5) {
+        if (t < 0.35) {
           const g2 = c.createRadialGradient(cx, cy, coreR * 0.8, cx, cy, coreR * 2.5);
           g2.addColorStop(0, `rgba(255,80,0,${ca * 0.15})`);
           g2.addColorStop(1, 'rgba(0,0,0,0)');
@@ -292,8 +286,8 @@ export default function Navbar() {
       }
 
       // Vignette oscuro gradual
-      if (t > 0.3) {
-        const vigA = Math.min(0.7, (t - 0.3) * 0.5);
+      if (t > 0.25) {
+        const vigA = Math.min(0.7, (t - 0.25) * 0.6);
         c.save();
         c.globalCompositeOperation = 'source-over';
         const vg = c.createRadialGradient(cx, cy, 0, cx, cy, maxDim * 0.7);
@@ -371,7 +365,7 @@ export default function Navbar() {
       e.preventDefault();
       setAdminClicks(0);
       setExploding(true);
-      setTimeout(() => { window.location.href = '/admin/login'; }, 1600);
+      setTimeout(() => { window.location.href = '/admin/login'; }, 1200);
     } else {
       setAdminClicks(next);
       clickTimer.current = setTimeout(() => setAdminClicks(0), 2500);
