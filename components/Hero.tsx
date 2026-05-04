@@ -282,21 +282,14 @@ export default function Hero() {
                   className="size-28 sm:size-36 rounded-full bg-emerald-500/10 dark:bg-white/5 border border-emerald-500/20 dark:border-white/10 flex items-center justify-center p-5"
                   animate={
                     isSpeaking
-                      ? {
-                          scale: [1, 1.04, 1],
-                          borderColor: [
-                            "rgba(16,185,129,0.2)",
-                            "rgba(16,185,129,0.6)",
-                            "rgba(16,185,129,0.2)",
-                          ],
-                        }
+                      ? { opacity: [1, 0.75, 1], borderColor: ["rgba(16,185,129,0.2)", "rgba(16,185,129,0.6)", "rgba(16,185,129,0.2)"] }
                       : isListening
-                      ? { scale: [1, 1.02, 1], borderColor: ["rgba(239,68,68,0.3)", "rgba(239,68,68,0.7)", "rgba(239,68,68,0.3)"] }
+                      ? { opacity: [1, 0.8, 1], borderColor: ["rgba(239,68,68,0.3)", "rgba(239,68,68,0.7)", "rgba(239,68,68,0.3)"] }
                       : {}
                   }
                   transition={
                     isSpeaking || isListening
-                      ? { duration: 0.7, repeat: Infinity }
+                      ? { duration: 1.4, repeat: Infinity, ease: "easeInOut" }
                       : {}
                   }
                 >
@@ -328,11 +321,12 @@ export default function Hero() {
                       <motion.span
                         key={i}
                         className="w-1 bg-gradient-to-t from-emerald-400 to-cyan-300 rounded-full"
-                        animate={{ height: [4, 18, 4] }}
+                        animate={{ height: [4, 16, 4] }}
                         transition={{
-                          duration: 0.5,
+                          duration: 1.0,
                           repeat: Infinity,
-                          delay: i * 0.08,
+                          delay: i * 0.12,
+                          ease: "easeInOut",
                         }}
                       />
                     ))}
@@ -350,11 +344,12 @@ export default function Hero() {
                       <motion.span
                         key={i}
                         className="w-1 bg-gradient-to-t from-red-400 to-red-300 rounded-full"
-                        animate={{ height: [4, 14, 4] }}
+                        animate={{ height: [4, 12, 4] }}
                         transition={{
-                          duration: 0.4,
+                          duration: 0.9,
                           repeat: Infinity,
-                          delay: i * 0.06,
+                          delay: i * 0.1,
+                          ease: "easeInOut",
                         }}
                       />
                     ))}
