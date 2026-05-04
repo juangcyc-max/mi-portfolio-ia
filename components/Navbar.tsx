@@ -36,83 +36,174 @@ export default function Navbar() {
     const cx = canvas.width / 2;
     const cy = canvas.height / 2 + 80;
     const startTime = performance.now();
+    const maxDim = Math.max(canvas.width, canvas.height);
 
-    // Shockwave rings state
+    // 4 shockwave rings + 1 ground dust ring
     const rings = [
-      { r: 0, maxR: Math.max(canvas.width, canvas.height) * 0.9, speed: 22, alpha: 0.9, delay: 0 },
-      { r: 0, maxR: Math.max(canvas.width, canvas.height) * 0.6, speed: 14, alpha: 0.6, delay: 60 },
+      { r: 0, maxR: maxDim * 1.1, speed: 28, alpha: 1.0,  lineW: 5,  color: '#ffffff', scaleY: 0.4,  delay: 0   },
+      { r: 0, maxR: maxDim * 0.9, speed: 18, alpha: 0.7,  lineW: 3,  color: '#ffeeaa', scaleY: 0.38, delay: 40  },
+      { r: 0, maxR: maxDim * 0.7, speed: 11, alpha: 0.5,  lineW: 2,  color: '#ff8800', scaleY: 0.35, delay: 100 },
+      { r: 0, maxR: maxDim * 0.5, speed: 7,  alpha: 0.35, lineW: 1.5,color: '#ff4400', scaleY: 0.32, delay: 180 },
+      // Ground dust
+      { r: 0, maxR: maxDim * 0.7, speed: 20, alpha: 0.55, lineW: 8,  color: '#8b6914', scaleY: 0.08, delay: 20  },
     ];
 
     type P = {
       x: number; y: number; vx: number; vy: number;
-      color: string; size: number; alpha: number;
+      color: string; color2: string;
+      size: number; alpha: number; initAlpha: number;
       friction: number; decay: number; gravity: number;
       upwardDraft: number; growth: number; glow: number;
+      rot: number; rotSpeed: number; w: number; h: number;
       type: string; spawnAt: number;
     };
 
+    const mk = (o: Partial<P> & { type: string; spawnAt: number }): P => ({
+      x: cx, y: cy, vx: 0, vy: 0,
+      color: '#fff', color2: '',
+      size: 6, alpha: 1, initAlpha: 1,
+      friction: 0.93, decay: 0.01, gravity: 0,
+      upwardDraft: 0, growth: 0, glow: 0,
+      rot: 0, rotSpeed: 0, w: 0, h: 0,
+      ...o,
+    });
+
     const particles: P[] = [];
 
-    // Fase 1 — shockwave + fuego inmediato
-    for (let i = 0; i < 180; i++) {
+    // Fase 0 — fuego + shock inmediato (250 partículas)
+    for (let i = 0; i < 250; i++) {
       const a = rr(0, Math.PI * 2);
-      const s = Math.pow(Math.random(), 1.5) * 18 + 2;
-      const isFire = i < 140;
-      particles.push({
-        x: cx, y: cy,
-        vx: Math.cos(a) * s, vy: Math.sin(a) * s - rr(1, 4),
-        color: isFire ? pick(['#ff8c00','#ff4500','#ff0000','#ff6000','#ffaa00']) : pick(['#fff','#ffffe0','#ffff99']),
-        size: isFire ? rr(5, 18) : rr(2, 6),
-        alpha: 1, friction: isFire ? 0.91 : 0.95,
-        decay: isFire ? rr(0.006, 0.018) : rr(0.015, 0.03),
-        gravity: isFire ? 0.04 : 0,
-        upwardDraft: isFire ? rr(0.15, 0.5) : 0,
-        growth: 0, glow: isFire ? rr(12, 30) : rr(4, 10),
+      const s = Math.pow(Math.random(), 1.4) * 20 + 1;
+      const isFire = i < 200;
+      particles.push(mk({
+        vx: Math.cos(a) * s, vy: Math.sin(a) * s - rr(0.5, 5),
+        color: isFire ? pick(['#ff8c00','#ff4500','#ff2200','#ff6000','#ffbb00','#fff']) : pick(['#fff','#ffffe0']),
+        color2: isFire ? pick(['#ff2200','#ff0000','#b22222']) : '',
+        size: isFire ? rr(4, 20) : rr(1.5, 5),
+        alpha: 1, initAlpha: 1,
+        friction: isFire ? 0.90 : 0.94,
+        decay: isFire ? rr(0.005, 0.016) : rr(0.012, 0.028),
+        gravity: isFire ? rr(0.02, 0.07) : 0,
+        upwardDraft: isFire ? rr(0.12, 0.55) : 0,
+        glow: isFire ? rr(15, 40) : rr(5, 12),
         type: isFire ? 'FIRE' : 'SHOCK', spawnAt: 0,
-      });
+      }));
     }
 
-    // Fase 2 — brasas con gravedad (spawnAt 150ms)
-    for (let i = 0; i < 80; i++) {
-      const a = rr(-Math.PI * 0.8, -Math.PI * 0.2);
-      const s = rr(6, 20);
-      particles.push({
-        x: cx, y: cy,
-        vx: Math.cos(a) * s + rr(-3, 3), vy: Math.sin(a) * s,
-        color: pick(['#ff4500','#ff8c00','#ffd700','#fff']),
-        size: rr(2, 5), alpha: 1, friction: 0.97,
-        decay: rr(0.004, 0.01), gravity: rr(0.08, 0.18),
-        upwardDraft: 0, growth: 0, glow: rr(6, 14),
-        type: 'EMBER', spawnAt: 150,
-      });
+    // Fase 1 — brasas con arco balístico (spawnAt 120ms)
+    for (let i = 0; i < 120; i++) {
+      const a = rr(-Math.PI * 0.95, -Math.PI * 0.05);
+      const s = rr(5, 22);
+      particles.push(mk({
+        vx: Math.cos(a) * s + rr(-4, 4), vy: Math.sin(a) * s - rr(0, 3),
+        color: pick(['#ff4500','#ff8c00','#ffd700','#fff','#ffaa00']),
+        color2: pick(['#ff2200','#ff6600','']),
+        size: rr(1.5, 4.5), alpha: 1, initAlpha: 1,
+        friction: 0.975, decay: rr(0.003, 0.009),
+        gravity: rr(0.07, 0.2), upwardDraft: 0,
+        glow: rr(8, 20), type: 'EMBER', spawnAt: 120,
+      }));
     }
 
-    // Fase 3 — humo denso (spawnAt 300ms)
-    for (let i = 0; i < 90; i++) {
-      const a = rr(0, Math.PI * 2);
-      const s = rr(1, 5);
-      particles.push({
-        x: cx + rr(-30, 30), y: cy,
-        vx: Math.cos(a) * s * 0.4, vy: Math.sin(a) * s - rr(0.5, 2),
-        color: pick(['#1a1a1a','#2a2a2a','#111','#333','#0a0a0a']),
-        size: rr(15, 40), alpha: rr(0.5, 0.85), friction: 0.97,
-        decay: rr(0.002, 0.006), gravity: -0.02,
-        upwardDraft: rr(0.08, 0.25), growth: rr(0.2, 0.8), glow: 0,
-        type: 'SMOKE', spawnAt: 300,
-      });
+    // Fase 2 — escombros rotativos (spawnAt 80ms)
+    for (let i = 0; i < 30; i++) {
+      const a = rr(-Math.PI, 0);
+      const s = rr(4, 14);
+      particles.push(mk({
+        vx: Math.cos(a) * s + rr(-3, 3), vy: Math.sin(a) * s - rr(1, 4),
+        color: pick(['#4a3000','#2a1a00','#6b4500','#333']),
+        color2: '',
+        size: 0, alpha: 1, initAlpha: 1,
+        w: rr(6, 22), h: rr(3, 8),
+        friction: 0.97, decay: rr(0.004, 0.01),
+        gravity: rr(0.1, 0.25), upwardDraft: 0,
+        rot: rr(0, Math.PI * 2), rotSpeed: rr(-0.15, 0.15),
+        glow: 0, type: 'DEBRIS', spawnAt: 80,
+      }));
     }
 
-    // Screen shake
-    let shakeFrames = 18;
+    // Fase 3 — humo columna (spawnAt 250ms, más denso)
+    for (let i = 0; i < 140; i++) {
+      const spread = rr(-50, 50);
+      const upStr = rr(1.2, 4.5);
+      particles.push(mk({
+        x: cx + spread, y: cy + rr(-10, 20),
+        vx: rr(-0.8, 0.8), vy: -upStr,
+        color: pick(['#111','#1c1c1c','#222','#2a2a2a','#0a0a0a','#181818']),
+        color2: '',
+        size: rr(20, 55), alpha: rr(0.4, 0.8), initAlpha: rr(0.4, 0.8),
+        friction: 0.985, decay: rr(0.0015, 0.005),
+        gravity: 0, upwardDraft: rr(0.04, 0.18),
+        growth: rr(0.3, 1.2), glow: 0,
+        type: 'SMOKE', spawnAt: rr(250, 600),
+      }));
+    }
+
+    // Explosiones secundarias (spawnAt 350ms y 600ms)
+    const secondaryData = [
+      { dx: rr(-80, 80), dy: rr(-60, 20), t: 350 },
+      { dx: rr(-100, 100), dy: rr(-80, 10), t: 580 },
+      { dx: rr(-60, 60), dy: rr(-40, 30), t: 750 },
+    ];
+    for (const sd of secondaryData) {
+      for (let i = 0; i < 40; i++) {
+        const a = rr(0, Math.PI * 2);
+        const s = rr(2, 10);
+        particles.push(mk({
+          x: cx + sd.dx, y: cy + sd.dy,
+          vx: Math.cos(a) * s, vy: Math.sin(a) * s - rr(0.5, 3),
+          color: pick(['#ff8c00','#ff4500','#ffd700','#fff']),
+          color2: '',
+          size: rr(3, 12), alpha: 1, initAlpha: 1,
+          friction: 0.91, decay: rr(0.01, 0.025),
+          gravity: 0.05, upwardDraft: rr(0.1, 0.4),
+          glow: rr(8, 20), type: 'FIRE', spawnAt: sd.t,
+        }));
+      }
+    }
+
+    let shakeFrames = 25;
+
+    function drawParticle(c: CanvasRenderingContext2D, p: P) {
+      c.save();
+      c.globalAlpha = Math.max(0, p.alpha);
+
+      if (p.type === 'SMOKE') {
+        c.globalCompositeOperation = 'source-over';
+        c.fillStyle = p.color;
+        c.beginPath();
+        c.arc(p.x, p.y, Math.max(0.5, p.size), 0, Math.PI * 2);
+        c.fill();
+      } else if (p.type === 'DEBRIS') {
+        c.globalCompositeOperation = 'source-over';
+        c.translate(p.x, p.y);
+        c.rotate(p.rot);
+        c.fillStyle = p.color;
+        c.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+      } else {
+        c.globalCompositeOperation = 'lighter';
+        // Color aging: interpolar a rojo al final de vida
+        const lifeRatio = p.alpha / p.initAlpha;
+        c.fillStyle = lifeRatio > 0.4 ? p.color : (p.color2 || p.color);
+        if (p.glow > 0) {
+          c.shadowColor = p.color;
+          c.shadowBlur = p.glow * lifeRatio;
+        }
+        c.beginPath();
+        c.arc(p.x, p.y, Math.max(0.5, p.size), 0, Math.PI * 2);
+        c.fill();
+      }
+      c.restore();
+    }
 
     function loop() {
       const elapsed = performance.now() - startTime;
       const c = ctx!;
       const cv = canvas!;
 
-      // Screen shake
+      // Screen shake decreciente
       if (shakeFrames > 0) {
-        const mag = shakeFrames * 1.2;
+        const mag = Math.pow(shakeFrames / 25, 2) * 18;
         c.setTransform(1, 0, 0, 1, rr(-mag, mag), rr(-mag, mag));
         shakeFrames--;
       } else {
@@ -121,89 +212,110 @@ export default function Navbar() {
 
       c.globalCompositeOperation = 'source-over';
       c.globalAlpha = 1;
-      c.fillStyle = 'rgba(5,5,5,0.25)';
+      c.fillStyle = 'rgba(4,4,4,0.22)';
       c.fillRect(-50, -50, cv.width + 100, cv.height + 100);
 
       // Shockwave rings
       for (const ring of rings) {
         if (elapsed < ring.delay) continue;
         ring.r += ring.speed;
-        ring.speed *= 0.93;
-        ring.alpha *= 0.88;
-        if (ring.r < ring.maxR && ring.alpha > 0.01) {
+        ring.speed *= 0.92;
+        ring.alpha *= 0.87;
+        if (ring.r < ring.maxR && ring.alpha > 0.008) {
           c.save();
           c.globalCompositeOperation = 'lighter';
           c.globalAlpha = ring.alpha;
-          c.strokeStyle = '#ffeeaa';
-          c.lineWidth = 3;
+          c.strokeStyle = ring.color;
+          c.lineWidth = ring.lineW;
+          c.shadowColor = ring.color;
+          c.shadowBlur = ring.lineW * 4;
           c.beginPath();
-          c.ellipse(cx, cy, ring.r, ring.r * 0.35, 0, 0, Math.PI * 2);
+          c.ellipse(cx, cy, ring.r, ring.r * ring.scaleY, 0, 0, Math.PI * 2);
           c.stroke();
           c.restore();
         }
       }
 
-      // Particles
+      // Smoke first (back layer)
       for (const p of particles) {
-        if (elapsed < p.spawnAt) continue;
+        if (p.type !== 'SMOKE' || elapsed < p.spawnAt) continue;
+        p.vx += rr(-0.1, 0.1);
+        p.vy += rr(-0.05, 0.05) - p.upwardDraft;
+        p.x += p.vx; p.y += p.vy;
+        if (p.growth) p.size += p.growth;
+        p.alpha -= p.decay;
+        if (p.alpha > 0) drawParticle(c, p);
+      }
+
+      // Fire, shock, ember, debris (front layers)
+      for (const p of particles) {
+        if (p.type === 'SMOKE' || elapsed < p.spawnAt) continue;
         p.vx *= p.friction;
         p.vy *= p.friction;
         p.vy += p.gravity - p.upwardDraft;
-        p.vx += rr(-0.15, 0.15); // turbulencia
-        p.x += p.vx;
-        p.y += p.vy;
-        if (p.growth) p.size += p.growth;
+        p.vx += rr(-0.12, 0.12);
+        p.x += p.vx; p.y += p.vy;
+        if (p.rot !== undefined) p.rot += p.rotSpeed;
         p.alpha -= p.decay;
-        if (p.alpha <= 0) continue;
-
-        c.save();
-        c.globalAlpha = Math.max(0, p.alpha);
-        if (p.type === 'SMOKE') {
-          c.globalCompositeOperation = 'source-over';
-        } else {
-          c.globalCompositeOperation = 'lighter';
-          if (p.glow > 0) {
-            c.shadowColor = p.color;
-            c.shadowBlur = p.glow;
-          }
-        }
-        c.fillStyle = p.color;
-        c.beginPath();
-        c.arc(p.x, p.y, Math.max(0.5, p.size), 0, Math.PI * 2);
-        c.fill();
-        c.restore();
+        if (p.alpha > 0) drawParticle(c, p);
       }
 
-      // Fireball core
-      const coreAge = elapsed / 1000;
-      if (coreAge < 0.8) {
-        const coreR = Math.max(0, 120 * (1 - coreAge * 1.2));
-        const coreAlpha = Math.max(0, 1 - coreAge * 1.4);
+      // Fireball core radial gradient
+      const t = elapsed / 1000;
+      if (t < 1.0) {
+        const coreR = Math.max(0, 150 * Math.pow(1 - t * 1.0, 1.2));
+        const ca = Math.max(0, 1 - t * 1.1);
         c.save();
         c.globalCompositeOperation = 'lighter';
-        const grad = c.createRadialGradient(cx, cy, 0, cx, cy, coreR);
-        grad.addColorStop(0, `rgba(255,255,255,${coreAlpha})`);
-        grad.addColorStop(0.3, `rgba(255,220,50,${coreAlpha * 0.8})`);
-        grad.addColorStop(0.7, `rgba(255,80,0,${coreAlpha * 0.4})`);
-        grad.addColorStop(1, 'rgba(0,0,0,0)');
-        c.fillStyle = grad;
+        c.globalAlpha = 1;
+        const g = c.createRadialGradient(cx, cy, 0, cx, cy, coreR);
+        g.addColorStop(0,   `rgba(255,255,255,${ca})`);
+        g.addColorStop(0.2, `rgba(255,240,100,${ca * 0.9})`);
+        g.addColorStop(0.5, `rgba(255,120,0,${ca * 0.6})`);
+        g.addColorStop(0.8, `rgba(200,30,0,${ca * 0.25})`);
+        g.addColorStop(1,   'rgba(0,0,0,0)');
+        c.fillStyle = g;
         c.beginPath();
         c.arc(cx, cy, coreR, 0, Math.PI * 2);
         c.fill();
+        // segundo halo exterior
+        if (t < 0.5) {
+          const g2 = c.createRadialGradient(cx, cy, coreR * 0.8, cx, cy, coreR * 2.5);
+          g2.addColorStop(0, `rgba(255,80,0,${ca * 0.15})`);
+          g2.addColorStop(1, 'rgba(0,0,0,0)');
+          c.fillStyle = g2;
+          c.beginPath();
+          c.arc(cx, cy, coreR * 2.5, 0, Math.PI * 2);
+          c.fill();
+        }
+        c.restore();
+      }
+
+      // Vignette oscuro gradual
+      if (t > 0.3) {
+        const vigA = Math.min(0.7, (t - 0.3) * 0.5);
+        c.save();
+        c.globalCompositeOperation = 'source-over';
+        const vg = c.createRadialGradient(cx, cy, 0, cx, cy, maxDim * 0.7);
+        vg.addColorStop(0, 'rgba(0,0,0,0)');
+        vg.addColorStop(1, `rgba(0,0,0,${vigA})`);
+        c.fillStyle = vg;
+        c.globalAlpha = 1;
+        c.fillRect(0, 0, cv.width, cv.height);
         c.restore();
       }
 
       rafRef.current = requestAnimationFrame(loop);
     }
 
-    // Flash inicial
+    // Flash inicial blanco
     ctx.fillStyle = 'white';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     rafRef.current = requestAnimationFrame(loop);
     return () => {
       cancelAnimationFrame(rafRef.current);
-      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      ctx?.setTransform(1, 0, 0, 1, 0, 0);
     };
   }, [exploding]);
 
