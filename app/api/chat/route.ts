@@ -157,8 +157,8 @@ También gestionas soporte al cliente. Cuando el usuario describe un PROBLEMA, E
 PASO 1 — Responde con empatía y ayuda a resolver lo que puedas.
 PASO 2 — Si aún no tienes su nombre y email, pídelos en la misma respuesta: "Para que Juan pueda hacer seguimiento, ¿me dices tu nombre y tu email?"
 PASO 3 — En el momento en que el usuario te proporcione nombre Y email (o confirme explícitamente que no quiere darlos), añade AL FINAL de tu mensaje esta etiqueta con los datos reales:
-  [[INCIDENT:Nombre completo|email@ejemplo.com]]
-  Si el usuario no quiere dar datos, usa: [[INCIDENT:Visitante|sin email]]
+  [[INCIDENT:Nombre completo|email@ejemplo.com|Descripción breve del problema que reportó el usuario]]
+  Si el usuario no quiere dar datos, usa: [[INCIDENT:Visitante|sin email|Descripción del problema]]
 
 REGLAS:
 - La etiqueta es completamente invisible para el usuario — el frontend la procesa y elimina
@@ -200,13 +200,15 @@ export async function POST(request: Request) {
       temperature: 0.75,
     });
 
-    // Detect and strip incident tag [[INCIDENT:name|email]]
-    const incidentMatch = rawText.match(/\[\[INCIDENT:([^|]*)\|([^\]]*)\]\]/);
+    const lastUserMsg = valid[valid.length - 1];
+
+    // Detect and strip incident tag [[INCIDENT:name|email|description]]
+    const incidentMatch = rawText.match(/\[\[INCIDENT:([^|]*)\|([^|]*)\|([^\]]*)\]\]/);
     const incidentDetected = !!incidentMatch;
     const incidentClientName = incidentMatch?.[1]?.trim() || "Visitante (chat web)";
     const incidentClientEmail = incidentMatch?.[2]?.trim() || "pendiente";
+    const incidentDescription = incidentMatch?.[3]?.trim() || lastUserMsg?.content || "";
     const text = rawText.replace(/\[\[INCIDENT:[^\]]*\]\]/, "").trim();
-    const lastUserMsg = valid[valid.length - 1];
     let incidentId: string | null = null;
 
     // Create incident record + notify Juan (fire, but await to get the ID)
@@ -221,7 +223,7 @@ export async function POST(request: Request) {
           .insert({
             client_name: incidentClientName,
             client_email: incidentClientEmail,
-            description: lastUserMsg.content,
+            description: incidentDescription,
             service: "Chat web",
             priority: "normal",
             status: "open",
@@ -243,7 +245,7 @@ export async function POST(request: Request) {
     <tr><td style="padding:6px 0;color:#64748b;font-size:13px">Email</td><td style="padding:6px 0;font-weight:600">${incidentClientEmail}</td></tr>
   </table>
   <p><strong>Descripción del problema:</strong></p>
-  <blockquote style="border-left:4px solid #e2e8f0;padding-left:16px;color:#475569;">${lastUserMsg.content}</blockquote>
+  <blockquote style="border-left:4px solid #e2e8f0;padding-left:16px;color:#475569;">${incidentDescription}</blockquote>
   <a href="https://mindbride.net/admin/incidents" style="display:inline-block;margin-top:16px;background:#ef4444;color:#fff;padding:10px 20px;border-radius:8px;text-decoration:none;">Ver incidencias</a>
 </div>`,
         }).catch(() => {});
@@ -258,7 +260,7 @@ export async function POST(request: Request) {
   <h2 style="color:#10b981">✅ Tu incidencia ha sido registrada</h2>
   <p>Hola <strong>${incidentClientName}</strong>,</p>
   <p>Hemos recibido tu consulta y Juan la revisará lo antes posible. Aquí tienes el resumen:</p>
-  <blockquote style="border-left:4px solid #10b981;padding-left:16px;color:#475569;margin:16px 0;">${lastUserMsg.content}</blockquote>
+  <blockquote style="border-left:4px solid #10b981;padding-left:16px;color:#475569;margin:16px 0;">${incidentDescription}</blockquote>
   <p style="color:#64748b;font-size:13px;">Si necesitas añadir más información, responde a este email o escríbenos a <a href="mailto:juangutierrezdelaconcha@mindbride.net">juangutierrezdelaconcha@mindbride.net</a>.</p>
   <p style="margin-top:24px">Un saludo,<br/><strong>Mindbridge IA</strong></p>
 </div>`,
