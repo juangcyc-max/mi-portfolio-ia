@@ -8,15 +8,19 @@ import Portfolio from "@/components/Portfolio";
 import AIAgent from "@/components/AIAgent";
 import Image from "next/image";
 
-const Services = dynamic(() => import("@/components/Services"));
-const Plans = dynamic(() => import("@/components/Plans"));
-const CustomServices = dynamic(() => import("@/components/CustomServices"));
-const Testimonials = dynamic(() => import("@/components/Testimonials"));
-const Technologies = dynamic(() => import("@/components/Technologies"));
-const AIDemo = dynamic(() => import("@/components/AIDemo"));
-const BudgetCalculator = dynamic(() => import("@/components/BudgetCalculator"));
-const ContactForm = dynamic(() => import("@/components/ContactForm"));
-const Footer = dynamic(() => import("@/components/Footer"));
+const SectionSkeleton = ({ h = "h-64" }: { h?: string }) => (
+  <div className={`w-full ${h} bg-slate-100 dark:bg-slate-800/40 animate-pulse rounded-2xl mx-auto max-w-5xl my-8`} />
+);
+
+const Services = dynamic(() => import("@/components/Services"), { loading: () => <SectionSkeleton h="h-80" /> });
+const Plans = dynamic(() => import("@/components/Plans"), { loading: () => <SectionSkeleton h="h-96" /> });
+const CustomServices = dynamic(() => import("@/components/CustomServices"), { loading: () => <SectionSkeleton /> });
+const Testimonials = dynamic(() => import("@/components/Testimonials"), { loading: () => <SectionSkeleton /> });
+const Technologies = dynamic(() => import("@/components/Technologies"), { loading: () => <SectionSkeleton h="h-48" /> });
+const AIDemo = dynamic(() => import("@/components/AIDemo"), { loading: () => <SectionSkeleton /> });
+const BudgetCalculator = dynamic(() => import("@/components/BudgetCalculator"), { loading: () => <SectionSkeleton h="h-96" /> });
+const ContactForm = dynamic(() => import("@/components/ContactForm"), { loading: () => <SectionSkeleton h="h-96" /> });
+const Footer = dynamic(() => import("@/components/Footer"), { loading: () => <SectionSkeleton h="h-32" /> });
 
 const jsonLd = {
   "@context": "https://schema.org",

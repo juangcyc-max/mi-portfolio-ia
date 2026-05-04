@@ -142,6 +142,9 @@ export default function Navbar() {
               {/* Hamburger */}
               <button
                 onClick={() => setMenuOpen(!menuOpen)}
+                aria-label={menuOpen ? "Cerrar menú" : "Abrir menú"}
+                aria-expanded={menuOpen}
+                aria-controls="mobile-menu"
                 className="md:hidden p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition"
               >
                 {menuOpen ? (
@@ -184,6 +187,9 @@ export default function Navbar() {
         {menuOpen && (
           <>
             <motion.div
+              id="mobile-menu"
+              role="dialog"
+              aria-label="Menú de navegación"
               initial={{ x: "100%" }}
               animate={{ x: 0 }}
               exit={{ x: "100%" }}
