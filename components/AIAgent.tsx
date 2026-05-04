@@ -218,6 +218,7 @@ export default function AIAgent() {
           messages: newHistory,
           sessionId: sessionId.current,
           conversationId: conversationIdRef.current,
+          lang,
         }),
       });
       const data = await res.json();

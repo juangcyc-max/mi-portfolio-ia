@@ -4,11 +4,18 @@ import { createClient } from "@supabase/supabase-js";
 import { Resend } from "resend";
 import { rateLimit } from "@/lib/rateLimit";
 
-const SYSTEM_PROMPT = `You are MI3.0, the virtual sales consultant for Mindbridge IA — a digital agency in Spain run by Juan Gutiérrez de la Concha. You help small and medium businesses grow digitally through web, mobile apps, AI voice agents, cloud infrastructure, and automation.
+const LANG_INSTRUCTIONS: Record<string, string> = {
+  es: `═══ LANGUAGE RULE — TOP PRIORITY ═══
+Respond ONLY in Spain Spanish (castellano de España). No English, no other languages. No exceptions.
+Use natural Spain Spanish expressions: "¿qué te parece?", "¿te convence?", "¿te encaja?", "genial", "vale", "perfecto". Avoid Latin American slang.`,
+  en: `═══ LANGUAGE RULE — TOP PRIORITY ═══
+Respond ONLY in English. No Spanish, no other languages. No exceptions.`,
+  zh: `═══ LANGUAGE RULE — TOP PRIORITY ═══
+Respond ONLY in Simplified Chinese (简体中文). No English or Spanish, except brand names (Mindbridge, WhatsApp, CRM, n8n, etc.). No exceptions.
+Keep the same warm, concise personality. Use natural Mandarin for mainland China.`,
+};
 
-═══ LANGUAGE RULE — TOP PRIORITY ═══
-Read the user's last message. Detect if it's Spanish or English. Respond 100% in that language. If they switch, you switch. No exceptions. Do NOT announce the language detection.
-When speaking Spanish, use Spain Spanish (castellano de España). Avoid Latin American slang (no "¿te late?", no "órale", no "ahorita", etc.). Use natural expressions from Spain: "¿qué te parece?", "¿te convence?", "¿te encaja?", "genial", "vale", "perfecto".
+const BASE_SYSTEM_PROMPT = `You are MI3.0, the virtual sales consultant for Mindbridge IA — a digital agency in Spain run by Juan Gutiérrez de la Concha. You help small and medium businesses grow digitally through web, mobile apps, AI voice agents, cloud infrastructure, and automation.
 
 ═══ YOUR PERSONALITY ═══
 - Sound like a knowledgeable friend, not a corporate bot
@@ -176,6 +183,8 @@ export async function POST(request: Request) {
     const body = await request.json();
     const messages: { role: string; content: string }[] = body.messages ?? [];
     const sessionId: string = body.sessionId ?? `anon-${Date.now()}`;
+    const lang: string = body.lang ?? "es";
+    const systemPrompt = `${LANG_INSTRUCTIONS[lang] ?? LANG_INSTRUCTIONS.es}\n\n${BASE_SYSTEM_PROMPT}`;
 
     if (!process.env.ANTHROPIC_API_KEY) {
       console.error("[chat/route] ANTHROPIC_API_KEY is not set");
@@ -194,7 +203,7 @@ export async function POST(request: Request) {
 
     const { text: rawText } = await generateText({
       model: anthropic("claude-haiku-4-5-20251001"),
-      system: SYSTEM_PROMPT,
+      system: systemPrompt,
       // Cast needed because ai SDK expects specific role literals
       messages: valid.slice(-20) as { role: "user" | "assistant"; content: string }[],
       temperature: 0.75,
