@@ -10,7 +10,15 @@ import {
 } from "react";
 import { UIStrings, ES_STRINGS, EN_STRINGS } from "./strings";
 
-type LangCode = "es" | "en";
+export type LangCode = "es" | "en" | "zh";
+
+const STATIC_LANGS: LangCode[] = ["es", "en"];
+
+const LANG_NAMES: Record<LangCode, string> = {
+  es: "Simplified Spanish",
+  en: "English",
+  zh: "Simplified Chinese (zh-CN)",
+};
 
 interface LanguageContextValue {
   lang: LangCode;
@@ -32,30 +40,61 @@ export function useTranslation() {
   return useContext(LanguageContext);
 }
 
-const STRINGS: Record<LangCode, UIStrings> = {
+const STATIC_STRINGS: Record<string, UIStrings> = {
   es: ES_STRINGS,
   en: EN_STRINGS,
 };
 
 export function LanguageProvider({ children }: { children: ReactNode }) {
   const [lang, setLangState] = useState<LangCode>("es");
+  const [dynamicStrings, setDynamicStrings] = useState<Record<string, string> | null>(null);
+  const [isTranslating, setIsTranslating] = useState(false);
 
   // Detect stored or browser language on mount
   useEffect(() => {
     try {
       const stored = localStorage.getItem("mindbridge_lang") as LangCode | null;
-      if (stored === "es" || stored === "en") {
+      if (stored && (["es", "en", "zh"] as LangCode[]).includes(stored)) {
         setLangState(stored);
       } else {
-        // Detect from browser
         const raw = navigator.language?.split("-")[0];
         if (raw === "en") setLangState("en");
-        // Default is "es"
+        else if (raw === "zh") setLangState("zh");
       }
-    } catch {
-      // localStorage not available (SSR)
-    }
+    } catch {}
   }, []);
+
+  // Fetch dynamic translations when a non-static language is selected
+  useEffect(() => {
+    if (STATIC_LANGS.includes(lang)) {
+      setDynamicStrings(null);
+      return;
+    }
+    const cacheKey = `mindbridge_trans_${lang}`;
+    try {
+      const cached = localStorage.getItem(cacheKey);
+      if (cached) {
+        setDynamicStrings(JSON.parse(cached));
+        return;
+      }
+    } catch {}
+
+    setIsTranslating(true);
+    fetch("/api/translate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ targetLang: LANG_NAMES[lang], strings: ES_STRINGS }),
+    })
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.translations) {
+          setDynamicStrings(data.translations);
+          try { localStorage.setItem(cacheKey, JSON.stringify(data.translations)); } catch {}
+        }
+      })
+      .catch(() => {})
+      .finally(() => setIsTranslating(false));
+  }, [lang]);
 
   const setLang = useCallback((newLang: LangCode) => {
     setLangState(newLang);
@@ -63,20 +102,22 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
       localStorage.setItem("mindbridge_lang", newLang);
       document.documentElement.lang = newLang;
       document.documentElement.dir = "ltr";
-    } catch {
-      // ignore
-    }
+    } catch {}
   }, []);
 
   const t = useCallback(
     (key: keyof UIStrings): string => {
-      return ((STRINGS[lang][key] as string) || (ES_STRINGS[key] as string)) ?? String(key);
+      if (dynamicStrings) {
+        return (dynamicStrings[key as string] || (ES_STRINGS[key] as string)) ?? String(key);
+      }
+      const strings = STATIC_STRINGS[lang] ?? ES_STRINGS;
+      return ((strings[key] as string) || (ES_STRINGS[key] as string)) ?? String(key);
     },
-    [lang]
+    [lang, dynamicStrings]
   );
 
   return (
-    <LanguageContext.Provider value={{ lang, setLang, t, isTranslating: false, isRTL: false }}>
+    <LanguageContext.Provider value={{ lang, setLang, t, isTranslating, isRTL: false }}>
       {children}
     </LanguageContext.Provider>
   );

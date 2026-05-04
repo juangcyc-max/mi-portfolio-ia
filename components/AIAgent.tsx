@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Mic, MicOff, Volume2, VolumeX, Send, X, Loader2, Bot } from "lucide-react";
-import { useTranslation } from "@/lib/i18n/LanguageContext";
+import { useTranslation, LangCode } from "@/lib/i18n/LanguageContext";
 
 /* ─── Secciones disponibles para navegación ─── */
 const SECTIONS: Record<string, string> = {
@@ -66,21 +66,29 @@ function scrollToSection(id: string) {
   }
 }
 
+const LANG_SPEECH: Record<LangCode, { bcp47: string; prefix: string }> = {
+  es: { bcp47: "es-ES", prefix: "es" },
+  en: { bcp47: "en-US", prefix: "en" },
+  zh: { bcp47: "zh-CN", prefix: "zh" },
+};
+
 /* ─── SpeechSynthesis promise ─── */
 function speakPromise(
   text: string,
-  voices: SpeechSynthesisVoice[]
+  voices: SpeechSynthesisVoice[],
+  lang: LangCode
 ): Promise<void> {
   return new Promise((resolve) => {
     if (!window.speechSynthesis) return resolve();
     window.speechSynthesis.cancel();
     const u = new SpeechSynthesisUtterance(text);
-    u.lang = "es-ES";
-    u.rate = 1.05;
+    const { bcp47, prefix } = LANG_SPEECH[lang];
+    u.lang = bcp47;
+    u.rate = lang === "zh" ? 0.95 : 1.05;
     const v =
-      voices.find((v) => v.lang === "es-ES" && v.name.includes("Google")) ||
-      voices.find((v) => v.lang === "es-ES") ||
-      voices.find((v) => v.lang.startsWith("es"));
+      voices.find((v) => v.lang === bcp47 && v.name.includes("Google")) ||
+      voices.find((v) => v.lang === bcp47) ||
+      voices.find((v) => v.lang.startsWith(prefix));
     if (v) u.voice = v;
     u.onend = () => resolve();
     u.onerror = () => resolve();
@@ -115,7 +123,7 @@ function cleanForSpeech(text: string): string {
    COMPONENTE
 ═══════════════════════════════════════════════ */
 export default function AIAgent() {
-  const { t } = useTranslation();
+  const { t, lang } = useTranslation();
 
   const QUICK_ACTIONS = [
     { label: t("agent_chip_tour"),     msg: t("agent_chip_tour_msg") },
@@ -173,7 +181,7 @@ export default function AIAgent() {
       scrollToSection(step.sectionId);
       setAgentState("speaking");
       if (voiceEnabled) {
-        await speakPromise(cleanForSpeech(step.text), voicesRef.current);
+        await speakPromise(cleanForSpeech(step.text), voicesRef.current, lang);
       } else {
         await new Promise((r) => setTimeout(r, 2000));
       }
@@ -182,14 +190,14 @@ export default function AIAgent() {
     }
     setAgentState("idle");
     setTouring(false);
-  }, [voiceEnabled]);
+  }, [voiceEnabled, lang]);
 
   /* ─── Hablar respuesta normal ─── */
   const speakReply = useCallback((text: string) => {
     if (!voiceEnabled) return;
     setAgentState("speaking");
-    speakPromise(cleanForSpeech(text), voicesRef.current).then(() => setAgentState("idle"));
-  }, [voiceEnabled]);
+    speakPromise(cleanForSpeech(text), voicesRef.current, lang).then(() => setAgentState("idle"));
+  }, [voiceEnabled, lang]);
 
   /* ─── Enviar mensaje ─── */
   const sendMessage = useCallback(async (userText: string) => {
@@ -263,7 +271,7 @@ export default function AIAgent() {
     window.speechSynthesis?.cancel();
     tourAbortRef.current = true;
     const rec = new SR();
-    rec.lang = "es-ES";
+    rec.lang = LANG_SPEECH[lang].bcp47;
     rec.interimResults = false;
     rec.onstart = () => setAgentState("listening");
     rec.onresult = (e: any) => sendMessage(e.results[0][0].transcript);
@@ -271,7 +279,7 @@ export default function AIAgent() {
     rec.onend = () => setAgentState((s) => s === "listening" ? "idle" : s);
     recognitionRef.current = rec;
     rec.start();
-  }, [sendMessage]);
+  }, [sendMessage, lang]);
 
   const stopListening = () => { recognitionRef.current?.stop(); setAgentState("idle"); };
   const stopSpeaking = () => {
