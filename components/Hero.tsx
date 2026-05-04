@@ -88,16 +88,16 @@ export default function Hero() {
               variants={fadeInUp}
             >
               <Link
-                href="#demo"
+                href="#planes"
                 className="w-full sm:w-auto bg-gradient-to-r from-emerald-400 to-emerald-500 hover:from-emerald-500 hover:to-emerald-600 text-white px-6 sm:px-8 py-3 sm:py-4 rounded-xl font-black text-sm sm:text-base transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-lg shadow-emerald-500/25 text-center min-h-[48px] flex items-center justify-center"
               >
-                {t("hero_cta_primary")}
+                {t("hero_cta_secondary")}
               </Link>
               <Link
-                href="#planes"
+                href="#demo"
                 className="w-full sm:w-auto bg-emerald-500/10 dark:bg-white/[0.03] backdrop-blur-2xl px-6 sm:px-8 py-3 sm:py-4 rounded-xl font-bold text-emerald-700 dark:text-white border border-emerald-500/20 dark:border-white/10 hover:bg-emerald-500/20 dark:hover:bg-white/[0.1] transition-all duration-300 text-sm sm:text-base text-center min-h-[48px] flex items-center justify-center"
               >
-                {t("hero_cta_secondary")}
+                {t("hero_cta_primary")}
               </Link>
             </motion.div>
 

@@ -19,6 +19,9 @@ function CountUp({ value, suffix }: { value: number; suffix: string }) {
   const [hasAnimated, setHasAnimated] = useState(false);
   useEffect(() => {
     if (hasAnimated) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      setCount(value); setHasAnimated(true); return;
+    }
     let start = 0;
     const duration = 1200;
     const step = value / (duration / 16);
