@@ -24,11 +24,15 @@ type TourStep = { sectionId: string; text: string };
 
 /* ─── Parsers de comandos ─── */
 function parseTourSteps(raw: string): TourStep[] {
+  if (!raw.includes("[[STEP:")) return [];
   const steps: TourStep[] = [];
-  const re = /\[\[STEP:([\w-]+)\|([^\]]+)\]\]/g;
+  // Captura [[STEP:id|texto]] donde texto puede contener cualquier cosa excepto ]]
+  const re = /\[\[STEP:([\w-]+)\|([\s\S]+?)\]\]/g;
   let m;
   while ((m = re.exec(raw)) !== null) {
-    if (SECTIONS[m[1]]) steps.push({ sectionId: m[1], text: m[2] });
+    const id = m[1].trim();
+    const text = m[2].trim();
+    if (SECTIONS[id] && text) steps.push({ sectionId: id, text });
   }
   return steps;
 }
@@ -40,10 +44,11 @@ function parseScrollCmd(raw: string): string | null {
 
 function cleanText(raw: string): string {
   return raw
-    .replace(/\[\[TOUR_START\]\]/g, "")
-    .replace(/\[\[TOUR_END\]\]/g, "")
-    .replace(/\[\[STEP:[\w-]+\|[^\]]+\]\]/g, "")
+    .replace(/\[\[TOUR_START\]\]/gi, "")
+    .replace(/\[\[TOUR_END\]\]/gi, "")
+    .replace(/\[\[STEP:[\w-]+\|[\s\S]+?\]\]/g, "")
     .replace(/\[\[SCROLL:[\w-]+\]\]/g, "")
+    .replace(/\n{3,}/g, "\n\n")
     .trim();
 }
 
