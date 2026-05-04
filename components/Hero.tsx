@@ -5,7 +5,6 @@ import { fadeInUp, staggerContainer } from "@/lib/animations";
 import Image from "next/image";
 import Link from "next/link";
 import { useTranslation } from "@/lib/i18n/LanguageContext";
-import { Bot, Mic } from "lucide-react";
 
 export default function Hero() {
   const { t } = useTranslation();
@@ -101,6 +100,36 @@ export default function Hero() {
                 {t("hero_cta_secondary")}
               </Link>
             </motion.div>
+
+            {/* Trust signal */}
+            <motion.div
+              className="flex items-center gap-3 pt-1"
+              variants={fadeInUp}
+            >
+              <div className="flex -space-x-1.5">
+                {["L", "D", "A"].map((initial, i) => (
+                  <div
+                    key={i}
+                    className="w-7 h-7 rounded-full border-2 border-white dark:border-slate-900 flex items-center justify-center text-[10px] font-bold text-white"
+                    style={{ background: ["#10b981", "#3b82f6", "#8b5cf6"][i] }}
+                  >
+                    {initial}
+                  </div>
+                ))}
+              </div>
+              <div className="flex items-center gap-1.5">
+                <div className="flex">
+                  {[...Array(5)].map((_, i) => (
+                    <svg key={i} className="w-3.5 h-3.5 text-yellow-400 fill-yellow-400" viewBox="0 0 20 20">
+                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                    </svg>
+                  ))}
+                </div>
+                <span className="text-xs text-slate-500 dark:text-slate-400">
+                  <span className="font-bold text-slate-700 dark:text-slate-200">5.0</span> · 3 clientes satisfechos
+                </span>
+              </div>
+            </motion.div>
           </motion.div>
 
           {/* RIGHT SIDE — MI3 Agent visual */}
@@ -143,22 +172,22 @@ export default function Hero() {
                 </p>
               </div>
 
-              {/* Capacidades */}
-              <div className="flex flex-col gap-2 w-full max-w-xs">
+              {/* Stats */}
+              <div className="grid grid-cols-3 gap-3 w-full max-w-xs">
                 {[
-                  { icon: <Mic size={14} />, text: "Habla conmigo por voz" },
-                  { icon: <Bot size={14} />, text: "Pregúntame lo que necesites" },
-                  { icon: <span className="text-xs">🗺️</span>, text: 'Di "haz un tour de la web"' },
-                ].map((item, i) => (
+                  { value: "100%", label: "Satisfacción" },
+                  { value: "24h", label: "Respuesta" },
+                  { value: "3+", label: "Proyectos" },
+                ].map((stat, i) => (
                   <motion.div
                     key={i}
-                    initial={{ opacity: 0, x: -10 }}
-                    animate={{ opacity: 1, x: 0 }}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.8 + i * 0.15 }}
-                    className="flex items-center gap-2.5 bg-white/60 dark:bg-white/5 border border-slate-200/60 dark:border-white/10 rounded-xl px-3 py-2 text-xs text-slate-600 dark:text-slate-300"
+                    className="flex flex-col items-center bg-white/60 dark:bg-white/5 border border-slate-200/60 dark:border-white/10 rounded-xl px-2 py-3"
                   >
-                    <span className="text-emerald-500 shrink-0">{item.icon}</span>
-                    {item.text}
+                    <span className="text-base font-black text-emerald-500">{stat.value}</span>
+                    <span className="text-[10px] text-slate-500 dark:text-slate-400 text-center leading-tight mt-0.5">{stat.label}</span>
                   </motion.div>
                 ))}
               </div>
