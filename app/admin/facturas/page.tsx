@@ -620,6 +620,39 @@ export default function FacturasPage() {
 
           {/* Datos cliente */}
           <Section title="Datos del cliente">
+            {(() => {
+              const savedClients = Array.from(
+                new Map(facturas.map(f => [f.cliente_email || f.cliente_nombre, f])).values()
+              )
+              if (savedClients.length === 0) return null
+              return (
+                <div className="mb-4 pb-4 border-b border-slate-100">
+                  <p className="text-xs text-slate-400 mb-2">Cargar cliente existente</p>
+                  <div className="flex flex-wrap gap-2">
+                    {savedClients.map(c => (
+                      <button
+                        key={c.cliente_email || c.cliente_nombre}
+                        onClick={() => setForm(f => ({
+                          ...f,
+                          tipo_cliente: c.tipo_cliente,
+                          cliente_nombre: c.cliente_nombre,
+                          cliente_nif: c.cliente_nif,
+                          cliente_contacto: c.cliente_contacto,
+                          cliente_direccion: c.cliente_direccion,
+                          cliente_email: c.cliente_email,
+                        }))}
+                        className="px-3 py-1.5 bg-slate-50 hover:bg-emerald-50 hover:text-emerald-700 border border-slate-200 hover:border-emerald-300 rounded-lg text-xs font-medium transition-colors text-left"
+                      >
+                        <span className="font-semibold">{c.cliente_nombre}</span>
+                        {c.cliente_nif && <span className="text-slate-400 ml-1">· {c.cliente_nif}</span>}
+                        {c.cliente_email && <span className="text-slate-400 ml-1">· {c.cliente_email}</span>}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )
+            })()}
+
             <div className="flex gap-2 mb-4">
               {(['particular', 'empresa'] as const).map(tipo => (
                 <button key={tipo} onClick={() => setForm(f => ({ ...f, tipo_cliente: tipo }))}
