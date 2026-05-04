@@ -97,10 +97,9 @@ export default function ContactForm() {
           variants={fadeInUp}
         >
           <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black text-slate-900 dark:text-white mb-3 sm:mb-4 px-2 leading-tight">
-            ¿Listo para{" "}
-            {/* ✅ GRADIENTE VERDE SOLO (sin cyan) */}
+            {t("contact_heading1")}{" "}
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-emerald-500">
-              empezar
+              {t("contact_heading_hl")}
             </span>
             ?
           </h2>

@@ -301,6 +301,67 @@ export const ES_STRINGS = {
   agent_error_connection: "Error de conexión. Por favor, inténtalo de nuevo.",
   agent_error_browser:    "Tu navegador no soporta reconocimiento de voz. Usa Chrome o Edge.",
 
+  // CustomServices section
+  cs_badge:        "DESARROLLO A MEDIDA",
+  cs_title1:       "Soluciones para",
+  cs_title2:       "escalar tu negocio",
+  cs_subtitle:     "Proyectos personalizados cuando tu negocio necesita más que un plan estándar.",
+  cs_footer:       "Las fases pueden contratarse por separado o en conjunto · 50% al inicio, 50% a la entrega",
+  cs_cta:          "Solicitar presupuesto",
+  cs_maintenance:  "Mantenimiento incluido",
+  cs_maintenance_plus: "mantenimiento",
+
+  cs1_tag:   "IA · VOZ · 24/7",
+  cs1_title: "Agente IA de Voz",
+  cs1_desc:  "Secretaria virtual con IA que atiende llamadas en español, captura leads, gestiona incidencias y transfiere al responsable cuando es necesario. Sin esperas, sin personal extra.",
+  cs1_f1:    "Atención 24/7 en español de España",
+  cs1_f2:    "Captura automática de leads",
+  cs1_f3:    "Gestión de incidencias",
+  cs1_f4:    "Panel de administración incluido",
+  cs1_price: "desde 2.000€",
+  cs1_monthly: "150€/mes",
+
+  cs2_tag:   "iOS · ANDROID · NATIVA",
+  cs2_title: "App Móvil a Medida",
+  cs2_desc:  "Aplicación nativa para iOS y Android adaptada a tu negocio. Gestión de trabajos, geolocalización en tiempo real, notificaciones push y panel de administración.",
+  cs2_f1:    "iOS y Android nativos",
+  cs2_f2:    "Geolocalización en tiempo real",
+  cs2_f3:    "Notificaciones push",
+  cs2_f4:    "Panel de admin incluido",
+  cs2_price: "desde 2.500€",
+  cs2_monthly: "100€/mes",
+
+  cs3_tag:   "GESTIÓN · MÉTRICAS · INTEGRADO",
+  cs3_title: "Panel Unificado",
+  cs3_desc:  "Un solo panel para gestionar todo: llamadas, trabajos, clientes, autónomos y métricas. Integra todas tus herramientas en un único lugar y toma decisiones con datos reales.",
+  cs3_f1:    "Panel de control centralizado",
+  cs3_f2:    "Métricas y reportes en tiempo real",
+  cs3_f3:    "Integración con tus herramientas actuales",
+  cs3_f4:    "Formación y documentación incluidas",
+  cs3_price: "desde 1.500€",
+
+  // ContactForm heading
+  contact_heading1:  "¿Listo para",
+  contact_heading_hl: "empezar",
+
+  // Plans remaining hardcoded
+  plans_from:        "Desde",
+  plans_per_month:   "/mes",
+  plans_scope_note:  "Precio orientativo según alcance",
+
+  // BudgetCalculator step 3
+  calc_step3:           "Cuéntanos qué necesitas",
+  calc_your_name:       "Tu nombre",
+  calc_your_email:      "Tu email",
+  calc_proj_desc:       "Descripción del proyecto",
+  calc_optional:        "(opcional)",
+  calc_proj_placeholder:"Cuéntanos sobre tu negocio, qué quieres conseguir, si tienes web actual, plazos, integraciones que necesitas...",
+  proj_app_movil:       "App Móvil",
+  proj_agente_voz:      "Agente IA de Voz",
+  calc_sending:         "Enviando...",
+  calc_sent_title:      "✓ ¡Solicitud enviada!",
+  calc_sent_desc:       "Te contactamos en menos de 24h con el presupuesto ajustado.",
+
   // AIDemo section
   demo_agent_title:   "MI3 — Asistente IA en vivo",
   demo_agent_desc:    "Habla con nuestro agente de inteligencia artificial. Responde tus dudas, te asesora sobre precios y puede hacer un tour completo de esta web mientras te lo explica en voz.",
@@ -595,6 +656,67 @@ export const EN_STRINGS: UIStrings = {
   agent_incident_confirmed: "✅ **Issue registered.** Juan will receive a notification right now and will contact you as soon as possible.",
   agent_error_connection: "Connection error. Please try again.",
   agent_error_browser:    "Your browser doesn't support voice recognition. Use Chrome or Edge.",
+
+  // CustomServices section
+  cs_badge:        "CUSTOM DEVELOPMENT",
+  cs_title1:       "Solutions to",
+  cs_title2:       "scale your business",
+  cs_subtitle:     "Personalized projects when your business needs more than a standard plan.",
+  cs_footer:       "Phases can be contracted separately or together · 50% upfront, 50% on delivery",
+  cs_cta:          "Request a quote",
+  cs_maintenance:  "Maintenance included",
+  cs_maintenance_plus: "maintenance",
+
+  cs1_tag:   "AI · VOICE · 24/7",
+  cs1_title: "AI Voice Agent",
+  cs1_desc:  "Virtual AI secretary that handles calls, captures leads, manages incidents and transfers to the right person when needed. No waiting, no extra staff.",
+  cs1_f1:    "24/7 service in Spanish",
+  cs1_f2:    "Automatic lead capture",
+  cs1_f3:    "Incident management",
+  cs1_f4:    "Admin panel included",
+  cs1_price: "from €2,000",
+  cs1_monthly: "€150/mo",
+
+  cs2_tag:   "iOS · ANDROID · NATIVE",
+  cs2_title: "Custom Mobile App",
+  cs2_desc:  "Native app for iOS and Android tailored to your business. Work management, real-time geolocation, push notifications and admin panel.",
+  cs2_f1:    "Native iOS and Android",
+  cs2_f2:    "Real-time geolocation",
+  cs2_f3:    "Push notifications",
+  cs2_f4:    "Admin panel included",
+  cs2_price: "from €2,500",
+  cs2_monthly: "€100/mo",
+
+  cs3_tag:   "MANAGEMENT · METRICS · INTEGRATED",
+  cs3_title: "Unified Panel",
+  cs3_desc:  "A single panel to manage everything: calls, jobs, clients, freelancers and metrics. Integrate all your tools in one place and make decisions with real data.",
+  cs3_f1:    "Centralized control panel",
+  cs3_f2:    "Real-time metrics and reports",
+  cs3_f3:    "Integration with your current tools",
+  cs3_f4:    "Training and documentation included",
+  cs3_price: "from €1,500",
+
+  // ContactForm heading
+  contact_heading1:  "Ready to",
+  contact_heading_hl: "start",
+
+  // Plans remaining hardcoded
+  plans_from:        "From",
+  plans_per_month:   "/mo",
+  plans_scope_note:  "Indicative price based on scope",
+
+  // BudgetCalculator step 3
+  calc_step3:           "Tell us what you need",
+  calc_your_name:       "Your name",
+  calc_your_email:      "Your email",
+  calc_proj_desc:       "Project description",
+  calc_optional:        "(optional)",
+  calc_proj_placeholder:"Tell us about your business, what you want to achieve, if you have a current website, deadlines, integrations you need...",
+  proj_app_movil:       "Mobile App",
+  proj_agente_voz:      "AI Voice Agent",
+  calc_sending:         "Sending...",
+  calc_sent_title:      "✓ Request sent!",
+  calc_sent_desc:       "We'll contact you within 24h with the adjusted quote.",
 
   // AIDemo section
   demo_agent_title:   "MI3 — Live AI Assistant",

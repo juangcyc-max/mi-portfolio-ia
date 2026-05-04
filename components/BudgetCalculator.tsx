@@ -96,8 +96,8 @@ export default function BudgetCalculator() {
     corporate: t('proj_corporate'),
     ecommerce: t('proj_ecommerce'),
     ia: t('proj_ia'),
-    app_movil: 'App Móvil',
-    agente_voz: 'Agente IA de Voz',
+    app_movil: t('proj_app_movil'),
+    agente_voz: t('proj_agente_voz'),
   };
 
   const FEATURE_LABELS: Record<keyof Features, string> = {
@@ -378,12 +378,12 @@ export default function BudgetCalculator() {
             >
               <div className="flex items-center gap-4 mb-8">
                 <div className="w-10 h-10 rounded-2xl bg-emerald-700 flex items-center justify-center text-white shadow-lg shadow-emerald-700/30 font-bold">3</div>
-                <h3 className="text-xl font-bold text-slate-800 dark:text-white">Cuéntanos qué necesitas</h3>
+                <h3 className="text-xl font-bold text-slate-800 dark:text-white">{t('calc_step3')}</h3>
               </div>
               <div className="space-y-4">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="text-xs text-slate-400 mb-1 block font-medium">Tu nombre</label>
+                    <label className="text-xs text-slate-400 mb-1 block font-medium">{t('calc_your_name')}</label>
                     <input
                       value={clientName}
                       onChange={e => setClientName(e.target.value)}
@@ -392,7 +392,7 @@ export default function BudgetCalculator() {
                     />
                   </div>
                   <div>
-                    <label className="text-xs text-slate-400 mb-1 block font-medium">Tu email</label>
+                    <label className="text-xs text-slate-400 mb-1 block font-medium">{t('calc_your_email')}</label>
                     <input
                       value={clientEmail}
                       onChange={e => setClientEmail(e.target.value)}
@@ -403,13 +403,13 @@ export default function BudgetCalculator() {
                   </div>
                 </div>
                 <div>
-                  <label className="text-xs text-slate-400 mb-1 block font-medium">Descripción del proyecto <span className="text-slate-300">(opcional)</span></label>
+                  <label className="text-xs text-slate-400 mb-1 block font-medium">{t('calc_proj_desc')} <span className="text-slate-300">{t('calc_optional')}</span></label>
                   <textarea
                     value={comment}
                     onChange={e => setComment(e.target.value)}
                     rows={4}
                     className="w-full border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5 rounded-xl px-4 py-3 text-sm text-slate-800 dark:text-white placeholder-slate-400 focus:outline-none focus:border-emerald-500 transition-colors resize-none"
-                    placeholder="Cuéntanos sobre tu negocio, qué quieres conseguir, si tienes web actual, plazos, integraciones que necesitas..."
+                    placeholder={t('calc_proj_placeholder')}
                   />
                 </div>
               </div>
@@ -455,8 +455,8 @@ export default function BudgetCalculator() {
                     <div className="space-y-4">
                       {sent ? (
                         <div className="w-full py-4 px-8 bg-emerald-500/20 border border-emerald-500/40 rounded-2xl text-center">
-                          <p className="text-emerald-400 font-black text-sm">✓ ¡Solicitud enviada!</p>
-                          <p className="text-emerald-300/70 text-xs mt-1">Te contactamos en menos de 24h con el presupuesto ajustado.</p>
+                          <p className="text-emerald-400 font-black text-sm">{t('calc_sent_title')}</p>
+                          <p className="text-emerald-300/70 text-xs mt-1">{t('calc_sent_desc')}</p>
                         </div>
                       ) : (
                         <button
@@ -464,7 +464,7 @@ export default function BudgetCalculator() {
                           disabled={sending}
                           className="w-full py-4 px-8 bg-emerald-500 hover:bg-emerald-400 disabled:opacity-60 text-slate-900 font-black rounded-2xl transition-all duration-300 shadow-lg shadow-emerald-500/20 hover:scale-[1.02] active:scale-95"
                         >
-                          {sending ? "Enviando..." : t('calc_booking')}
+                          {sending ? t('calc_sending') : t('calc_booking')}
                         </button>
                       )}
                       <button
