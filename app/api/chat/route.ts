@@ -152,7 +152,19 @@ REGLAS DE COMANDOS:
 - Termina siempre con un siguiente paso claro
 
 ═══ DETECCIÓN DE INCIDENCIAS ═══
-También gestionas soporte al cliente. Si el usuario describe un PROBLEMA, ERROR, QUEJA o INCIDENCIA TÉCNICA con cualquier servicio (incluidos los de Mindbridge), responde de forma útil Y añade la etiqueta oculta [[INCIDENT]] al final de tu mensaje. Esta etiqueta nunca debe ser visible en el texto — ponla después de tu última frase sin nada más a continuación. No añadas [[INCIDENT]] para preguntas comerciales o de curiosidad.`;
+También gestionas soporte al cliente. Cuando el usuario describe un PROBLEMA, ERROR, QUEJA o INCIDENCIA TÉCNICA:
+
+PASO 1 — Responde con empatía y ayuda a resolver lo que puedas.
+PASO 2 — Si aún no tienes su nombre y email, pídelos en la misma respuesta: "Para que Juan pueda hacer seguimiento, ¿me dices tu nombre y tu email?"
+PASO 3 — En el momento en que el usuario te proporcione nombre Y email (o confirme explícitamente que no quiere darlos), añade AL FINAL de tu mensaje esta etiqueta con los datos reales:
+  [[INCIDENT:Nombre completo|email@ejemplo.com]]
+  Si el usuario no quiere dar datos, usa: [[INCIDENT:Visitante|sin email]]
+
+REGLAS:
+- La etiqueta es completamente invisible para el usuario — el frontend la procesa y elimina
+- Solo pon la etiqueta cuando tengas la información de contacto (o el usuario decline darla)
+- No pongas nada después de la etiqueta
+- No uses [[INCIDENT:...]] para preguntas comerciales o curiosidad general`;
 
 export async function POST(request: Request) {
   try {
@@ -188,9 +200,12 @@ export async function POST(request: Request) {
       temperature: 0.75,
     });
 
-    // Detect and strip incident tag
-    const incidentDetected = rawText.includes("[[INCIDENT]]");
-    const text = rawText.replace("[[INCIDENT]]", "").trim();
+    // Detect and strip incident tag [[INCIDENT:name|email]]
+    const incidentMatch = rawText.match(/\[\[INCIDENT:([^|]*)\|([^\]]*)\]\]/);
+    const incidentDetected = !!incidentMatch;
+    const incidentClientName = incidentMatch?.[1]?.trim() || "Visitante (chat web)";
+    const incidentClientEmail = incidentMatch?.[2]?.trim() || "pendiente";
+    const text = rawText.replace(/\[\[INCIDENT:[^\]]*\]\]/, "").trim();
     const lastUserMsg = valid[valid.length - 1];
     let incidentId: string | null = null;
 
@@ -204,8 +219,8 @@ export async function POST(request: Request) {
         const { data: inc } = await supabase
           .from("incidents")
           .insert({
-            client_name: "Visitante (chat web)",
-            client_email: "pendiente",
+            client_name: incidentClientName,
+            client_email: incidentClientEmail,
             description: lastUserMsg.content,
             service: "Chat web",
             priority: "normal",
@@ -220,12 +235,15 @@ export async function POST(request: Request) {
         resend.emails.send({
           from: "MI3.0 · Mindbridge IA <juangutierrezdelaconcha@mindbride.net>",
           to: ["juangutierrezdelaconcha@mindbride.net"],
-          subject: `⚠️ Incidencia detectada en el chat web`,
+          subject: `⚠️ Incidencia de ${incidentClientName} en el chat web`,
           html: `<div style="font-family:system-ui,sans-serif;max-width:600px;margin:0 auto;padding:20px;">
   <h2 style="color:#ef4444">⚠️ Incidencia desde el chat web</h2>
-  <p><strong>Mensaje del visitante:</strong></p>
+  <table style="width:100%;border-collapse:collapse;margin-bottom:16px;">
+    <tr><td style="padding:6px 0;color:#64748b;font-size:13px;width:80px">Cliente</td><td style="padding:6px 0;font-weight:600">${incidentClientName}</td></tr>
+    <tr><td style="padding:6px 0;color:#64748b;font-size:13px">Email</td><td style="padding:6px 0;font-weight:600">${incidentClientEmail}</td></tr>
+  </table>
+  <p><strong>Descripción del problema:</strong></p>
   <blockquote style="border-left:4px solid #e2e8f0;padding-left:16px;color:#475569;">${lastUserMsg.content}</blockquote>
-  <p style="color:#94a3b8;font-size:13px;">Pendiente de capturar email del cliente.</p>
   <a href="https://mindbride.net/admin/incidents" style="display:inline-block;margin-top:16px;background:#ef4444;color:#fff;padding:10px 20px;border-radius:8px;text-decoration:none;">Ver incidencias</a>
 </div>`,
         }).catch(() => {});
