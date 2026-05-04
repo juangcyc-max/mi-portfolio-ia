@@ -5,6 +5,7 @@ import OpeningVideo from "@/components/OpeningVideo";
 import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
 import Portfolio from "@/components/Portfolio";
+import AIAgent from "@/components/AIAgent";
 import Image from "next/image";
 
 const Services = dynamic(() => import("@/components/Services"));
@@ -124,7 +125,8 @@ export default function Home() {
       </main>
       
       <Footer />
-      
+      <AIAgent />
+
     </div>
   );
 }

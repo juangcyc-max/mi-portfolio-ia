@@ -41,7 +41,7 @@ function Stars({ count }: { count: number }) {
 
 export default function Testimonials() {
   return (
-    <section className="py-16 md:py-24 px-4">
+    <section className="py-16 md:py-24 px-4" id="testimonios">
       <div className="max-w-5xl mx-auto">
         <motion.div
           className="text-center mb-12"
