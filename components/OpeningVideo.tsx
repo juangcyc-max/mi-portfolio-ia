@@ -7,15 +7,25 @@ export default function OpeningVideo() {
   const [visible, setVisible] = useState(true);
   const [fadeOut, setFadeOut] = useState(false);
 
+  const fadeTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
+  const hideTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
+
+  const skip = () => {
+    clearTimeout(fadeTimerRef.current);
+    clearTimeout(hideTimerRef.current);
+    setFadeOut(true);
+    hideTimerRef.current = setTimeout(() => setVisible(false), 600);
+  };
+
   useEffect(() => {
     videoRef.current?.play().catch(() => {});
 
-    const fadeTimer = setTimeout(() => setFadeOut(true), 8000);
-    const hideTimer = setTimeout(() => setVisible(false), 8600);
+    fadeTimerRef.current = setTimeout(() => setFadeOut(true), 8000);
+    hideTimerRef.current = setTimeout(() => setVisible(false), 8600);
 
     return () => {
-      clearTimeout(fadeTimer);
-      clearTimeout(hideTimer);
+      clearTimeout(fadeTimerRef.current);
+      clearTimeout(hideTimerRef.current);
     };
   }, []);
 
@@ -23,7 +33,8 @@ export default function OpeningVideo() {
 
   return (
     <div
-      style={{ transition: "opacity 0.6s ease" }}
+      onClick={skip}
+      style={{ transition: "opacity 0.6s ease", cursor: "pointer" }}
       className={`fixed inset-0 z-[9999] bg-black ${fadeOut ? "opacity-0" : "opacity-100"}`}
     >
       <video
@@ -32,7 +43,7 @@ export default function OpeningVideo() {
         autoPlay
         muted
         playsInline
-        className="w-full h-full object-cover"
+        className="w-full h-full object-cover pointer-events-none"
       />
     </div>
   );
