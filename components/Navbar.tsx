@@ -24,292 +24,175 @@ export default function Navbar() {
     if (!exploding) return;
     const canvas = canvasRef.current;
     if (!canvas) return;
-    const ctx = canvas.getContext('2d');
+    const ctx = canvas.getContext('2d', { alpha: false });
     if (!ctx) return;
 
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
 
+    const W = canvas.width;
+    const H = canvas.height;
+    const groundY = H * 0.82;
+    const ex = W / 2;
+
     const rr = (min: number, max: number) => Math.random() * (max - min) + min;
     const pick = <T,>(arr: T[]) => arr[Math.floor(Math.random() * arr.length)];
 
-    const cx = canvas.width / 2;
-    const cy = canvas.height / 2 + 80;
-    const startTime = performance.now();
-    const maxDim = Math.max(canvas.width, canvas.height);
-
-    const rings = [
-      { r: 0, maxR: maxDim * 1.1, speed: 38, alpha: 1.0,  lineW: 5,  color: '#ffffff', scaleY: 0.4,  delay: 0   },
-      { r: 0, maxR: maxDim * 0.9, speed: 26, alpha: 0.7,  lineW: 3,  color: '#ffeeaa', scaleY: 0.38, delay: 30  },
-      { r: 0, maxR: maxDim * 0.7, speed: 16, alpha: 0.5,  lineW: 2,  color: '#ff8800', scaleY: 0.35, delay: 70  },
-      { r: 0, maxR: maxDim * 0.5, speed: 10, alpha: 0.35, lineW: 1.5, color: '#ff4400', scaleY: 0.32, delay: 130 },
-      { r: 0, maxR: maxDim * 0.7, speed: 28, alpha: 0.55, lineW: 8,  color: '#8b6914', scaleY: 0.08, delay: 15  },
-    ];
-
+    type Ring = { x: number; y: number; radius: number; thickness: number; alpha: number; speed: number; };
     type P = {
-      x: number; y: number; vx: number; vy: number;
-      color: string; color2: string;
-      size: number; alpha: number; initAlpha: number;
-      friction: number; decay: number; gravity: number;
-      upwardDraft: number; growth: number;
-      rot: number; rotSpeed: number; w: number; h: number;
-      type: string; spawnAt: number;
+      x: number; y: number; vx: number; vy: number; originX: number;
+      type: string; life: number; color: string; size: number;
+      friction: number; decay: number; growth: number;
     };
 
-    const mk = (o: Partial<P> & { type: string; spawnAt: number }): P => ({
-      x: cx, y: cy, vx: 0, vy: 0,
-      color: '#fff', color2: '',
-      size: 6, alpha: 1, initAlpha: 1,
-      friction: 0.88, decay: 0.025, gravity: 0,
-      upwardDraft: 0, growth: 0,
-      rot: 0, rotSpeed: 0, w: 0, h: 0,
-      ...o,
+    const mkRing = (x: number, y: number): Ring => ({
+      x, y, radius: 10, thickness: 40, alpha: 0.8, speed: rr(15, 30),
     });
 
-    const particles: P[] = [];
-
-    // Fase 0 — fuego + shock (175 partículas, velocidades 3x)
-    for (let i = 0; i < 175; i++) {
-      const a = rr(0, Math.PI * 2);
-      const s = Math.pow(Math.random(), 1.2) * 62 + 4;
-      const isFire = i < 140;
-      particles.push(mk({
-        vx: Math.cos(a) * s, vy: Math.sin(a) * s - rr(1, 12),
-        color: isFire ? pick(['#ff8c00','#ff4500','#ff2200','#ff6000','#ffbb00','#fff']) : pick(['#fff','#ffffe0']),
-        color2: isFire ? pick(['#ff2200','#ff0000','#b22222']) : '',
-        size: isFire ? rr(4, 18) : rr(1.5, 5),
-        alpha: 1, initAlpha: 1,
-        friction: isFire ? 0.86 : 0.88,
-        decay: isFire ? rr(0.020, 0.050) : rr(0.030, 0.070),
-        gravity: isFire ? rr(0.05, 0.18) : 0,
-        upwardDraft: isFire ? rr(0.3, 1.2) : 0,
-        type: isFire ? 'FIRE' : 'SHOCK', spawnAt: 0,
-      }));
-    }
-
-    // Fase 1 — brasas balísticas (70 partículas, spawnAt 80ms)
-    for (let i = 0; i < 70; i++) {
-      const a = rr(-Math.PI * 0.95, -Math.PI * 0.05);
-      const s = rr(18, 58);
-      particles.push(mk({
-        vx: Math.cos(a) * s + rr(-8, 8), vy: Math.sin(a) * s - rr(0, 6),
-        color: pick(['#ff4500','#ff8c00','#ffd700','#fff','#ffaa00']),
-        color2: pick(['#ff2200','#ff6600','']),
-        size: rr(1.5, 4.5), alpha: 1, initAlpha: 1,
-        friction: 0.955, decay: rr(0.012, 0.028),
-        gravity: rr(0.15, 0.45), upwardDraft: 0,
-        type: 'EMBER', spawnAt: 80,
-      }));
-    }
-
-    // Fase 2 — escombros rotativos (20 partículas, spawnAt 50ms)
-    for (let i = 0; i < 20; i++) {
-      const a = rr(-Math.PI, 0);
-      const s = rr(12, 38);
-      particles.push(mk({
-        vx: Math.cos(a) * s + rr(-5, 5), vy: Math.sin(a) * s - rr(2, 8),
-        color: pick(['#4a3000','#2a1a00','#6b4500','#333']),
-        color2: '',
-        size: 0, alpha: 1, initAlpha: 1,
-        w: rr(6, 22), h: rr(3, 8),
-        friction: 0.96, decay: rr(0.015, 0.035),
-        gravity: rr(0.25, 0.55), upwardDraft: 0,
-        rot: rr(0, Math.PI * 2), rotSpeed: rr(-0.22, 0.22),
-        type: 'DEBRIS', spawnAt: 50,
-      }));
-    }
-
-    // Fase 3 — humo (55 partículas, spawnAt 200ms+)
-    for (let i = 0; i < 55; i++) {
-      const spread = rr(-50, 50);
-      const upStr = rr(2.5, 8.0);
-      particles.push(mk({
-        x: cx + spread, y: cy + rr(-10, 20),
-        vx: rr(-1.0, 1.0), vy: -upStr,
-        color: pick(['#111','#1c1c1c','#222','#2a2a2a','#0a0a0a','#181818']),
-        color2: '',
-        size: rr(20, 55), alpha: rr(0.4, 0.8), initAlpha: rr(0.4, 0.8),
-        friction: 0.985, decay: rr(0.006, 0.018),
-        gravity: 0, upwardDraft: rr(0.08, 0.35),
-        growth: rr(0.5, 1.8),
-        type: 'SMOKE', spawnAt: rr(200, 500),
-      }));
-    }
-
-    // Explosiones secundarias (25 partículas cada una)
-    const secondaryData = [
-      { dx: rr(-80, 80), dy: rr(-60, 20), t: 220 },
-      { dx: rr(-100, 100), dy: rr(-80, 10), t: 400 },
-      { dx: rr(-60, 60), dy: rr(-40, 30), t: 560 },
-    ];
-    for (const sd of secondaryData) {
-      for (let i = 0; i < 25; i++) {
-        const a = rr(0, Math.PI * 2);
-        const s = rr(10, 35);
-        particles.push(mk({
-          x: cx + sd.dx, y: cy + sd.dy,
-          vx: Math.cos(a) * s, vy: Math.sin(a) * s - rr(1, 6),
-          color: pick(['#ff8c00','#ff4500','#ffd700','#fff']),
-          color2: '',
-          size: rr(3, 12), alpha: 1, initAlpha: 1,
-          friction: 0.87, decay: rr(0.025, 0.060),
-          gravity: 0.12, upwardDraft: rr(0.2, 0.8),
-          type: 'FIRE', spawnAt: sd.t,
-        }));
+    const mkParticle = (x: number, y: number, type: string): P => {
+      const angle = rr(0, Math.PI * 2);
+      if (type === 'CORE') {
+        const s = rr(2, 35);
+        return { x, y, vx: Math.cos(angle)*s, vy: Math.sin(angle)*s, originX: x,
+          type, life: 1, color: Math.random() < 0.5 ? '#ffffff' : '#ffffee',
+          size: rr(2, 6), friction: 0.85, decay: rr(0.02, 0.05), growth: 0 };
       }
-    }
+      if (type === 'TOROIDAL_FIRE') {
+        const s = Math.pow(Math.random(), 2) * 20 + 5;
+        return { x, y, vx: Math.cos(angle)*s, vy: Math.sin(angle)*s, originX: x,
+          type, life: 1, color: pick(['#ff8c00','#ff2a00','#ffcc00']),
+          size: rr(3, 8), friction: 0.92, decay: rr(0.003, 0.01), growth: 0 };
+      }
+      if (type === 'MUSHROOM_SMOKE') {
+        const s = rr(2, 12);
+        return { x, y, vx: Math.cos(angle)*s*0.5, vy: Math.sin(angle)*s, originX: x,
+          type, life: 1, color: pick(['#0a0a0a','#111111','#1a1a1a','#221100']),
+          size: rr(15, 50), friction: 0.94, decay: rr(0.001, 0.004), growth: rr(0.1, 0.4) };
+      }
+      // BASE_SURGE
+      const dir = Math.random() > 0.5 ? 1 : -1;
+      return { x, y, vx: rr(10, 40)*dir, vy: rr(-2, 0), originX: x,
+        type, life: 1, color: pick(['#2a2a2a','#332a2a','#1a1a1a']),
+        size: rr(20, 60), friction: 0.96, decay: rr(0.002, 0.006), growth: rr(0.2, 0.6) };
+    };
 
-    let shakeFrames = 22;
+    const updateP = (p: P) => {
+      p.vx *= p.friction;
+      p.vy *= p.friction;
+      // Toroidal vortex: upward draft in stem, outward push at cap, downward curl closing the torus
+      if (p.type === 'TOROIDAL_FIRE' || p.type === 'MUSHROOM_SMOKE') {
+        const d = p.x - p.originX;
+        const pull = Math.max(0, 1 - Math.abs(d) / 150);
+        p.vy -= pull * 0.6;
+        if (p.y < groundY - 200) {
+          p.vx += d > 0 ? 0.2 : -0.2;
+          if (Math.abs(d) > 80) p.vy += 0.3;
+        }
+      }
+      p.x += p.vx; p.y += p.vy;
+      if (p.y > groundY && p.type !== 'BASE_SURGE') { p.y = groundY; p.vy *= -0.3; p.vx *= 0.5; }
+      p.size += p.growth;
+      p.life -= p.decay;
+    };
+
+    let rings: Ring[] = [mkRing(ex, groundY - 70)];
+    let particles: P[] = [];
+    let globalIllumination = 1.0;
+    let cameraShake = 60;
+
+    const t2 = setTimeout(() => rings.push(mkRing(ex, groundY - 200)), 200);
+
+    for (let i = 0; i < 200; i++) particles.push(mkParticle(ex, groundY, 'BASE_SURGE'));
+    for (let i = 0; i < 400; i++) particles.push(mkParticle(ex, groundY - 20, 'MUSHROOM_SMOKE'));
+    for (let i = 0; i < 1200; i++) particles.push(mkParticle(ex, groundY - 20, 'TOROIDAL_FIRE'));
+    for (let i = 0; i < 300; i++) particles.push(mkParticle(ex, groundY - 20, 'CORE'));
 
     function loop() {
-      const elapsed = performance.now() - startTime;
       const c = ctx!;
-      const cv = canvas!;
 
-      if (shakeFrames > 0) {
-        const mag = Math.pow(shakeFrames / 22, 2) * 20;
-        c.setTransform(1, 0, 0, 1, rr(-mag, mag), rr(-mag, mag));
-        shakeFrames--;
-      } else {
-        c.setTransform(1, 0, 0, 1, 0, 0);
-      }
-
-      // Fast background fade — higher alpha = trails vanish quicker
       c.globalCompositeOperation = 'source-over';
       c.globalAlpha = 1;
-      c.fillStyle = 'rgba(4,4,4,0.40)';
-      c.fillRect(-50, -50, cv.width + 100, cv.height + 100);
+      c.fillStyle = '#050505';
+      c.fillRect(0, 0, W, H);
 
-      // Rings (shadowBlur ok — only 5 of them)
-      for (const ring of rings) {
-        if (elapsed < ring.delay) continue;
-        ring.r += ring.speed;
-        ring.speed *= 0.90;
-        ring.alpha *= 0.85;
-        if (ring.r < ring.maxR && ring.alpha > 0.008) {
-          c.save();
-          c.globalCompositeOperation = 'lighter';
-          c.globalAlpha = ring.alpha;
-          c.strokeStyle = ring.color;
-          c.lineWidth = ring.lineW;
-          c.shadowColor = ring.color;
-          c.shadowBlur = ring.lineW * 4;
-          c.beginPath();
-          c.ellipse(cx, cy, ring.r, ring.r * ring.scaleY, 0, 0, Math.PI * 2);
-          c.stroke();
-          c.restore();
-        }
+      // Atmospheric sky glow
+      if (globalIllumination > 0) {
+        const grd = c.createRadialGradient(W/2, groundY, 10, W/2, groundY, W);
+        grd.addColorStop(0, `rgba(255,200,150,${globalIllumination * 0.5})`);
+        grd.addColorStop(1, 'rgba(0,0,0,0)');
+        c.fillStyle = grd;
+        c.fillRect(0, 0, W, H);
+        globalIllumination -= 0.005;
       }
 
-      // ── Physics update (single pass) ────────────────────────
-      for (const p of particles) {
-        if (elapsed < p.spawnAt) continue;
-        if (p.type === 'SMOKE') {
-          p.vx += rr(-0.1, 0.1);
-          p.vy += rr(-0.05, 0.05) - p.upwardDraft;
-          p.x += p.vx; p.y += p.vy;
-          if (p.growth) p.size += p.growth;
-        } else {
-          p.vx *= p.friction;
-          p.vy *= p.friction;
-          p.vy += p.gravity - p.upwardDraft;
-          p.vx += rr(-0.15, 0.15);
-          p.x += p.vx; p.y += p.vy;
-          if (p.type === 'DEBRIS') p.rot += p.rotSpeed;
-        }
-        p.alpha -= p.decay;
+      c.save();
+
+      if (cameraShake > 0.5) {
+        c.translate(rr(-cameraShake, cameraShake), rr(-cameraShake, cameraShake));
+        cameraShake *= 0.92;
       }
 
-      // ── Render SMOKE (back, source-over, no shadowBlur) ─────
+      // Ground horizon
+      c.globalCompositeOperation = 'source-over';
+      c.globalAlpha = 1;
+      c.fillStyle = '#020202';
+      c.fillRect(0, groundY, W, H - groundY);
+      if (globalIllumination > 0.1) {
+        c.fillStyle = `rgba(255,100,50,${globalIllumination * 0.3})`;
+        c.beginPath();
+        c.ellipse(W/2, groundY, 400, 20, 0, 0, Math.PI * 2);
+        c.fill();
+      }
+
+      // Wilson condensation rings
+      rings = rings.filter(r => r.alpha > 0);
+      for (const r of rings) {
+        r.radius += r.speed; r.thickness *= 0.95; r.alpha -= 0.015;
+        c.beginPath();
+        c.ellipse(r.x, r.y - r.radius * 0.2, r.radius, r.radius * 0.15, 0, 0, Math.PI * 2);
+        c.strokeStyle = `rgba(200,220,255,${Math.max(0, r.alpha)})`;
+        c.lineWidth = r.thickness;
+        c.stroke();
+      }
+
+      particles = particles.filter(p => p.life > 0);
+
+      // Smoke + ground surge (back layer)
       c.globalCompositeOperation = 'source-over';
       for (const p of particles) {
-        if (p.type !== 'SMOKE' || elapsed < p.spawnAt || p.alpha <= 0) continue;
-        c.globalAlpha = Math.max(0, p.alpha);
+        if (p.type !== 'MUSHROOM_SMOKE' && p.type !== 'BASE_SURGE') continue;
+        updateP(p);
+        c.globalAlpha = Math.max(0, p.life);
         c.fillStyle = p.color;
-        c.beginPath();
-        c.arc(p.x, p.y, Math.max(0.5, p.size), 0, Math.PI * 2);
-        c.fill();
+        c.fillRect(p.x - p.size/2, p.y - p.size/2, p.size, p.size);
       }
 
-      // ── Render DEBRIS (source-over, rotated) ────────────────
-      for (const p of particles) {
-        if (p.type !== 'DEBRIS' || elapsed < p.spawnAt || p.alpha <= 0) continue;
-        c.globalAlpha = Math.max(0, p.alpha);
-        c.save();
-        c.translate(p.x, p.y);
-        c.rotate(p.rot);
-        c.fillStyle = p.color;
-        c.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
-        c.restore();
-      }
-
-      // ── Render FIRE/SHOCK/EMBER (lighter, NO shadowBlur) ────
+      // Fire + plasma (front layer, additive light)
       c.globalCompositeOperation = 'lighter';
       for (const p of particles) {
-        if (p.type === 'SMOKE' || p.type === 'DEBRIS' || elapsed < p.spawnAt || p.alpha <= 0) continue;
-        c.globalAlpha = Math.max(0, p.alpha);
-        const lifeRatio = p.alpha / p.initAlpha;
-        c.fillStyle = lifeRatio > 0.4 ? p.color : (p.color2 || p.color);
-        c.beginPath();
-        c.arc(p.x, p.y, Math.max(0.5, p.size), 0, Math.PI * 2);
-        c.fill();
+        if (p.type !== 'TOROIDAL_FIRE' && p.type !== 'CORE') continue;
+        updateP(p);
+        c.globalAlpha = Math.max(0, p.life);
+        c.fillStyle = p.color;
+        c.fillRect(p.x - p.size/2, p.y - p.size/2, p.size, p.size);
       }
 
-      // Fireball core radial gradient
-      const t = elapsed / 1000;
-      if (t < 0.8) {
-        const coreR = Math.max(0, 150 * Math.pow(1 - t * 1.25, 1.1));
-        const ca = Math.max(0, 1 - t * 1.4);
-        c.save();
-        c.globalCompositeOperation = 'lighter';
-        c.globalAlpha = 1;
-        const g = c.createRadialGradient(cx, cy, 0, cx, cy, coreR);
-        g.addColorStop(0,   `rgba(255,255,255,${ca})`);
-        g.addColorStop(0.2, `rgba(255,240,100,${ca * 0.9})`);
-        g.addColorStop(0.5, `rgba(255,120,0,${ca * 0.6})`);
-        g.addColorStop(0.8, `rgba(200,30,0,${ca * 0.25})`);
-        g.addColorStop(1,   'rgba(0,0,0,0)');
-        c.fillStyle = g;
-        c.beginPath();
-        c.arc(cx, cy, coreR, 0, Math.PI * 2);
-        c.fill();
-        if (t < 0.35) {
-          const g2 = c.createRadialGradient(cx, cy, coreR * 0.8, cx, cy, coreR * 2.5);
-          g2.addColorStop(0, `rgba(255,80,0,${ca * 0.15})`);
-          g2.addColorStop(1, 'rgba(0,0,0,0)');
-          c.fillStyle = g2;
-          c.beginPath();
-          c.arc(cx, cy, coreR * 2.5, 0, Math.PI * 2);
-          c.fill();
-        }
-        c.restore();
-      }
-
-      // Vignette oscuro gradual
-      if (t > 0.25) {
-        const vigA = Math.min(0.7, (t - 0.25) * 0.6);
-        c.save();
+      // Initial flashbang
+      if (globalIllumination > 0.8) {
         c.globalCompositeOperation = 'source-over';
-        const vg = c.createRadialGradient(cx, cy, 0, cx, cy, maxDim * 0.7);
-        vg.addColorStop(0, 'rgba(0,0,0,0)');
-        vg.addColorStop(1, `rgba(0,0,0,${vigA})`);
-        c.fillStyle = vg;
-        c.globalAlpha = 1;
-        c.fillRect(0, 0, cv.width, cv.height);
-        c.restore();
+        c.globalAlpha = (globalIllumination - 0.8) * 5;
+        c.fillStyle = 'white';
+        c.fillRect(0, 0, W, H);
       }
 
+      c.restore();
       rafRef.current = requestAnimationFrame(loop);
     }
-
-    // Flash inicial blanco
-    ctx.fillStyle = 'white';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     rafRef.current = requestAnimationFrame(loop);
     return () => {
       cancelAnimationFrame(rafRef.current);
-      ctx?.setTransform(1, 0, 0, 1, 0, 0);
+      clearTimeout(t2);
     };
   }, [exploding]);
 
@@ -325,7 +208,6 @@ export default function Navbar() {
   useEffect(() => {
     if (menuOpen) {
       document.body.style.overflow = "hidden";
-      // Focus al primer elemento del menú
       const focusable = menuRef.current?.querySelectorAll<HTMLElement>(
         'a, button, [tabindex]:not([tabindex="-1"])'
       );
@@ -379,22 +261,12 @@ export default function Navbar() {
   ) => {
     if (href.startsWith("#")) {
       e.preventDefault();
-
       const element = document.querySelector(href);
-
       if (element) {
         const navbarHeight = 80;
-        const y =
-          element.getBoundingClientRect().top +
-          window.scrollY -
-          navbarHeight;
-
-        window.scrollTo({
-          top: y,
-          behavior: "smooth"
-        });
+        const y = element.getBoundingClientRect().top + window.scrollY - navbarHeight;
+        window.scrollTo({ top: y, behavior: "smooth" });
       }
-
       setMenuOpen(false);
     }
   };
@@ -412,7 +284,6 @@ export default function Navbar() {
         }`}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-
           <div className="flex justify-between items-center h-16 sm:h-20 w-full">
 
             {/* Logo */}
@@ -430,7 +301,6 @@ export default function Navbar() {
                   priority
                 />
               </div>
-
               <span className="font-black text-lg text-slate-900 dark:text-transparent dark:bg-clip-text dark:bg-gradient-to-r dark:from-emerald-400 dark:to-emerald-500">
                 Mindbridge IA
               </span>
@@ -457,7 +327,6 @@ export default function Navbar() {
 
             {/* Right */}
             <div className="flex items-center gap-2">
-
               <LanguageSwitcher />
               <ThemeToggle />
 
@@ -490,32 +359,12 @@ export default function Navbar() {
                 className="md:hidden p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition"
               >
                 {menuOpen ? (
-                  <svg
-                    className="w-6 h-6"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth={2}
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M6 18L18 6M6 6l12 12"
-                    />
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
                   </svg>
                 ) : (
-                  <svg
-                    className="w-6 h-6"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth={2}
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M4 6h16M4 12h16M4 18h16"
-                    />
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
                   </svg>
                 )}
               </button>
@@ -549,7 +398,6 @@ export default function Navbar() {
               className="fixed top-0 right-0 w-full h-full bg-white dark:bg-slate-900 z-40 md:hidden p-8"
             >
               <div className="flex flex-col gap-6 mt-20">
-
                 {[
                   { href: "#servicios", label: t("nav_services") },
                   { href: "#planes",    label: t("nav_plans") },
@@ -584,7 +432,6 @@ export default function Navbar() {
                 >
                   {t("nav_contact")}
                 </a>
-
               </div>
             </motion.div>
 
