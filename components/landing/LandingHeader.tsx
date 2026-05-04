@@ -28,7 +28,7 @@ export default function LandingHeader({ onNavigate }: LandingHeaderProps) {
         <img
           src="/logo-adlaunch.png"
           alt="AdLaunch Studio"
-          className="w-80 h-auto"
+          className="w-28 sm:w-48 md:w-64 h-auto"
         />
 
         {/* Navigation */}

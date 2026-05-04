@@ -10,7 +10,7 @@ export default function HeroSection() {
   const { email, setEmail, submitted, error, isLoading, handleSubmit } = useEmailForm();
 
   return (
-    <section className="relative pt-24 pb-32 overflow-hidden bg-gradient-to-br from-slate-50 via-white to-slate-100">
+    <section className="relative pt-12 pb-16 sm:pt-24 sm:pb-32 overflow-hidden bg-gradient-to-br from-slate-50 via-white to-slate-100">
       
       {/* Background decorative elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -37,7 +37,7 @@ export default function HeroSection() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.1 }}
-            className="text-4xl md:text-5xl lg:text-6xl font-black text-slate-900 mb-6 leading-tight"
+            className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-slate-900 mb-6 leading-tight"
           >
             {LANDING_CONTENT.hero.title.split(' ').map((word, i) => (
               <span key={i}>

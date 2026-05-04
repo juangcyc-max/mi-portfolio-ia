@@ -7,7 +7,7 @@ import { ECOMMERCE_CONTENT } from '@/lib/ecommerce/data';
 
 export default function HeroSection() {
   return (
-    <section className="relative pt-20 pb-32 overflow-hidden bg-gradient-to-br from-gray-50 via-white to-[#FF6B4A]/5">
+    <section className="relative pt-10 pb-16 sm:pt-20 sm:pb-32 overflow-hidden bg-gradient-to-br from-gray-50 via-white to-[#FF6B4A]/5">
       
       {/* Background decorative elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -31,7 +31,7 @@ export default function HeroSection() {
             </span>
 
             {/* Title */}
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-[#2D3436] mb-6 leading-tight">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-[#2D3436] mb-6 leading-tight">
               {ECOMMERCE_CONTENT.hero.title.split(' ').map((word, i, arr) => (
                 <span key={i}>
                   {word === 'inteligencia' || word === 'IA' ? (
@@ -57,14 +57,14 @@ export default function HeroSection() {
             </p>
 
             {/* CTA Buttons */}
-            <div className="flex flex-wrap gap-4">
-              <button className="inline-flex items-center px-8 py-4 bg-[#FF6B4A] hover:bg-[#ff5733] text-white font-semibold rounded-xl transition-all hover:scale-105 shadow-lg shadow-[#FF6B4A]/30">
+            <div className="flex flex-col sm:flex-row flex-wrap gap-3">
+              <button className="inline-flex items-center justify-center px-6 py-3 sm:px-8 sm:py-4 bg-[#FF6B4A] hover:bg-[#ff5733] text-white font-semibold rounded-xl transition-all hover:scale-105 shadow-lg shadow-[#FF6B4A]/30">
                 {ECOMMERCE_CONTENT.hero.ctaPrimary}
                 <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                 </svg>
               </button>
-              <button className="inline-flex items-center px-8 py-4 border-2 border-[#2D3436] text-[#2D3436] hover:bg-[#2D3436] hover:text-white font-semibold rounded-xl transition-all">
+              <button className="inline-flex items-center justify-center px-6 py-3 sm:px-8 sm:py-4 border-2 border-[#2D3436] text-[#2D3436] hover:bg-[#2D3436] hover:text-white font-semibold rounded-xl transition-all">
                 {ECOMMERCE_CONTENT.hero.ctaSecondary}
               </button>
             </div>

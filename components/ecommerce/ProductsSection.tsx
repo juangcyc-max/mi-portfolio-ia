@@ -23,16 +23,16 @@ export default function ProductsSection({ onAddToWishlist, isInWishlist }: Produ
   };
 
   return (
-    <section id="ropa" className="py-24 bg-white">
+    <section id="ropa" className="py-12 sm:py-24 bg-white">
       <div className="max-w-7xl mx-auto px-4">
-        
+
         {/* Section Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
           viewport={{ once: true }}
-          className="text-center mb-16"
+          className="text-center mb-8 sm:mb-16"
         >
           <h2 className="text-3xl md:text-4xl font-bold text-[#2D3436] mb-4">
             Nuestra <span className="text-[#FF6B4A]">Colección</span>
