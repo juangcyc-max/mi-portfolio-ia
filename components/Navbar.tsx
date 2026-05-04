@@ -6,13 +6,14 @@ import ThemeToggle from "./ThemeToggle";
 import LanguageSwitcher from "./LanguageSwitcher";
 import Image from "next/image";
 import Link from "next/link";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useTranslation } from "@/lib/i18n/LanguageContext";
 
 export default function Navbar() {
   const { t } = useTranslation();
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
 
   // Detectar scroll
   useEffect(() => {
@@ -22,13 +23,40 @@ export default function Navbar() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Lock scroll cuando menú abierto
+  // Lock scroll + focus trap + Escape cuando menú abierto
   useEffect(() => {
     if (menuOpen) {
       document.body.style.overflow = "hidden";
+      // Focus al primer elemento del menú
+      const focusable = menuRef.current?.querySelectorAll<HTMLElement>(
+        'a, button, [tabindex]:not([tabindex="-1"])'
+      );
+      focusable?.[0]?.focus();
     } else {
       document.body.style.overflow = "";
     }
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (!menuOpen) return;
+      if (e.key === "Escape") { setMenuOpen(false); return; }
+      if (e.key !== "Tab") return;
+      const focusable = Array.from(
+        menuRef.current?.querySelectorAll<HTMLElement>(
+          'a, button, [tabindex]:not([tabindex="-1"])'
+        ) ?? []
+      );
+      if (!focusable.length) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (e.shiftKey) {
+        if (document.activeElement === first) { e.preventDefault(); last.focus(); }
+      } else {
+        if (document.activeElement === last) { e.preventDefault(); first.focus(); }
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
   }, [menuOpen]);
 
   const handleAnchorClick = (
@@ -187,6 +215,7 @@ export default function Navbar() {
         {menuOpen && (
           <>
             <motion.div
+              ref={menuRef}
               id="mobile-menu"
               role="dialog"
               aria-label="Menú de navegación"

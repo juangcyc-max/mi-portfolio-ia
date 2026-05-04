@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import PortfolioBreadcrumb from "@/components/PortfolioBreadcrumb";
 
 export const metadata: Metadata = {
   title: "Demo Landing Page | Mindbridge IA",
@@ -9,5 +10,10 @@ export const metadata: Metadata = {
 };
 
 export default function Layout({ children }: { children: React.ReactNode }) {
-  return children;
+  return (
+    <>
+      <PortfolioBreadcrumb page="Landing Page" />
+      <div className="pt-9">{children}</div>
+    </>
+  );
 }
