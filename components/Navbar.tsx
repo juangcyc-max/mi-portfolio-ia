@@ -31,72 +31,164 @@ export default function Navbar() {
     canvas.height = window.innerHeight;
 
     const rr = (min: number, max: number) => Math.random() * (max - min) + min;
-    const CORE = ['#ffffff', '#ffffe0', '#ffff99'];
-    const FIRE = ['#ff8c00', '#ff4500', '#ff0000', '#b22222'];
-    const SMOKE = ['#1a1a1a', '#2a2a2a', '#111111'];
+    const pick = <T,>(arr: T[]) => arr[Math.floor(Math.random() * arr.length)];
+
+    const cx = canvas.width / 2;
+    const cy = canvas.height / 2 + 80;
+    const startTime = performance.now();
+
+    // Shockwave rings state
+    const rings = [
+      { r: 0, maxR: Math.max(canvas.width, canvas.height) * 0.9, speed: 22, alpha: 0.9, delay: 0 },
+      { r: 0, maxR: Math.max(canvas.width, canvas.height) * 0.6, speed: 14, alpha: 0.6, delay: 60 },
+    ];
 
     type P = {
       x: number; y: number; vx: number; vy: number;
       color: string; size: number; alpha: number;
-      friction: number; decay: number;
-      upwardDraft?: number; growth?: number;
-      type: string;
+      friction: number; decay: number; gravity: number;
+      upwardDraft: number; growth: number; glow: number;
+      type: string; spawnAt: number;
     };
 
-    const cx = canvas.width / 2;
-    const cy = canvas.height / 2 + 80;
-    let particles: P[] = [];
+    const particles: P[] = [];
 
-    function spawn() {
-      // Smoke
-      for (let i = 0; i < 80; i++) {
-        const a = rr(0, Math.PI * 2);
-        const s = rr(2, 8);
-        particles.push({ x: cx, y: cy, vx: Math.cos(a) * s * 0.5, vy: Math.sin(a) * s, color: SMOKE[Math.floor(Math.random() * 3)], size: rr(10, 30), alpha: 1, friction: 0.94, decay: rr(0.002, 0.008), upwardDraft: rr(0.05, 0.2), growth: rr(0.1, 0.5), type: 'SMOKE' });
-      }
-      // Fire
-      for (let i = 0; i < 150; i++) {
-        const a = rr(0, Math.PI * 2);
-        const s = Math.pow(Math.random(), 2) * 15 + 2;
-        particles.push({ x: cx, y: cy, vx: Math.cos(a) * s, vy: Math.sin(a) * s, color: FIRE[Math.floor(Math.random() * 4)], size: rr(4, 15), alpha: 1, friction: 0.92, decay: rr(0.005, 0.015), upwardDraft: rr(0.1, 0.4), type: 'FIRE' });
-      }
-      // Shockwave
-      for (let i = 0; i < 80; i++) {
-        const a = rr(0, Math.PI * 2);
-        const s = rr(10, 25);
-        particles.push({ x: cx, y: cy, vx: Math.cos(a) * s, vy: Math.sin(a) * s * 0.15, color: CORE[Math.floor(Math.random() * 3)], size: rr(2, 5), alpha: 1, friction: 0.96, decay: rr(0.01, 0.03), type: 'SHOCKWAVE' });
-      }
+    // Fase 1 — shockwave + fuego inmediato
+    for (let i = 0; i < 180; i++) {
+      const a = rr(0, Math.PI * 2);
+      const s = Math.pow(Math.random(), 1.5) * 18 + 2;
+      const isFire = i < 140;
+      particles.push({
+        x: cx, y: cy,
+        vx: Math.cos(a) * s, vy: Math.sin(a) * s - rr(1, 4),
+        color: isFire ? pick(['#ff8c00','#ff4500','#ff0000','#ff6000','#ffaa00']) : pick(['#fff','#ffffe0','#ffff99']),
+        size: isFire ? rr(5, 18) : rr(2, 6),
+        alpha: 1, friction: isFire ? 0.91 : 0.95,
+        decay: isFire ? rr(0.006, 0.018) : rr(0.015, 0.03),
+        gravity: isFire ? 0.04 : 0,
+        upwardDraft: isFire ? rr(0.15, 0.5) : 0,
+        growth: 0, glow: isFire ? rr(12, 30) : rr(4, 10),
+        type: isFire ? 'FIRE' : 'SHOCK', spawnAt: 0,
+      });
     }
 
-    const c = ctx;
-    const cv = canvas;
+    // Fase 2 — brasas con gravedad (spawnAt 150ms)
+    for (let i = 0; i < 80; i++) {
+      const a = rr(-Math.PI * 0.8, -Math.PI * 0.2);
+      const s = rr(6, 20);
+      particles.push({
+        x: cx, y: cy,
+        vx: Math.cos(a) * s + rr(-3, 3), vy: Math.sin(a) * s,
+        color: pick(['#ff4500','#ff8c00','#ffd700','#fff']),
+        size: rr(2, 5), alpha: 1, friction: 0.97,
+        decay: rr(0.004, 0.01), gravity: rr(0.08, 0.18),
+        upwardDraft: 0, growth: 0, glow: rr(6, 14),
+        type: 'EMBER', spawnAt: 150,
+      });
+    }
 
-    // Flash
-    c.fillStyle = 'white';
-    c.fillRect(0, 0, cv.width, cv.height);
-    spawn();
+    // Fase 3 — humo denso (spawnAt 300ms)
+    for (let i = 0; i < 90; i++) {
+      const a = rr(0, Math.PI * 2);
+      const s = rr(1, 5);
+      particles.push({
+        x: cx + rr(-30, 30), y: cy,
+        vx: Math.cos(a) * s * 0.4, vy: Math.sin(a) * s - rr(0.5, 2),
+        color: pick(['#1a1a1a','#2a2a2a','#111','#333','#0a0a0a']),
+        size: rr(15, 40), alpha: rr(0.5, 0.85), friction: 0.97,
+        decay: rr(0.002, 0.006), gravity: -0.02,
+        upwardDraft: rr(0.08, 0.25), growth: rr(0.2, 0.8), glow: 0,
+        type: 'SMOKE', spawnAt: 300,
+      });
+    }
+
+    // Screen shake
+    let shakeFrames = 18;
 
     function loop() {
-      c.fillStyle = 'rgba(5,5,5,0.3)';
-      c.fillRect(0, 0, cv.width, cv.height);
+      const elapsed = performance.now() - startTime;
+      const c = ctx!;
+      const cv = canvas!;
 
-      particles = particles.filter(p => p.alpha > 0);
+      // Screen shake
+      if (shakeFrames > 0) {
+        const mag = shakeFrames * 1.2;
+        c.setTransform(1, 0, 0, 1, rr(-mag, mag), rr(-mag, mag));
+        shakeFrames--;
+      } else {
+        c.setTransform(1, 0, 0, 1, 0, 0);
+      }
 
+      c.globalCompositeOperation = 'source-over';
+      c.globalAlpha = 1;
+      c.fillStyle = 'rgba(5,5,5,0.25)';
+      c.fillRect(-50, -50, cv.width + 100, cv.height + 100);
+
+      // Shockwave rings
+      for (const ring of rings) {
+        if (elapsed < ring.delay) continue;
+        ring.r += ring.speed;
+        ring.speed *= 0.93;
+        ring.alpha *= 0.88;
+        if (ring.r < ring.maxR && ring.alpha > 0.01) {
+          c.save();
+          c.globalCompositeOperation = 'lighter';
+          c.globalAlpha = ring.alpha;
+          c.strokeStyle = '#ffeeaa';
+          c.lineWidth = 3;
+          c.beginPath();
+          c.ellipse(cx, cy, ring.r, ring.r * 0.35, 0, 0, Math.PI * 2);
+          c.stroke();
+          c.restore();
+        }
+      }
+
+      // Particles
       for (const p of particles) {
+        if (elapsed < p.spawnAt) continue;
         p.vx *= p.friction;
         p.vy *= p.friction;
-        if (p.upwardDraft) p.vy -= p.upwardDraft;
+        p.vy += p.gravity - p.upwardDraft;
+        p.vx += rr(-0.15, 0.15); // turbulencia
         p.x += p.vx;
         p.y += p.vy;
         if (p.growth) p.size += p.growth;
         p.alpha -= p.decay;
+        if (p.alpha <= 0) continue;
 
         c.save();
         c.globalAlpha = Math.max(0, p.alpha);
-        c.globalCompositeOperation = p.type === 'SMOKE' ? 'source-over' : 'lighter';
+        if (p.type === 'SMOKE') {
+          c.globalCompositeOperation = 'source-over';
+        } else {
+          c.globalCompositeOperation = 'lighter';
+          if (p.glow > 0) {
+            c.shadowColor = p.color;
+            c.shadowBlur = p.glow;
+          }
+        }
         c.fillStyle = p.color;
         c.beginPath();
-        c.arc(p.x, p.y, Math.max(0, p.size), 0, Math.PI * 2);
+        c.arc(p.x, p.y, Math.max(0.5, p.size), 0, Math.PI * 2);
+        c.fill();
+        c.restore();
+      }
+
+      // Fireball core
+      const coreAge = elapsed / 1000;
+      if (coreAge < 0.8) {
+        const coreR = Math.max(0, 120 * (1 - coreAge * 1.2));
+        const coreAlpha = Math.max(0, 1 - coreAge * 1.4);
+        c.save();
+        c.globalCompositeOperation = 'lighter';
+        const grad = c.createRadialGradient(cx, cy, 0, cx, cy, coreR);
+        grad.addColorStop(0, `rgba(255,255,255,${coreAlpha})`);
+        grad.addColorStop(0.3, `rgba(255,220,50,${coreAlpha * 0.8})`);
+        grad.addColorStop(0.7, `rgba(255,80,0,${coreAlpha * 0.4})`);
+        grad.addColorStop(1, 'rgba(0,0,0,0)');
+        c.fillStyle = grad;
+        c.beginPath();
+        c.arc(cx, cy, coreR, 0, Math.PI * 2);
         c.fill();
         c.restore();
       }
@@ -104,8 +196,15 @@ export default function Navbar() {
       rafRef.current = requestAnimationFrame(loop);
     }
 
+    // Flash inicial
+    ctx.fillStyle = 'white';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
     rafRef.current = requestAnimationFrame(loop);
-    return () => cancelAnimationFrame(rafRef.current);
+    return () => {
+      cancelAnimationFrame(rafRef.current);
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+    };
   }, [exploding]);
 
   // Detectar scroll
