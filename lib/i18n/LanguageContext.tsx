@@ -14,6 +14,9 @@ export type LangCode = "es" | "en" | "zh";
 
 const STATIC_LANGS: LangCode[] = ["es", "en"];
 
+// Cache version tied to number of keys — auto-invalidates when strings are added
+const CACHE_V = Object.keys(ES_STRINGS).length;
+
 const LANG_NAMES: Record<LangCode, string> = {
   es: "Simplified Spanish",
   en: "English",
@@ -70,7 +73,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
       setDynamicStrings(null);
       return;
     }
-    const cacheKey = `mindbridge_trans_${lang}`;
+    const cacheKey = `mindbridge_trans_${lang}_v${CACHE_V}`;
     try {
       const cached = localStorage.getItem(cacheKey);
       if (cached) {
