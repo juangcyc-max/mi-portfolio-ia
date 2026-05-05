@@ -8,9 +8,9 @@ import ReplyForm from '@/components/admin/ReplyForm'
 const supabase = getSupabaseClient()
 
 const PRIORITY_COLORS: Record<string, string> = {
-  normal: 'bg-gray-700 text-slate-600',
-  high: 'bg-yellow-500/20 text-yellow-400',
-  urgent: 'bg-red-500/20 text-red-400',
+  normal: 'bg-slate-100 text-slate-600',
+  high: 'bg-yellow-500/20 text-yellow-600',
+  urgent: 'bg-red-500/20 text-red-500',
 }
 
 export default function MessagesPage() {

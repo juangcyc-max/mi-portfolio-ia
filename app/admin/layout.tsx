@@ -4,15 +4,15 @@ import { useEffect, useState } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { getSupabaseClient } from '@/lib/supabaseAdmin'
-import { LayoutDashboard, FileText, AlertTriangle, Receipt, CreditCard } from 'lucide-react'
+import { LayoutDashboard, Users, AlertTriangle, CreditCard, Receipt } from 'lucide-react'
 import type { Session } from '@supabase/supabase-js'
 
 const NAV_ITEMS = [
-  { href: '/admin',           label: 'Inicio',        Icon: LayoutDashboard },
-  { href: '/admin/budgets',   label: 'Presupuestos',  Icon: FileText },
-  { href: '/admin/incidents', label: 'Incidencias',   Icon: AlertTriangle },
-  { href: '/admin/facturas',  label: 'Facturas',      Icon: Receipt },
-  { href: '/admin/cobros',    label: 'Cobros',        Icon: CreditCard },
+  { href: '/admin',             label: 'Inicio',      Icon: LayoutDashboard },
+  { href: '/admin/contacts',    label: 'Contactos',   Icon: Users },
+  { href: '/admin/incidents',   label: 'Incidencias', Icon: AlertTriangle },
+  { href: '/admin/cobros',      label: 'Cobros',      Icon: CreditCard },
+  { href: '/admin/facturas',    label: 'Facturas',    Icon: Receipt },
 ]
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
