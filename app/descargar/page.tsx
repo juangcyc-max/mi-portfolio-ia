@@ -7,32 +7,51 @@ export default function DownloadPage() {
   const [copied, setCopied] = useState(false)
 
   function copyLink() {
-    navigator.clipboard.writeText('https://mindbride.net/descargar')
+    navigator.clipboard.writeText('https://mindbridge.net/descargar')
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
   }
 
   return (
     <main className="min-h-screen bg-slate-950 text-white flex flex-col items-center justify-center px-6 py-20">
-      {/* Logo */}
       <Link href="/" className="mb-12">
         <img src="/logo.svg" alt="Mindbridge IA" className="h-12" />
       </Link>
 
       <h1 className="text-4xl sm:text-5xl font-black text-center mb-4">
-        Descarga la <span className="text-emerald-400">app</span>
+        Descarga <span className="text-emerald-400">Mindbridge IA</span>
       </h1>
       <p className="text-slate-400 text-center text-lg mb-14 max-w-md">
-        Accede a Mindbridge IA desde tu móvil — chat con IA, presupuestos y soporte técnico en tu bolsillo.
+        Tu asistente de inteligencia artificial disponible en Windows y móvil.
       </p>
 
       <div className="w-full max-w-lg space-y-4">
+
+        {/* Windows */}
+        <a
+          href="https://github.com/juangcyc-max/mindbridge-desktop/releases/download/v1.0.0/Mindbridge.IA.Setup.1.0.0.exe"
+          download
+          className="flex items-center gap-5 bg-emerald-500 hover:bg-emerald-400 transition-colors rounded-2xl px-6 py-5 w-full group"
+        >
+          <div className="flex-shrink-0">
+            <svg className="w-10 h-10" viewBox="0 0 24 24" fill="white">
+              <path d="M0 3.449L9.75 2.1v9.451H0m10.949-9.602L24 0v11.4H10.949M0 12.6h9.75v9.451L0 20.699M10.949 12.6H24V24l-12.9-1.801"/>
+            </svg>
+          </div>
+          <div className="flex-1">
+            <p className="font-bold text-white text-lg leading-tight">Descargar para Windows</p>
+            <p className="text-emerald-100 text-sm">Windows 10 / 11 · 64-bit · v1.0.0</p>
+          </div>
+          <svg className="w-6 h-6 text-white group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+          </svg>
+        </a>
 
         {/* Android */}
         <a
           href="/downloads/mindbridge.apk"
           download
-          className="flex items-center gap-5 bg-emerald-500 hover:bg-emerald-400 transition-colors rounded-2xl px-6 py-5 w-full group"
+          className="flex items-center gap-5 bg-slate-800 hover:bg-slate-700 border border-slate-700 transition-colors rounded-2xl px-6 py-5 w-full group"
         >
           <div className="flex-shrink-0">
             <svg className="w-10 h-10" viewBox="0 0 24 24" fill="white">
@@ -41,7 +60,7 @@ export default function DownloadPage() {
           </div>
           <div className="flex-1">
             <p className="font-bold text-white text-lg leading-tight">Descargar para Android</p>
-            <p className="text-emerald-100 text-sm">Archivo APK · Instalación directa</p>
+            <p className="text-slate-400 text-sm">Archivo APK · Instalación directa</p>
           </div>
           <svg className="w-6 h-6 text-white group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
@@ -59,14 +78,13 @@ export default function DownloadPage() {
             <p className="font-bold text-white text-lg leading-tight mb-1">iPhone / iPad</p>
             <p className="text-slate-400 text-sm leading-relaxed">
               Abre <strong className="text-slate-300">Safari</strong> en tu iPhone, ve a{' '}
-              <strong className="text-emerald-400">mindbride.net</strong> y pulsa{' '}
+              <strong className="text-emerald-400">mindbridge.net</strong> y pulsa{' '}
               <strong className="text-slate-300">Compartir → Añadir a pantalla de inicio</strong>.
-              La app aparecerá como nativa.
             </p>
           </div>
         </div>
 
-        {/* Share link */}
+        {/* Share */}
         <button
           onClick={copyLink}
           className="flex items-center justify-center gap-3 w-full border border-slate-700 hover:border-slate-500 rounded-2xl px-6 py-4 text-slate-400 hover:text-white transition-colors text-sm font-medium"
@@ -78,15 +96,15 @@ export default function DownloadPage() {
         </button>
       </div>
 
-      {/* Install instructions */}
+      {/* Windows install instructions */}
       <div className="mt-14 max-w-lg w-full">
-        <h2 className="text-sm font-bold text-slate-400 uppercase tracking-wider mb-4">Cómo instalar en Android</h2>
+        <h2 className="text-sm font-bold text-slate-400 uppercase tracking-wider mb-4">Cómo instalar en Windows</h2>
         <div className="space-y-3">
           {[
-            'Pulsa el botón verde para descargar el archivo APK',
-            'Abre el archivo descargado desde notificaciones',
-            'Si aparece un aviso de seguridad, pulsa "Instalar de todas formas"',
-            'La app Mindbridge IA aparecerá en tu pantalla de inicio',
+            'Descarga el instalador (.exe) con el botón verde',
+            'Ejecuta el archivo descargado',
+            'Si Windows SmartScreen aparece, pulsa "Más información → Ejecutar de todas formas"',
+            'La app se instala automáticamente y aparece en el escritorio',
           ].map((step, i) => (
             <div key={i} className="flex items-start gap-3">
               <span className="flex-shrink-0 w-6 h-6 bg-emerald-500/20 text-emerald-400 rounded-full flex items-center justify-center text-xs font-bold mt-0.5">
@@ -99,7 +117,7 @@ export default function DownloadPage() {
       </div>
 
       <p className="mt-12 text-slate-600 text-xs text-center">
-        Mindbridge IA · <Link href="/" className="hover:text-slate-400 transition-colors">Volver a la web</Link>
+        Mindbridge IA v1.0.0 · <Link href="/" className="hover:text-slate-400 transition-colors">Volver a la web</Link>
       </p>
     </main>
   )
