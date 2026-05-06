@@ -26,11 +26,11 @@ const PLANS: Plan[] = [
 
 // ── Sub-components ───────────────────────────────────────────────────────────
 
-function SectionHeading({ title, sub }: { title: string; sub: string }) {
+function SectionHeading({ title, sub }: { title: string; sub?: string }) {
   return (
     <>
       <h2 className="text-3xl font-black text-center mb-3 text-slate-900">{title}</h2>
-      <p className="text-slate-500 text-center mb-14">{sub}</p>
+      {sub && <p className="text-slate-500 text-center mb-14">{sub}</p>}
     </>
   )
 }
@@ -129,7 +129,7 @@ export default function DesktopPage() {
       {/* Screenshots */}
       <section className="relative z-10 py-20 border-t border-slate-200">
         <div className="max-w-6xl mx-auto px-8">
-          <SectionHeading title="Vívelo en acción" sub="" />
+          <SectionHeading title="Vívelo en acción" />
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {[
               { src: '/screenshots/Screenshot_5.png',  caption: 'Chat IA — conversa con Claude desde el escritorio' },
