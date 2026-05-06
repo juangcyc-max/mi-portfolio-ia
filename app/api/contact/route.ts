@@ -5,6 +5,7 @@ import { createClient } from "@supabase/supabase-js";
 import { generateText } from "ai";
 import { anthropic } from "@ai-sdk/anthropic";
 import { rateLimit } from "@/lib/rateLimit";
+import { ADMIN_EMAIL, N8N_WEBHOOK_TELEGRAM, N8N_WEBHOOK_SHEETS } from "@/lib/config";
 
 
 // IMPORTANTE: En producción, NEXT_PUBLIC_SITE_URL debe ser tu dominio real (ej. https://mindbridge.ia)
@@ -121,8 +122,8 @@ export async function POST(request: Request) {
     const logoUrl = `${SITE_URL}/logo.svg`; 
 
     const { error: resendError } = await resend.emails.send({
-      from: "Mindbridge IA <juangutierrezdelaconcha@mindbride.net>",
-      to: ["juangutierrezdelaconcha@mindbride.net"],
+      from: `Mindbridge IA <${ADMIN_EMAIL}>`,
+      to: [ADMIN_EMAIL],
       replyTo: email,
       subject: `Nuevo mensaje - ${name}${projectType ? ` | ${projectType}` : ""}`,
       html: getEmailTemplate({ name, email, phone, message, projectType, budget, logoUrl }),
@@ -190,7 +191,7 @@ NORMAS:
 </body></html>`;
 
     await resend.emails.send({
-      from: "Juan · Mindbridge IA <juangutierrezdelaconcha@mindbride.net>",
+      from: `Juan · Mindbridge IA <${ADMIN_EMAIL}>`,
       to: [email],
       subject: `Re: Tu consulta en Mindbridge IA`,
       html: aiEmailHtml,
@@ -231,22 +232,28 @@ NORMAS:
 
     // Enviar notificación a n8n (Telegram)
     try {
-      await fetch("https://n8n.mindbride.net/webhook/8d91e476-8714-4bbd-875d-39cf41d974a6", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, message, projectType, budget }),
-      });
+      if (N8N_WEBHOOK_TELEGRAM) {
+        const r = await fetch(N8N_WEBHOOK_TELEGRAM, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name, email, message, projectType, budget }),
+        });
+        if (!r.ok) console.error("n8n Telegram responded", r.status);
+      }
     } catch (n8nError) {
       console.error("Error enviando a n8n:", n8nError);
     }
 
     // Guardar lead en Google Sheets
     try {
-      await fetch("https://n8n.mindbride.net/webhook/fb1526ce-8728-4040-91ca-46edbc603801", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, message, projectType, budget }),
-      });
+      if (N8N_WEBHOOK_SHEETS) {
+        const r = await fetch(N8N_WEBHOOK_SHEETS, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name, email, message, projectType, budget }),
+        });
+        if (!r.ok) console.error("n8n Sheets responded", r.status);
+      }
     } catch (sheetsError) {
       console.error("Error enviando a Google Sheets:", sheetsError);
     }

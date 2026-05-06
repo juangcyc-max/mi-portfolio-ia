@@ -29,8 +29,12 @@ export async function POST(req: NextRequest) {
   )
   const { name, email, project_type, budget_range, additional_info } = await req.json()
 
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
   if (!name || !email) {
     return NextResponse.json({ error: 'Nombre y email obligatorios' }, { status: 400 })
+  }
+  if (!emailRegex.test(email)) {
+    return NextResponse.json({ error: 'Email inválido' }, { status: 400 })
   }
 
   const { error } = await supabase.from('budget_requests').insert({

@@ -10,8 +10,12 @@ const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
 export async function POST(request: Request) {
   try {
     const { name, email, service, description, priority } = await request.json()
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
     if (!name || !email || !description) {
       return NextResponse.json({ error: 'Faltan campos obligatorios' }, { status: 400 })
+    }
+    if (!emailRegex.test(email)) {
+      return NextResponse.json({ error: 'Email inválido' }, { status: 400 })
     }
 
     const supabase = createClient(
