@@ -29,8 +29,7 @@ export default function DownloadPage() {
 
         {/* Android */}
         <a
-          href="/downloads/your-home.apk"
-          download
+          href="https://github.com/juangcyc-max/mi-portfolio-ia/releases/download/v1.0.0-android/mindbridge-ia.apk"
           className="flex items-center gap-5 bg-emerald-500 hover:bg-emerald-400 transition-colors rounded-2xl px-6 py-5 w-full group"
         >
           <div className="flex-shrink-0">
