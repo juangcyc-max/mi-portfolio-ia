@@ -14,6 +14,7 @@ const SectionSkeleton = ({ h = "h-64" }: { h?: string }) => (
 
 const Services = dynamic(() => import("@/components/Services"), { loading: () => <SectionSkeleton h="h-80" /> });
 const Plans = dynamic(() => import("@/components/Plans"), { loading: () => <SectionSkeleton h="h-96" /> });
+const DesktopPromo = dynamic(() => import("@/components/DesktopPromo"), { loading: () => <SectionSkeleton h="h-64" /> });
 const CustomServices = dynamic(() => import("@/components/CustomServices"), { loading: () => <SectionSkeleton /> });
 const Testimonials = dynamic(() => import("@/components/Testimonials"), { loading: () => <SectionSkeleton /> });
 const Technologies = dynamic(() => import("@/components/Technologies"), { loading: () => <SectionSkeleton h="h-48" /> });
@@ -120,6 +121,7 @@ export default function Home() {
         <Portfolio />
         <Services />
         <Plans />
+        <DesktopPromo />
         <CustomServices />
         <Testimonials />
         <Technologies />

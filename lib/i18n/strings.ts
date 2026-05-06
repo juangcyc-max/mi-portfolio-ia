@@ -372,6 +372,22 @@ export const ES_STRINGS = {
   demo_cap3_label:    "Tour de la web",
   demo_cap3_desc:     "\"Muéstrame todo\"",
   demo_open_hint:     "Pulsa el botón verde inferior izquierdo para abrir el chat",
+
+  // Desktop app promo
+  nav_desktop:          "Desktop",
+  desktop_badge:        "App de Escritorio · Windows 10/11",
+  desktop_title1:       "Tu asistente IA",
+  desktop_title2:       "en el escritorio",
+  desktop_subtitle:     "Controla tu PC con lenguaje natural. Chat con IA, automatizaciones, generación de imágenes y mucho más — todo desde Windows.",
+  desktop_free:         "Gratis para siempre",
+  desktop_free_desc:    "5 consultas al día sin registrarte ni pagar nada",
+  desktop_from:         "Planes desde €21/mes",
+  desktop_cta:          "Ver planes y descargar",
+  desktop_f1:           "Chat IA ilimitado con Claude",
+  desktop_f2:           "Control total de Windows por voz",
+  desktop_f3:           "Generación de imágenes con IA",
+  desktop_f4:           "Automatizaciones programadas",
+  desktop_windows:      "Solo Windows 10 / 11 · 64-bit",
 };
 
 export const EN_STRINGS: UIStrings = {
@@ -728,6 +744,22 @@ export const EN_STRINGS: UIStrings = {
   demo_cap3_label:    "Web tour",
   demo_cap3_desc:     "\"Show me everything\"",
   demo_open_hint:     "Press the green button at the bottom left to open the chat",
+
+  // Desktop app promo
+  nav_desktop:          "Desktop",
+  desktop_badge:        "Desktop App · Windows 10/11",
+  desktop_title1:       "Your AI assistant",
+  desktop_title2:       "on your desktop",
+  desktop_subtitle:     "Control your PC with natural language. AI chat, automations, image generation and much more — all from Windows.",
+  desktop_free:         "Free forever",
+  desktop_free_desc:    "5 queries a day, no sign-up or payment needed",
+  desktop_from:         "Plans from €21/mo",
+  desktop_cta:          "See plans & download",
+  desktop_f1:           "Unlimited AI chat with Claude",
+  desktop_f2:           "Full Windows control by voice",
+  desktop_f3:           "AI image generation",
+  desktop_f4:           "Scheduled automations",
+  desktop_windows:      "Windows 10 / 11 only · 64-bit",
 };
 
 export const STATIC_TRANSLATIONS: Partial<Record<string, UIStrings>> = {
