@@ -127,25 +127,24 @@ export default function DesktopPage() {
       </section>
 
       {/* Screenshots */}
-      <section className="relative z-10 py-20 border-t border-slate-200 overflow-hidden">
-        <div className="max-w-6xl mx-auto px-8 mb-10">
-          <SectionHeading title="Véelo en acción" sub="Capturas reales de la app — sin efectos, sin edición." />
-        </div>
-        <div className="flex gap-4 overflow-x-auto pb-4 px-8 snap-x snap-mandatory scrollbar-thin scrollbar-thumb-slate-300">
-          {[
-            { src: '/screenshots/Screenshot_5.png',  caption: 'Chat IA — conversa con Claude desde el escritorio' },
-            { src: '/screenshots/Screenshot_4.png',  caption: 'Asistente — controla tu PC con lenguaje natural' },
-            { src: '/screenshots/Screenshot_14.png', caption: 'Imágenes IA — genera imágenes con inteligencia artificial' },
-            { src: '/screenshots/Screenshot_7.png',  caption: 'Automatizaciones — tareas programadas en segundo plano' },
-            { src: '/screenshots/Screenshot_8.png',  caption: 'Configuración — planes, licencia y ajustes' },
-          ].map(({ src, caption }) => (
-            <div key={src} className="flex-shrink-0 snap-start w-[85vw] sm:w-[640px] group">
-              <div className="rounded-2xl overflow-hidden border border-slate-200 shadow-lg bg-slate-800">
-                <Image src={src} alt={caption} width={1280} height={800} className="w-full h-auto object-cover" />
+      <section className="relative z-10 py-20 border-t border-slate-200">
+        <div className="max-w-6xl mx-auto px-8">
+          <SectionHeading title="Vívelo en acción" sub="" />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {[
+              { src: '/screenshots/Screenshot_5.png',  caption: 'Chat IA — conversa con Claude desde el escritorio' },
+              { src: '/screenshots/Screenshot_4.png',  caption: 'Asistente — controla tu PC con lenguaje natural' },
+              { src: '/screenshots/Screenshot_14.png', caption: 'Imágenes IA — genera imágenes con inteligencia artificial' },
+              { src: '/screenshots/Screenshot_7.png',  caption: 'Automatizaciones — tareas programadas en segundo plano' },
+            ].map(({ src, caption }) => (
+              <div key={src}>
+                <div className="rounded-2xl overflow-hidden border border-slate-200 shadow-lg bg-slate-800">
+                  <Image src={src} alt={caption} width={1280} height={800} className="w-full h-auto" />
+                </div>
+                <p className="text-slate-500 text-sm text-center mt-3">{caption}</p>
               </div>
-              <p className="text-slate-500 text-sm text-center mt-3">{caption}</p>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       </section>
 
