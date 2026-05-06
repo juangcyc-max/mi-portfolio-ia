@@ -11,7 +11,7 @@ import { rateLimit } from "@/lib/rateLimit";
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
 
 // 1. Extraemos el HTML a una función para mantener la ruta limpia
-function getEmailTemplate({ name, email, message, projectType, budget, logoUrl }: any) {
+function getEmailTemplate({ name, email, phone, message, projectType, budget, logoUrl }: any) {
   const date = new Date().toLocaleDateString("es-ES", { year: "numeric", month: "long", day: "numeric" });
   
   return `
@@ -50,6 +50,7 @@ function getEmailTemplate({ name, email, message, projectType, budget, logoUrl }
                           <strong style="color: #0f172a; display: block; margin-bottom: 4px;">📧 Email</strong>
                           <span style="color: #0f172a; font-size: 16px;">${email}</span>
                         </p>
+                        ${phone ? `<p style="margin: 0 0 12px 0; font-size: 14px; color: #64748b;"><strong style="color: #0f172a; display: block; margin-bottom: 4px;">📞 Teléfono</strong><span style="color: #0f172a; font-size: 16px;">${phone}</span></p>` : ""}
                         ${projectType ? `<p style="margin: 0 0 12px 0; font-size: 14px; color: #64748b;"><strong style="color: #0f172a; display: block; margin-bottom: 4px;">📋 Tipo de proyecto</strong><span style="color: #0f172a; font-size: 16px;">${projectType}</span></p>` : ""}
                         ${budget ? `<p style="margin: 0; font-size: 14px; color: #64748b;"><strong style="color: #0f172a; display: block; margin-bottom: 4px;">💰 Presupuesto estimado</strong><span style="color: #0f172a; font-size: 16px;">${budget}</span></p>` : ""}
                       </td>
@@ -107,7 +108,7 @@ export async function POST(request: Request) {
 
     const resend = new Resend(process.env.RESEND_API_KEY);
     const data = await request.json();
-    const { name, email, message, budget, projectType } = data;
+    const { name, email, phone, message, budget, projectType } = data;
 
     if (!name || !email || !message) {
       return NextResponse.json(
@@ -124,7 +125,7 @@ export async function POST(request: Request) {
       to: ["juangutierrezdelaconcha@mindbride.net"],
       replyTo: email,
       subject: `Nuevo mensaje - ${name}${projectType ? ` | ${projectType}` : ""}`,
-      html: getEmailTemplate({ name, email, message, projectType, budget, logoUrl }),
+      html: getEmailTemplate({ name, email, phone, message, projectType, budget, logoUrl }),
       text: `Nuevo mensaje de: ${name} (${email})\n\nMensaje: ${message}`,
     });
 
