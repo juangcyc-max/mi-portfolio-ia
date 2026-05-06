@@ -18,30 +18,12 @@ export default function Image() {
           width: "100%",
           height: "100%",
           display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "center",
-          background: "linear-gradient(135deg, #0f172a 0%, #1e293b 60%, #0f172a 100%)",
+          background: "linear-gradient(135deg, #0f172a 0%, #1e293b 100%)",
           fontFamily: "sans-serif",
           position: "relative",
           overflow: "hidden",
         }}
       >
-        {/* Green radial glow */}
-        <div
-          style={{
-            position: "absolute",
-            top: "50%",
-            left: "50%",
-            width: 700,
-            height: 700,
-            marginTop: -350,
-            marginLeft: -350,
-            background: "radial-gradient(circle, rgba(16,185,129,0.18) 0%, transparent 70%)",
-            borderRadius: "50%",
-          }}
-        />
-
         {/* Top accent line */}
         <div
           style={{
@@ -49,106 +31,114 @@ export default function Image() {
             top: 0,
             left: 0,
             right: 0,
-            height: 4,
-            background: "linear-gradient(90deg, #10b981, #06b6d4, #10b981)",
+            height: 6,
+            background: "linear-gradient(90deg, #10b981, #06b6d4)",
           }}
         />
 
-        {/* Logo */}
+        {/* Left green panel */}
         <div
           style={{
-            width: 96,
-            height: 96,
-            borderRadius: 24,
-            background: "rgba(255,255,255,0.06)",
-            border: "1.5px solid rgba(16,185,129,0.3)",
+            width: 420,
+            height: "100%",
             display: "flex",
+            flexDirection: "column",
             alignItems: "center",
             justifyContent: "center",
-            marginBottom: 28,
-            boxShadow: "0 0 40px rgba(16,185,129,0.3)",
+            background: "linear-gradient(160deg, rgba(16,185,129,0.15) 0%, rgba(6,182,212,0.08) 100%)",
+            borderRight: "1px solid rgba(16,185,129,0.2)",
+            gap: 20,
           }}
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={logoSrc}
-            width={64}
-            height={64}
+            width={140}
+            height={140}
             alt="Mindbridge IA"
             style={{ objectFit: "contain" }}
           />
+          <div
+            style={{
+              fontSize: 22,
+              fontWeight: 800,
+              color: "#10b981",
+              letterSpacing: 3,
+              textTransform: "uppercase",
+            }}
+          >
+            mindbride.net
+          </div>
         </div>
 
-        {/* Main title */}
+        {/* Right content */}
         <div
           style={{
-            fontSize: 68,
-            fontWeight: 900,
-            color: "white",
-            marginBottom: 16,
-            letterSpacing: -2,
-            lineHeight: 1,
+            flex: 1,
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "center",
+            padding: "0 70px",
+            gap: 0,
           }}
         >
-          Mindbridge IA
-        </div>
+          <div
+            style={{
+              fontSize: 22,
+              fontWeight: 700,
+              color: "#10b981",
+              letterSpacing: 4,
+              textTransform: "uppercase",
+              marginBottom: 16,
+            }}
+          >
+            Agencia Digital
+          </div>
 
-        {/* Divider */}
-        <div
-          style={{
-            width: 60,
-            height: 3,
-            background: "linear-gradient(90deg, #10b981, #06b6d4)",
-            borderRadius: 2,
-            marginBottom: 24,
-          }}
-        />
+          <div
+            style={{
+              fontSize: 72,
+              fontWeight: 900,
+              color: "white",
+              lineHeight: 1,
+              marginBottom: 20,
+              letterSpacing: -2,
+            }}
+          >
+            Mindbridge IA
+          </div>
 
-        {/* Subtitle */}
-        <div
-          style={{
-            fontSize: 26,
-            color: "#94a3b8",
-            marginBottom: 44,
-            textAlign: "center",
-            maxWidth: 680,
-            lineHeight: 1.4,
-          }}
-        >
-          Desarrollo Web profesional + Automatizaciones con IA para empresas
-        </div>
+          <div
+            style={{
+              fontSize: 28,
+              color: "#94a3b8",
+              lineHeight: 1.4,
+              marginBottom: 48,
+              maxWidth: 580,
+            }}
+          >
+            Desarrollo Web profesional + IA integrada para empresas
+          </div>
 
-        {/* Pill tags */}
-        <div style={{ display: "flex", gap: 14 }}>
-          {["Web Profesional", "IA Integrada", "Automatización"].map((tag) => (
-            <div
-              key={tag}
-              style={{
-                padding: "10px 22px",
-                background: "rgba(16,185,129,0.12)",
-                border: "1.5px solid rgba(16,185,129,0.35)",
-                borderRadius: 100,
-                fontSize: 18,
-                color: "#10b981",
-                fontWeight: 700,
-              }}
-            >
-              {tag}
-            </div>
-          ))}
-        </div>
-
-        {/* Domain footer */}
-        <div
-          style={{
-            position: "absolute",
-            bottom: 36,
-            fontSize: 20,
-            color: "#475569",
-            letterSpacing: 1,
-          }}
-        >
-          mindbride.net
+          {/* Pills */}
+          <div style={{ display: "flex", gap: 12 }}>
+            {["Web", "IA", "Automatización"].map((tag) => (
+              <div
+                key={tag}
+                style={{
+                  padding: "12px 28px",
+                  background: "rgba(16,185,129,0.15)",
+                  border: "1.5px solid rgba(16,185,129,0.4)",
+                  borderRadius: 100,
+                  fontSize: 20,
+                  color: "#10b981",
+                  fontWeight: 700,
+                }}
+              >
+                {tag}
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     ),
