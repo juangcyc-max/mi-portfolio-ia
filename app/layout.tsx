@@ -75,11 +75,20 @@ export const metadata: Metadata = {
     siteName: "Mindbridge IA",
     title: "Mindbridge IA | Desarrollo Web + Inteligencia Artificial",
     description: "Desarrollo web de élite y automatizaciones con IA integrada para empresas.",
+    images: [
+      {
+        url: "https://mindbride.net/opengraph-image",
+        width: 1200,
+        height: 630,
+        alt: "Mindbridge IA - Desarrollo Web + IA",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
     title: "Mindbridge IA | Desarrollo Web + Inteligencia Artificial",
     description: "Desarrollo web de élite y automatizaciones con IA integrada para empresas.",
+    images: ["https://mindbride.net/opengraph-image"],
   },
   icons: {
     icon: "/logo.svg",
