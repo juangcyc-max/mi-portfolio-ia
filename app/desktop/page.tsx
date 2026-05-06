@@ -115,16 +115,16 @@ export const metadata = {
 
 export default function DesktopPage() {
   return (
-    <main className="min-h-screen bg-gradient-to-b from-slate-900 via-slate-900 to-slate-950 text-white relative overflow-hidden">
+    <main className="min-h-screen bg-slate-100 text-slate-900 relative overflow-hidden">
 
       {/* Background glows */}
       <div className="absolute inset-0 pointer-events-none -z-0">
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-emerald-500/10 rounded-full blur-[120px]" />
-        <div className="absolute top-32 right-1/4 w-72 h-72 bg-cyan-500/8 rounded-full blur-[100px]" />
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-emerald-400/10 rounded-full blur-[140px]" />
+        <div className="absolute top-32 right-1/4 w-72 h-72 bg-cyan-400/8 rounded-full blur-[100px]" />
       </div>
 
       {/* Nav */}
-      <nav className="relative z-10 flex items-center justify-between px-8 py-5 border-b border-white/5 max-w-6xl mx-auto">
+      <nav className="relative z-10 flex items-center justify-between px-8 py-5 border-b border-slate-200 max-w-6xl mx-auto bg-white/70 backdrop-blur-sm sticky top-0">
         <Link href="/">
           <Image src="/logo.svg" alt="Mindbridge IA" width={140} height={32} />
         </Link>
@@ -143,12 +143,12 @@ export default function DesktopPage() {
           Windows 10 / 11 · v1.0.1
         </div>
 
-        <h1 className="text-5xl sm:text-7xl font-black leading-none mb-6 tracking-tight">
+        <h1 className="text-5xl sm:text-7xl font-black leading-none mb-6 tracking-tight text-slate-900">
           Tu asistente de IA<br />
-          <span className="text-emerald-400">para Windows</span>
+          <span className="text-emerald-500">para Windows</span>
         </h1>
 
-        <p className="text-slate-300 text-xl leading-relaxed mb-10 max-w-2xl mx-auto">
+        <p className="text-slate-600 text-xl leading-relaxed mb-10 max-w-2xl mx-auto">
           Controla tu PC con lenguaje natural. Chat con IA, automatizaciones, generación de imágenes y mucho más — todo desde tu escritorio.
         </p>
 
@@ -162,31 +162,31 @@ export default function DesktopPage() {
             </svg>
             Descargar gratis
           </a>
-          <p className="text-slate-500 text-sm">Windows 10 / 11 · 64-bit · 81 MB</p>
+          <p className="text-slate-400 text-sm">Windows 10 / 11 · 64-bit · 81 MB</p>
         </div>
       </section>
 
       {/* Features */}
-      <section className="relative z-10 max-w-6xl mx-auto px-8 py-20 border-t border-white/5">
-        <h2 className="text-3xl font-black text-center mb-3">Todo lo que necesitas</h2>
-        <p className="text-slate-400 text-center mb-14">Un asistente completo que vive en tu escritorio.</p>
+      <section className="relative z-10 max-w-6xl mx-auto px-8 py-20 border-t border-slate-200">
+        <h2 className="text-3xl font-black text-center mb-3 text-slate-900">Todo lo que necesitas</h2>
+        <p className="text-slate-500 text-center mb-14">Un asistente completo que vive en tu escritorio.</p>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
           {FEATURES.map(f => (
-            <div key={f.title} className="bg-white/[0.03] border border-white/8 rounded-2xl p-6 hover:bg-white/[0.05] transition-colors">
-              <div className="w-11 h-11 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 mb-4">
+            <div key={f.title} className="bg-white border border-slate-200 rounded-2xl p-6 hover:shadow-md transition-shadow">
+              <div className="w-11 h-11 rounded-xl bg-emerald-50 border border-emerald-100 flex items-center justify-center text-emerald-600 mb-4">
                 {f.icon}
               </div>
-              <h3 className="font-bold text-white text-base mb-2">{f.title}</h3>
-              <p className="text-slate-400 text-sm leading-relaxed">{f.desc}</p>
+              <h3 className="font-bold text-slate-900 text-base mb-2">{f.title}</h3>
+              <p className="text-slate-500 text-sm leading-relaxed">{f.desc}</p>
             </div>
           ))}
         </div>
       </section>
 
       {/* Plans */}
-      <section className="relative z-10 max-w-6xl mx-auto px-8 py-20 border-t border-white/5">
-        <h2 className="text-3xl font-black text-center mb-3">Planes y precios</h2>
-        <p className="text-slate-400 text-center mb-14">Empieza gratis. Escala cuando necesites más.</p>
+      <section className="relative z-10 max-w-6xl mx-auto px-8 py-20 border-t border-slate-200">
+        <h2 className="text-3xl font-black text-center mb-3 text-slate-900">Planes y precios</h2>
+        <p className="text-slate-500 text-center mb-14">Empieza gratis. Escala cuando necesites más.</p>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {PLANS.map(p => (
             <div key={p.name} className={`relative rounded-2xl border p-6 flex flex-col ${p.color}`}>
@@ -225,8 +225,8 @@ export default function DesktopPage() {
       </section>
 
       {/* Footer */}
-      <footer className="relative z-10 border-t border-white/5 py-10 text-center text-slate-600 text-sm">
-        <Image src="/logo.svg" alt="Mindbridge IA" width={100} height={24} className="mx-auto mb-4 opacity-30" />
+      <footer className="relative z-10 border-t border-slate-200 bg-white py-10 text-center text-slate-400 text-sm">
+        <Image src="/logo.svg" alt="Mindbridge IA" width={100} height={24} className="mx-auto mb-4 opacity-40" />
         <p>© 2026 Mindbridge IA · <Link href="/" className="hover:text-slate-400 transition-colors">Volver a la web</Link></p>
       </footer>
 
