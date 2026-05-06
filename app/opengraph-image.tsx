@@ -1,11 +1,16 @@
 import { ImageResponse } from "next/og";
+import fs from "fs";
+import path from "path";
 
-export const runtime = "edge";
+export const runtime = "nodejs";
 export const alt = "Mindbridge IA - Desarrollo Web + Inteligencia Artificial";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
 export default function Image() {
+  const logoBuffer = fs.readFileSync(path.join(process.cwd(), "public/logo.png"));
+  const logoSrc = `data:image/png;base64,${logoBuffer.toString("base64")}`;
+
   return new ImageResponse(
     (
       <div
@@ -37,7 +42,7 @@ export default function Image() {
           }}
         />
 
-        {/* Top-left accent line */}
+        {/* Top accent line */}
         <div
           style={{
             position: "absolute",
@@ -66,7 +71,7 @@ export default function Image() {
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src="https://mindbride.net/logo.png"
+            src={logoSrc}
             width={64}
             height={64}
             alt="Mindbridge IA"
