@@ -64,7 +64,6 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
       } else {
         const raw = navigator.language?.split("-")[0];
         if (raw === "en") setLangState("en");
-        else if (raw === "zh") setLangState("zh");
       }
     } catch {}
   }, []);

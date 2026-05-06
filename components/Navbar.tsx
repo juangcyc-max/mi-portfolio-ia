@@ -327,8 +327,10 @@ export default function Navbar() {
 
             {/* Right */}
             <div className="flex items-center gap-2">
-              <LanguageSwitcher />
-              <ThemeToggle />
+              <div className="hidden md:flex items-center gap-2">
+                <LanguageSwitcher />
+                <ThemeToggle />
+              </div>
 
               {/* Desktop App */}
               <Link
@@ -409,6 +411,10 @@ export default function Navbar() {
               className="fixed top-0 right-0 w-full h-full bg-white dark:bg-slate-900 z-40 md:hidden p-8"
             >
               <div className="flex flex-col gap-6 mt-20">
+                <div className="flex items-center justify-between">
+                  <LanguageSwitcher />
+                  <ThemeToggle />
+                </div>
                 {[
                   { href: "#servicios", label: t("nav_services") },
                   { href: "#planes",    label: t("nav_plans") },

@@ -30,7 +30,7 @@ export default function Footer() {
 
   return (
     <footer
-      className="relative backdrop-blur-sm bg-white/10 dark:bg-slate-900/20 border-t border-white/20 dark:border-slate-700/40 py-8 px-4"
+      className="relative backdrop-blur-sm bg-white/10 dark:bg-slate-900/20 border-t border-white/20 dark:border-slate-700/40 pt-8 pb-24 sm:pb-8 px-4"
       suppressHydrationWarning
     >
       <div className="max-w-7xl mx-auto space-y-6">
