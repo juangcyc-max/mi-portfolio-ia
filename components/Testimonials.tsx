@@ -106,12 +106,10 @@ export default function Testimonials() {
                   </div>
                 </div>
               </div>
-              {r.text ? (
+              {r.text && (
                 <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
                   "{r.text}"
                 </p>
-              ) : (
-                <p className="text-xs text-slate-400 italic">Sin comentario escrito</p>
               )}
             </motion.div>
           ))}

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { motion, useMotionValue, useTransform } from "framer-motion";
 import { fadeInUp, staggerContainer } from "@/lib/animations";
 import Image from "next/image";
@@ -8,11 +8,18 @@ import Link from "next/link";
 import { useTranslation } from "@/lib/i18n/LanguageContext";
 
 type Metric = { label: string; value: number; suffix: string };
+type FilterKey = "todos" | "web" | "plataforma";
 type Project = {
   title: string; category: string; description: string;
   features: string[]; color: string; logo: string; link: string; metrics: Metric[];
-  badge?: string; external?: boolean;
+  badge?: string; external?: boolean; filterKey: FilterKey;
 };
+
+const FILTERS: { key: FilterKey; label: string }[] = [
+  { key: "todos",      label: "Todos" },
+  { key: "web",        label: "Web & Diseño" },
+  { key: "plataforma", label: "Plataformas" },
+];
 
 function CountUp({ value, suffix }: { value: number; suffix: string }) {
   const [count, setCount] = useState(0);
@@ -114,13 +121,14 @@ function ProjectCard({ project, index }: { project: Project; index: number }) {
 
 export default function Portfolio() {
   const { t } = useTranslation();
+  const [activeFilter, setActiveFilter] = useState<FilterKey>("todos");
 
   const projects: Project[] = [
     {
       title: t("port_p0_title"), category: t("port_p0_cat"), description: t("port_p0_desc"),
       features: [t("port_p0_f1"), t("port_p0_f2"), t("port_p0_f3")],
       color: "from-amber-500 to-orange-500", logo: "/persianassantanderlogo.png", link: "https://persianassantander.es",
-      external: true, badge: "CASO REAL",
+      external: true, badge: "CASO REAL", filterKey: "web",
       metrics: [
         { label: t("port_p0_m1"), value: 3, suffix: "★" },
         { label: t("port_p0_m2"), value: 3, suffix: "" },
@@ -131,6 +139,7 @@ export default function Portfolio() {
       title: t("port_p1_title"), category: t("port_p1_cat"), description: t("port_p1_desc"),
       features: [t("port_p1_f1"), t("port_p1_f2"), t("port_p1_f3")],
       color: "from-emerald-500 to-cyan-500", logo: "/logos/fashion-ia.png", link: "/portfolio/ecommerce",
+      filterKey: "plataforma",
       metrics: [
         { label: t("port_p1_m1"), value: 40, suffix: "%" },
         { label: t("port_p1_m2"), value: 65, suffix: "%" },
@@ -141,6 +150,7 @@ export default function Portfolio() {
       title: t("port_p2_title"), category: t("port_p2_cat"), description: t("port_p2_desc"),
       features: [t("port_p2_f1"), t("port_p2_f2"), t("port_p2_f3")],
       color: "from-blue-600 to-cyan-500", logo: "/logos/saaslogo.png", link: "/portfolio/dashboard",
+      filterKey: "plataforma",
       metrics: [
         { label: t("port_p2_m1"), value: 10000, suffix: "+" },
         { label: t("port_p2_m2"), value: 99.9, suffix: "%" },
@@ -151,6 +161,7 @@ export default function Portfolio() {
       title: t("port_p3_title"), category: t("port_p3_cat"), description: t("port_p3_desc"),
       features: [t("port_p3_f1"), t("port_p3_f2"), t("port_p3_f3")],
       color: "from-blue-500 to-purple-500", logo: "/logos/adlaunch-studio.png", link: "/portfolio/landing",
+      filterKey: "web",
       metrics: [
         { label: t("port_p3_m1"), value: 12.5, suffix: "%" },
         { label: t("port_p3_m2"), value: -35, suffix: "%" },
@@ -161,7 +172,7 @@ export default function Portfolio() {
       title: t("port_p4_title"), category: t("port_p4_cat"), description: t("port_p4_desc"),
       features: [t("port_p4_f1"), t("port_p4_f2"), t("port_p4_f3")],
       color: "from-cyan-500 to-blue-500", logo: "/logos/blockself.png", link: "https://blockself.net",
-      external: true, badge: "CASO REAL",
+      external: true, badge: "CASO REAL", filterKey: "web",
       metrics: [
         { label: t("port_p4_m1"), value: 5, suffix: "★" },
         { label: t("port_p4_m2"), value: 15, suffix: "d" },
@@ -169,6 +180,12 @@ export default function Portfolio() {
       ],
     },
   ];
+
+  const filtered = useMemo(
+    () => activeFilter === "todos" ? projects : projects.filter(p => p.filterKey === activeFilter),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [activeFilter, t]
+  );
 
   const scrollToContact = () => {
     document.getElementById("contacto")?.scrollIntoView({ behavior: "smooth" });
@@ -196,10 +213,57 @@ export default function Portfolio() {
           </motion.p>
         </motion.div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
-          {projects.map((project, index) => (
-            <ProjectCard key={index} project={project} index={index} />
+        {/* Filter buttons */}
+        <div className="flex justify-center gap-2 sm:gap-3 mb-8 sm:mb-10 flex-wrap">
+          {FILTERS.map((f) => (
+            <button
+              key={f.key}
+              onClick={() => setActiveFilter(f.key)}
+              className={`px-4 py-2 rounded-full text-xs sm:text-sm font-bold transition-all duration-200 border ${
+                activeFilter === f.key
+                  ? "bg-emerald-500 text-white border-emerald-500 shadow-md shadow-emerald-500/25"
+                  : "bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:border-emerald-400 hover:text-emerald-500"
+              }`}
+            >
+              {f.label}
+            </button>
           ))}
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+          {filtered.map((project, index) => (
+            <ProjectCard key={project.title} project={project} index={index} />
+          ))}
+
+          {/* CTA card */}
+          <motion.div
+            variants={fadeInUp}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+            className="group relative"
+          >
+            <div className="absolute -inset-1 bg-gradient-to-r from-emerald-400 to-cyan-400 opacity-20 blur-lg rounded-2xl group-hover:opacity-40 transition duration-500" />
+            <div className="relative h-full bg-white dark:bg-slate-900 rounded-2xl border-2 border-dashed border-emerald-300 dark:border-emerald-700 flex flex-col items-center justify-center text-center p-8 sm:p-10 gap-4 min-h-[340px]">
+              <div className="w-14 h-14 rounded-2xl bg-emerald-50 dark:bg-emerald-900/30 flex items-center justify-center">
+                <svg className="w-7 h-7 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                </svg>
+              </div>
+              <div>
+                <h3 className="text-lg sm:text-xl font-black dark:text-white mb-2">¿Tu proyecto aquí?</h3>
+                <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
+                  Cuéntame tu idea y lo convertimos en realidad juntos.
+                </p>
+              </div>
+              <button
+                onClick={scrollToContact}
+                className="mt-2 px-5 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-bold rounded-xl transition-all hover:scale-105 shadow-md shadow-emerald-500/25"
+              >
+                Hablemos
+              </button>
+            </div>
+          </motion.div>
         </div>
 
         <motion.div className="text-center mt-12 sm:mt-16 md:mt-20 px-4" initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeInUp}>
