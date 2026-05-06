@@ -49,21 +49,29 @@ export default function Image() {
           }}
         />
 
-        {/* Logo badge */}
+        {/* Logo */}
         <div
           style={{
-            width: 88,
-            height: 88,
-            borderRadius: 22,
-            background: "linear-gradient(135deg, #10b981, #06b6d4)",
+            width: 96,
+            height: 96,
+            borderRadius: 24,
+            background: "rgba(255,255,255,0.06)",
+            border: "1.5px solid rgba(16,185,129,0.3)",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
             marginBottom: 28,
-            boxShadow: "0 0 40px rgba(16,185,129,0.4)",
+            boxShadow: "0 0 40px rgba(16,185,129,0.3)",
           }}
         >
-          <span style={{ fontSize: 46, fontWeight: 900, color: "white" }}>M</span>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="https://mindbride.net/logo.png"
+            width={64}
+            height={64}
+            alt="Mindbridge IA"
+            style={{ objectFit: "contain" }}
+          />
         </div>
 
         {/* Main title */}
