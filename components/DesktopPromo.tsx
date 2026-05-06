@@ -1,8 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { motion } from "framer-motion";
-import { fadeInUp, staggerContainer } from "@/lib/animations";
 import { useTranslation } from "@/lib/i18n/LanguageContext";
 
 const FEATURES = [
@@ -46,18 +44,12 @@ export default function DesktopPromo() {
   return (
     <section className="py-20 px-4 sm:px-6 lg:px-8 border-t border-slate-200/50 dark:border-slate-800/50">
       <div className="max-w-6xl mx-auto">
+        <div className="grid lg:grid-cols-2 gap-12 items-center">
 
-        <motion.div
-          variants={staggerContainer}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: "-80px" }}
-          className="grid lg:grid-cols-2 gap-12 items-center"
-        >
           {/* Left — text */}
-          <motion.div variants={fadeInUp}>
+          <div>
             <span className="inline-flex items-center gap-2 text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 dark:bg-emerald-400/10 border border-emerald-500/20 dark:border-emerald-400/20 rounded-full px-4 py-1.5 text-xs font-bold uppercase tracking-wider mb-6">
-              <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.8)]" />
+              <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
               {t("desktop_badge")}
             </span>
 
@@ -100,10 +92,10 @@ export default function DesktopPromo() {
               </svg>
               {t("desktop_cta")}
             </Link>
-          </motion.div>
+          </div>
 
           {/* Right — feature grid */}
-          <motion.div variants={fadeInUp} className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {FEATURES.map(({ key, icon }) => (
               <div
                 key={key}
@@ -115,9 +107,9 @@ export default function DesktopPromo() {
                 <p className="text-slate-600 dark:text-slate-300 text-sm font-medium leading-snug mt-1.5">{t(key)}</p>
               </div>
             ))}
-          </motion.div>
+          </div>
 
-        </motion.div>
+        </div>
       </div>
     </section>
   );
