@@ -44,7 +44,7 @@ const PLANS = [
     features: ['5 consultas Chat IA al día', '3 acciones del Asistente al día', '3 imágenes IA al mes'],
     cta: 'Descargar gratis',
     ctaStyle: 'bg-slate-700 hover:bg-slate-600 text-white',
-    href: 'https://github.com/juangcyc-max/mindbridge-desktop/releases/download/v1.0.0/Mindbridge.IA.Setup.1.0.0.exe',
+    href: 'https://github.com/juangcyc-max/mindbridge-desktop/releases/download/v1.0.1/Mindbridge.IA.Setup.1.0.1.exe',
   },
   {
     name: 'Base',
@@ -97,7 +97,7 @@ export default function DesktopPage() {
           <Image src="/logo.svg" alt="Mindbridge IA" width={140} height={32} />
         </Link>
         <a
-          href="https://github.com/juangcyc-max/mindbridge-desktop/releases/download/v1.0.0/Mindbridge.IA.Setup.1.0.0.exe"
+          href="https://github.com/juangcyc-max/mindbridge-desktop/releases/download/v1.0.1/Mindbridge.IA.Setup.1.0.1.exe"
           className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-semibold rounded-xl transition-colors"
         >
           Descargar gratis
@@ -108,7 +108,7 @@ export default function DesktopPage() {
       <section className="max-w-4xl mx-auto px-8 pt-24 pb-20 text-center">
         <div className="inline-flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/20 rounded-full px-4 py-1.5 text-emerald-400 text-sm font-medium mb-8">
           <span className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse" />
-          Windows 10 / 11 · v1.0.0
+          Windows 10 / 11 · v1.0.1
         </div>
 
         <h1 className="text-5xl sm:text-7xl font-black leading-none mb-6">
@@ -122,7 +122,7 @@ export default function DesktopPage() {
 
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
           <a
-            href="https://github.com/juangcyc-max/mindbridge-desktop/releases/download/v1.0.0/Mindbridge.IA.Setup.1.0.0.exe"
+            href="https://github.com/juangcyc-max/mindbridge-desktop/releases/download/v1.0.1/Mindbridge.IA.Setup.1.0.1.exe"
             className="flex items-center gap-3 px-8 py-4 bg-emerald-500 hover:bg-emerald-400 text-white font-bold rounded-2xl transition-colors text-lg"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
