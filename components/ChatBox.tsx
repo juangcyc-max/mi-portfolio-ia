@@ -127,8 +127,7 @@ export default function ChatBox() {
       if (data.incidentDetected && data.incidentId && !incident) {
         setIncident({ id: data.incidentId, submitted: false });
       }
-    } catch (fetchErr: any) {
-      console.error("[ChatBox] fetch error:", fetchErr?.message);
+    } catch (fetchErr: unknown) {
       setIsTyping(false);
       await animateText(OFFLINE[detected]);
     }
@@ -146,13 +145,10 @@ export default function ChatBox() {
       if (res.ok) {
         setIncident({ ...incident, submitted: true });
       } else {
-        const data = await res.json().catch(() => ({}));
-        console.error("[ChatBox] incident-email error:", data);
-        // Still mark submitted so we don't loop — but warn in console
         setIncident({ ...incident, submitted: true });
       }
-    } catch (e) {
-      console.error("[ChatBox] incident-email fetch error:", e);
+    } catch {
+      // silently fail — user sees submitted state
     } finally {
       setIncidentSending(false);
     }
