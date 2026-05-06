@@ -14,11 +14,6 @@ const nextConfig: NextConfig = {
   },
   // ✅ Optimizar compilación
   reactStrictMode: true,
-  // ✅ TypeScript config
-  typescript: {
-    // Permitir builds con errores de TS (opcional)
-    ignoreBuildErrors: true,
-  },
 };
 
 export default nextConfig;
