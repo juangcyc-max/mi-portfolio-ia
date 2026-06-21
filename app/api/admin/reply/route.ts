@@ -1,20 +1,27 @@
 import { NextResponse } from 'next/server'
 import { Resend } from 'resend'
+import { getAdminUser, unauthorized } from '@/lib/adminAuth'
+import { escapeHtml } from '@/lib/escapeHtml'
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
 
 export async function POST(request: Request) {
+  if (!(await getAdminUser())) return unauthorized()
+
   try {
     const { to, name, subject, body } = await request.json()
     if (!to || !name || !body) {
       return NextResponse.json({ error: 'Faltan campos obligatorios' }, { status: 400 })
     }
     if (!to.includes('@')) {
-      return NextResponse.json({ error: 'Email del destinatario no válido. El cliente no ha proporcionado su email todavía.' }, { status: 400 })
+      return NextResponse.json({ error: 'Email del destinatario no válido.' }, { status: 400 })
     }
 
     const resend = new Resend(process.env.RESEND_API_KEY)
     const logoUrl = `${SITE_URL}/logo.svg`
+
+    const safeName = escapeHtml(name)
+    const safeBody = escapeHtml(body).replace(/\n/g, '<br/>')
 
     const html = `
 <!DOCTYPE html>
@@ -32,8 +39,8 @@ export async function POST(request: Request) {
           </tr>
           <tr>
             <td style="padding:32px 24px;">
-              <p style="margin:0 0 16px 0;font-size:15px;color:#0f172a;">Hola ${name},</p>
-              <div style="font-size:15px;color:#334155;line-height:1.7;white-space:pre-wrap;">${body.replace(/\n/g, '<br/>')}</div>
+              <p style="margin:0 0 16px 0;font-size:15px;color:#0f172a;">Hola ${safeName},</p>
+              <div style="font-size:15px;color:#334155;line-height:1.7;white-space:pre-wrap;">${safeBody}</div>
               <div style="margin-top:32px;padding-top:24px;border-top:1px solid #e2e8f0;">
                 <p style="margin:0;font-size:14px;color:#0f172a;font-weight:600;">Juan</p>
                 <p style="margin:4px 0 0 0;font-size:13px;color:#64748b;">Mindbridge IA — Desarrollo Web + Inteligencia Artificial</p>

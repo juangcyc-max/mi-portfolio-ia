@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { notifyJuan } from '@/lib/whatsapp'
+import { rateLimit } from '@/lib/rateLimit'
 
 async function sendPush(title: string, body: string) {
   try {
@@ -23,6 +24,11 @@ async function sendPush(title: string, body: string) {
 }
 
 export async function POST(req: NextRequest) {
+  const ip = req.headers.get('x-forwarded-for') ?? 'unknown'
+  if (!rateLimit(ip, 5, 60_000)) {
+    return NextResponse.json({ error: 'Demasiadas solicitudes' }, { status: 429 })
+  }
+
   const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!

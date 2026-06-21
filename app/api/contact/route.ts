@@ -12,7 +12,8 @@ import { ADMIN_EMAIL, N8N_WEBHOOK_TELEGRAM, N8N_WEBHOOK_SHEETS } from "@/lib/con
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
 
 // 1. Extraemos el HTML a una función para mantener la ruta limpia
-function getEmailTemplate({ name, email, phone, message, projectType, budget, logoUrl }: any) {
+interface EmailTemplateParams { name: string; email: string; phone?: string; message: string; projectType?: string; budget?: string; logoUrl: string }
+function getEmailTemplate({ name, email, phone, message, projectType, budget, logoUrl }: EmailTemplateParams) {
   const date = new Date().toLocaleDateString("es-ES", { year: "numeric", month: "long", day: "numeric" });
   
   return `

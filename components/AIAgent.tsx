@@ -3,125 +3,14 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Mic, MicOff, Volume2, VolumeX, Send, X, Loader2, Bot } from "lucide-react";
-import { useTranslation, LangCode } from "@/lib/i18n/LanguageContext";
+import { useTranslation } from "@/lib/i18n/LanguageContext";
+import {
+  LANG_SPEECH,
+  type Msg, type AgentState, type TourStep,
+  parseTourSteps, parseScrollCmd, cleanText,
+  scrollToSection, speakPromise, renderMsg, cleanForSpeech,
+} from "@/lib/aiAgentUtils";
 
-/* ─── Secciones disponibles para navegación ─── */
-const SECTIONS: Record<string, string> = {
-  hero: "hero",
-  portfolio: "portfolio",
-  servicios: "servicios",
-  planes: "planes",
-  "servicios-medida": "servicios-medida",
-  testimonios: "testimonios",
-  tecnologias: "tecnologias",
-  demo: "demo",
-  presupuesto: "presupuesto",
-  contacto: "contacto",
-};
-
-type Msg = { role: "user" | "assistant"; content: string };
-type AgentState = "idle" | "listening" | "thinking" | "speaking";
-type TourStep = { sectionId: string; text: string };
-
-/* ─── Parsers de comandos ─── */
-function parseTourSteps(raw: string): TourStep[] {
-  if (!raw.includes("[[STEP:")) return [];
-  const steps: TourStep[] = [];
-  // Captura [[STEP:id|texto]] donde texto puede contener cualquier cosa excepto ]]
-  const re = /\[\[STEP:([\w-]+)\|([\s\S]+?)\]\]/g;
-  let m;
-  while ((m = re.exec(raw)) !== null) {
-    const id = m[1].trim();
-    const text = m[2].trim();
-    if (SECTIONS[id] && text) steps.push({ sectionId: id, text });
-  }
-  return steps;
-}
-
-function parseScrollCmd(raw: string): string | null {
-  const m = raw.match(/\[\[SCROLL:([\w-]+)\]\]/);
-  return m && SECTIONS[m[1]] ? m[1] : null;
-}
-
-function cleanText(raw: string): string {
-  return raw
-    .replace(/\[\[TOUR_START\]\]/gi, "")
-    .replace(/\[\[TOUR_END\]\]/gi, "")
-    .replace(/\[\[STEP:[\w-]+\|[\s\S]+?\]\]/g, "")
-    .replace(/\[\[SCROLL:[\w-]+\]\]/g, "")
-    .replace(/\n{3,}/g, "\n\n")
-    .trim();
-}
-
-/* ─── Scroll + highlight de sección ─── */
-function scrollToSection(id: string) {
-  const el = id === "hero"
-    ? document.body
-    : document.getElementById(id);
-  if (!el) return;
-  el.scrollIntoView({ behavior: "smooth", block: "start" });
-  if (id !== "hero") {
-    el.classList.add("ai-tour-highlight");
-    setTimeout(() => el.classList.remove("ai-tour-highlight"), 2500);
-  }
-}
-
-const LANG_SPEECH: Record<LangCode, { bcp47: string; prefix: string }> = {
-  es: { bcp47: "es-ES", prefix: "es" },
-  en: { bcp47: "en-US", prefix: "en" },
-  zh: { bcp47: "zh-CN", prefix: "zh" },
-};
-
-/* ─── SpeechSynthesis promise ─── */
-function speakPromise(
-  text: string,
-  voices: SpeechSynthesisVoice[],
-  lang: LangCode
-): Promise<void> {
-  return new Promise((resolve) => {
-    if (!window.speechSynthesis) return resolve();
-    window.speechSynthesis.cancel();
-    const u = new SpeechSynthesisUtterance(text);
-    const { bcp47, prefix } = LANG_SPEECH[lang];
-    u.lang = bcp47;
-    u.rate = lang === "zh" ? 0.95 : 1.05;
-    const v =
-      voices.find((v) => v.lang === bcp47 && v.name.includes("Google")) ||
-      voices.find((v) => v.lang === bcp47) ||
-      voices.find((v) => v.lang.startsWith(prefix));
-    if (v) u.voice = v;
-    u.onend = () => resolve();
-    u.onerror = () => resolve();
-    window.speechSynthesis.speak(u);
-  });
-}
-
-/* ─── Markdown mínimo ─── */
-function renderMsg(text: string) {
-  return text
-    .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
-    .replace(/\n/g, "<br/>");
-}
-
-/* ─── Limpiar texto para síntesis de voz ─── */
-function cleanForSpeech(text: string): string {
-  return text
-    .replace(/\*\*(.+?)\*\*/g, "$1")       // **negrita** → texto
-    .replace(/\*(.+?)\*/g, "$1")            // *cursiva* → texto
-    .replace(/#{1,6}\s*/g, "")              // # títulos
-    .replace(/•/g, ",")                     // bullets → pausa natural
-    .replace(/→/g, ".")                     // flechas → pausa
-    .replace(/[\u{1F300}-\u{1FFFF}]/gu, "") // emojis
-    .replace(/[☀-➿]/gu, "")       // símbolos extra
-    .replace(/\n{2,}/g, ". ")              // párrafos → pausa
-    .replace(/\n/g, ", ")                   // saltos → pausa corta
-    .replace(/\s{2,}/g, " ")               // espacios múltiples
-    .trim();
-}
-
-/* ═══════════════════════════════════════════════
-   COMPONENTE
-═══════════════════════════════════════════════ */
 export default function AIAgent() {
   const { t, lang } = useTranslation();
 
@@ -150,13 +39,11 @@ export default function AIAgent() {
   const bottomRef = useRef<HTMLDivElement>(null);
   const tourAbortRef = useRef(false);
 
-  /* Mensaje de bienvenida traducido */
   useEffect(() => {
     setMessages([{ role: "assistant", content: t("agent_greeting") }]);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [t]);
 
-  /* Cargar voces */
   useEffect(() => {
     const load = () => { voicesRef.current = window.speechSynthesis?.getVoices() ?? []; };
     load();
@@ -164,15 +51,12 @@ export default function AIAgent() {
     return () => window.speechSynthesis?.removeEventListener("voiceschanged", load);
   }, []);
 
-  /* Scroll al último mensaje */
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, agentState]);
 
-  /* Sync historyRef */
   useEffect(() => { historyRef.current = messages; }, [messages]);
 
-  /* ─── Ejecutar tour ─── */
   const executeTour = useCallback(async (steps: TourStep[]) => {
     setTouring(true);
     tourAbortRef.current = false;
@@ -192,14 +76,12 @@ export default function AIAgent() {
     setTouring(false);
   }, [voiceEnabled, lang]);
 
-  /* ─── Hablar respuesta normal ─── */
   const speakReply = useCallback((text: string) => {
     if (!voiceEnabled) return;
     setAgentState("speaking");
     speakPromise(cleanForSpeech(text), voicesRef.current, lang).then(() => setAgentState("idle"));
   }, [voiceEnabled, lang]);
 
-  /* ─── Enviar mensaje ─── */
   const sendMessage = useCallback(async (userText: string) => {
     const trimmed = userText.trim();
     if (!trimmed) return;
@@ -225,20 +107,14 @@ export default function AIAgent() {
       if (data.conversationId) conversationIdRef.current = data.conversationId;
       const raw: string = data.text ?? "Lo siento, algo ha fallado. Inténtalo de nuevo.";
 
-      /* Detectar tour */
       const tourSteps = parseTourSteps(raw);
-      /* Detectar scroll simple */
       const scrollTarget = parseScrollCmd(raw);
-      /* Texto limpio para mostrar y hablar */
       const displayText = cleanText(raw);
 
       const assistantMsg: Msg = { role: "assistant", content: displayText };
       const msgs: Msg[] = [...historyRef.current, assistantMsg];
       if (data.incidentDetected) {
-        msgs.push({
-          role: "assistant",
-          content: t("agent_incident_confirmed"),
-        });
+        msgs.push({ role: "assistant", content: t("agent_incident_confirmed") });
       }
       setMessages(msgs);
       historyRef.current = msgs;
@@ -254,19 +130,14 @@ export default function AIAgent() {
       }
     } catch {
       setAgentState("idle");
-      const err: Msg = { role: "assistant", content: t("agent_error_connection") };
-      setMessages((prev) => [...prev, err]);
+      setMessages((prev) => [...prev, { role: "assistant", content: t("agent_error_connection") }]);
     }
-  }, [executeTour, speakReply]);
+  }, [executeTour, speakReply, t]);
 
-  /* ─── Voz: escuchar ─── */
   const startListening = useCallback(() => {
     const SR = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
     if (!SR) {
-      setMessages((prev) => [...prev, {
-        role: "assistant",
-        content: t("agent_error_browser"),
-      }]);
+      setMessages((prev) => [...prev, { role: "assistant", content: t("agent_error_browser") }]);
       return;
     }
     window.speechSynthesis?.cancel();
@@ -275,12 +146,13 @@ export default function AIAgent() {
     rec.lang = LANG_SPEECH[lang].bcp47;
     rec.interimResults = false;
     rec.onstart = () => setAgentState("listening");
-    rec.onresult = (e: any) => sendMessage(e.results[0][0].transcript);
+    rec.onresult = (e: { results: { [i: number]: { [i: number]: { transcript: string } } } }) =>
+      sendMessage(e.results[0][0].transcript);
     rec.onerror = () => setAgentState("idle");
     rec.onend = () => setAgentState((s) => s === "listening" ? "idle" : s);
     recognitionRef.current = rec;
     rec.start();
-  }, [sendMessage, lang]);
+  }, [sendMessage, lang, t]);
 
   const stopListening = () => { recognitionRef.current?.stop(); setAgentState("idle"); };
   const stopSpeaking = () => {
@@ -300,7 +172,6 @@ export default function AIAgent() {
 
   return (
     <>
-      {/* CSS highlight para el tour */}
       <style>{`
         .ai-tour-highlight {
           outline: 3px solid #10b981;
@@ -340,8 +211,6 @@ export default function AIAgent() {
               </motion.div>
             )}
           </AnimatePresence>
-
-          {/* Indicador estado */}
           {!open && (isSpeaking || isListening || isThinking) && (
             <span className="absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full border-2 border-white animate-pulse bg-cyan-400" />
           )}
@@ -364,17 +233,11 @@ export default function AIAgent() {
               <div className="flex items-center gap-2">
                 <motion.div
                   className="w-2.5 h-2.5 rounded-full bg-white"
-                  animate={isSpeaking || isListening
-                    ? { opacity: [1, 0.3, 1] }
-                    : { opacity: 0.5 }}
-                  transition={isSpeaking || isListening
-                    ? { duration: 0.8, repeat: Infinity }
-                    : {}}
+                  animate={isSpeaking || isListening ? { opacity: [1, 0.3, 1] } : { opacity: 0.5 }}
+                  transition={isSpeaking || isListening ? { duration: 0.8, repeat: Infinity } : {}}
                 />
                 <span className="text-white text-sm font-bold">{t("agent_title")}</span>
-                {touring && (
-                  <span className="text-emerald-100 text-xs ml-1">{t("agent_touring")}</span>
-                )}
+                {touring && <span className="text-emerald-100 text-xs ml-1">{t("agent_touring")}</span>}
               </div>
               <div className="flex items-center gap-2">
                 <button
@@ -472,8 +335,6 @@ export default function AIAgent() {
                   className="flex-1 resize-none bg-slate-100 dark:bg-slate-800 rounded-xl px-3 py-2 text-sm text-slate-800 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-400 disabled:opacity-50 max-h-28 overflow-y-auto"
                   style={{ scrollbarWidth: "none" }}
                 />
-
-                {/* Mic */}
                 {isListening ? (
                   <button
                     onClick={stopListening}
@@ -490,8 +351,6 @@ export default function AIAgent() {
                     <Mic size={16} />
                   </button>
                 )}
-
-                {/* Send */}
                 <button
                   onClick={() => sendMessage(input)}
                   disabled={!input.trim() || isThinking || isListening}
@@ -500,9 +359,7 @@ export default function AIAgent() {
                   {isThinking ? <Loader2 size={16} className="animate-spin" /> : <Send size={16} />}
                 </button>
               </div>
-              <p className="text-[10px] text-slate-400 mt-1.5 text-center">
-                {t("agent_hint")}
-              </p>
+              <p className="text-[10px] text-slate-400 mt-1.5 text-center">{t("agent_hint")}</p>
             </div>
           </motion.div>
         )}

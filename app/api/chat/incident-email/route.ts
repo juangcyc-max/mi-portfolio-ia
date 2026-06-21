@@ -1,10 +1,21 @@
 import { NextResponse } from 'next/server'
 import { Resend } from 'resend'
 import { createClient } from '@supabase/supabase-js'
+import { rateLimit } from '@/lib/rateLimit'
+
+const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
 export async function POST(request: Request) {
+  const ip = request.headers.get('x-forwarded-for') ?? 'unknown'
+  if (!rateLimit(ip, 5, 60_000)) {
+    return NextResponse.json({ error: 'Demasiadas solicitudes' }, { status: 429 })
+  }
+
   try {
     const { incidentId, name, email } = await request.json()
+    if (!email || !emailRegex.test(email)) {
+      return NextResponse.json({ error: 'Email inválido' }, { status: 400 })
+    }
     if (!incidentId || !email) {
       return NextResponse.json({ error: 'Faltan campos' }, { status: 400 })
     }

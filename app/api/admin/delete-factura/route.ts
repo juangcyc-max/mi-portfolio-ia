@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { getAdminUser, unauthorized } from '@/lib/adminAuth'
 
 export async function DELETE(req: NextRequest) {
+  if (!(await getAdminUser())) return unauthorized()
+
   const { id } = await req.json()
   if (!id) return NextResponse.json({ error: 'ID requerido' }, { status: 400 })
 

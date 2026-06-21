@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { anthropic } from "@ai-sdk/anthropic";
 import { generateText } from "ai";
+import { rateLimit } from "@/lib/rateLimit";
 
 function chunkObject(obj: Record<string, string>, size: number): Record<string, string>[] {
   const entries = Object.entries(obj);
@@ -46,6 +47,11 @@ ${JSON.stringify(batch)}`;
 }
 
 export async function POST(request: Request) {
+  const ip = request.headers.get("x-forwarded-for") ?? "unknown";
+  if (!rateLimit(ip, 10, 60_000)) {
+    return NextResponse.json({ error: "Demasiadas solicitudes" }, { status: 429 });
+  }
+
   try {
     const { targetLang, strings } = await request.json();
 

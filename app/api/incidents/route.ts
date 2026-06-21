@@ -4,10 +4,17 @@ import { createClient } from '@supabase/supabase-js'
 import { generateText } from 'ai'
 import { anthropic } from '@ai-sdk/anthropic'
 import { notifyJuan } from '@/lib/whatsapp'
+import { rateLimit } from '@/lib/rateLimit'
+import { escapeHtml } from '@/lib/escapeHtml'
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
 
 export async function POST(request: Request) {
+  const ip = request.headers.get('x-forwarded-for') ?? 'unknown'
+  if (!rateLimit(ip, 5, 60_000)) {
+    return NextResponse.json({ error: 'Demasiadas solicitudes' }, { status: 429 })
+  }
+
   try {
     const { name, email, service, description, priority } = await request.json()
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
@@ -86,8 +93,14 @@ Problema: ${description}`,
     })
 
     // Email a Juan (siempre)
+    const safeName = escapeHtml(name)
+    const safeEmail = escapeHtml(email)
+    const safeService = escapeHtml(service || '—')
+    const safeDescription = escapeHtml(description)
+    const safeAiResponse = aiResponse ? escapeHtml(aiResponse).replace(/\n/g, '<br/>') : ''
+
     const priorityMap: Record<string, string> = { normal: 'Normal', high: 'Alta', urgent: '🚨 URGENTE' }
-    const priorityLabel = priorityMap[priority] || priority
+    const priorityLabel = priorityMap[priority] || escapeHtml(priority)
     await resend.emails.send({
       from: 'Soporte Mindbridge IA <juangutierrezdelaconcha@mindbride.net>',
       to: ['juangutierrezdelaconcha@mindbride.net'],
@@ -97,12 +110,12 @@ Problema: ${description}`,
   <h2 style="color:${resolvedByAI ? '#10b981' : '#ef4444'}">
     ${resolvedByAI ? '✅ Incidencia resuelta por IA' : '⚠️ Incidencia requiere tu atención'}
   </h2>
-  <p><strong>Cliente:</strong> ${name} (${email})</p>
-  <p><strong>Servicio:</strong> ${service || '—'}</p>
+  <p><strong>Cliente:</strong> ${safeName} (${safeEmail})</p>
+  <p><strong>Servicio:</strong> ${safeService}</p>
   <p><strong>Urgencia:</strong> ${priorityLabel}</p>
   <p><strong>Problema:</strong></p>
-  <blockquote style="border-left:4px solid #e2e8f0;padding-left:16px;color:#475569;">${description}</blockquote>
-  ${aiResponse ? `<p><strong>Respuesta enviada por IA:</strong></p><blockquote style="border-left:4px solid #10b981;padding-left:16px;color:#334155;">${aiResponse.replace(/\n/g, '<br/>')}</blockquote>` : ''}
+  <blockquote style="border-left:4px solid #e2e8f0;padding-left:16px;color:#475569;">${safeDescription}</blockquote>
+  ${safeAiResponse ? `<p><strong>Respuesta enviada por IA:</strong></p><blockquote style="border-left:4px solid #10b981;padding-left:16px;color:#334155;">${safeAiResponse}</blockquote>` : ''}
   <a href="${SITE_URL}/admin" style="display:inline-block;margin-top:16px;background:#10b981;color:#fff;padding:10px 20px;border-radius:8px;text-decoration:none;">Ver en el panel admin</a>
 </div>`,
     })
@@ -111,6 +124,8 @@ Problema: ${description}`,
     const clientEmailBody = resolvedByAI
       ? aiResponse
       : `Hola ${name},\n\nHemos recibido tu incidencia y la estamos revisando con prioridad ${priority === 'urgent' ? 'urgente' : 'alta'}. Juan te contactará en breve.\n\nUn saludo,\nEquipo Mindbridge IA`
+
+    const safeClientBody = escapeHtml(clientEmailBody).replace(/\n/g, '<br/>')
 
     const clientEmailHtml = `
 <!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"></head>
@@ -122,7 +137,7 @@ Problema: ${description}`,
           <img src="${logoUrl}" alt="Mindbridge IA" width="160" style="max-width:160px;height:auto;display:block;margin:0 auto;" />
         </td></tr>
         <tr><td style="padding:32px 24px;">
-          <div style="font-size:15px;color:#334155;line-height:1.8;white-space:pre-wrap;">${clientEmailBody.replace(/\n/g, '<br/>')}</div>
+          <div style="font-size:15px;color:#334155;line-height:1.8;white-space:pre-wrap;">${safeClientBody}</div>
         </td></tr>
         <tr><td style="background:#f8fafc;padding:16px 24px;text-align:center;border-top:1px solid #e2e8f0;">
           <p style="margin:0;font-size:11px;color:#94a3b8;">Mindbridge IA · Soporte técnico · <a href="${SITE_URL}" style="color:#10b981;text-decoration:none;">${SITE_URL.replace('https://','')}</a></p>

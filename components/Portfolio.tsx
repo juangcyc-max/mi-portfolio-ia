@@ -123,7 +123,7 @@ export default function Portfolio() {
   const { t } = useTranslation();
   const [activeFilter, setActiveFilter] = useState<FilterKey>("todos");
 
-  const projects: Project[] = [
+  const projects = useMemo<Project[]>(() => [
     {
       title: t("port_p0_title"), category: t("port_p0_cat"), description: t("port_p0_desc"),
       features: [t("port_p0_f1"), t("port_p0_f2"), t("port_p0_f3")],
@@ -179,12 +179,11 @@ export default function Portfolio() {
         { label: t("port_p4_m3"), value: 100, suffix: "%" },
       ],
     },
-  ];
+  ], [t]);
 
   const filtered = useMemo(
     () => activeFilter === "todos" ? projects : projects.filter(p => p.filterKey === activeFilter),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [activeFilter, t]
+    [activeFilter, projects]
   );
 
   const scrollToContact = () => {

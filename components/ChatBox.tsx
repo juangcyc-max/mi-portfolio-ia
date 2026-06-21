@@ -51,7 +51,6 @@ export default function ChatBox() {
     const l = (lang === "en" ? "en" : "es") as "es" | "en";
     setMsgLang(l);
     setMessages([{ role: "assistant", content: GREETINGS[l], ts: Date.now() }]);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [lang]);
 
   useEffect(() => {
