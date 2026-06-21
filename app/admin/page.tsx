@@ -12,6 +12,11 @@ import MiniChart from '@/components/admin/MiniChart'
 
 const supabase = getSupabaseClient()
 
+type FacturaRow = { pagos: { pagado: boolean; fecha: string }[] }
+type LeadRow = { id: string; name: string; email: string; created_at: string }
+type MessageRow = { id: string; name: string; body: string; created_at: string }
+type IncidentRow = { id: string; client_name: string; description: string; created_at: string }
+
 type Stats = {
   leads: number; unreadMessages: number; pendingBudgets: number
   conversations: number; pageViews: number; aiReplies: number
@@ -64,10 +69,10 @@ export default function AdminDashboard() {
       supabase.from('facturas').select('pagos'),
     ])
 
-    const cobrosPendientes = (facturasData || []).reduce((s: number, f: any) =>
-      s + (f.pagos || []).filter((p: any) => !p.pagado).length, 0)
-    const cobrosVencidos = (facturasData || []).reduce((s: number, f: any) =>
-      s + (f.pagos || []).filter((p: any) => !p.pagado && p.fecha < hoy).length, 0)
+    const cobrosPendientes = (facturasData || []).reduce((s: number, f: FacturaRow) =>
+      s + (f.pagos || []).filter((p) => !p.pagado).length, 0)
+    const cobrosVencidos = (facturasData || []).reduce((s: number, f: FacturaRow) =>
+      s + (f.pagos || []).filter((p) => !p.pagado && p.fecha < hoy).length, 0)
 
     setStats({
       leads: leads || 0, unreadMessages: unreadMessages || 0, pendingBudgets: pendingBudgets || 0,
@@ -81,9 +86,9 @@ export default function AdminDashboard() {
     })
 
     const merged: ActivityItem[] = [
-      ...(recentLeads     || []).map((l: any) => ({ id: l.id, type: 'lead'     as const, name: l.name,        detail: l.email,                          time: l.created_at })),
-      ...(recentMessages  || []).map((m: any) => ({ id: m.id, type: 'message'  as const, name: m.name,        detail: m.body?.slice(0, 60) || '',        time: m.created_at })),
-      ...(recentIncidents || []).map((i: any) => ({ id: i.id, type: 'incident' as const, name: i.client_name, detail: i.description?.slice(0, 60) || '', time: i.created_at })),
+      ...(recentLeads     || []).map((l: LeadRow)     => ({ id: l.id, type: 'lead'     as const, name: l.name,        detail: l.email,                          time: l.created_at })),
+      ...(recentMessages  || []).map((m: MessageRow)  => ({ id: m.id, type: 'message'  as const, name: m.name,        detail: m.body?.slice(0, 60) || '',        time: m.created_at })),
+      ...(recentIncidents || []).map((i: IncidentRow) => ({ id: i.id, type: 'incident' as const, name: i.client_name, detail: i.description?.slice(0, 60) || '', time: i.created_at })),
     ].sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime()).slice(0, 8)
     setActivity(merged)
 
@@ -92,7 +97,7 @@ export default function AdminDashboard() {
       const d = new Date(now.getTime() - i * 86400000)
       dayMap[d.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit' })] = 0
     }
-    ;(chartLeads || []).forEach((l: any) => {
+    ;(chartLeads || []).forEach((l: { created_at: string }) => {
       const key = new Date(l.created_at).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit' })
       if (key in dayMap) dayMap[key]++
     })
@@ -179,6 +184,7 @@ export default function AdminDashboard() {
               badge={stats.cobrosPendientes} badgeColor="red"
             />
             <NavCard href="/admin/clientes" title="Clientes"     description="Lista de clientes generada desde facturas" />
+            <NavCard href="/admin/contrato" title="Contratos"    description="Plantilla de contrato de servicios · genera PDF" />
           </NavGroup>
           <NavGroup title="Soporte">
             <NavCard href="/admin/incidents"     title="Incidencias"    description="Soporte técnico de clientes"     badge={stats.incidents}     badgeColor="red" />
